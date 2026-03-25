@@ -1,0 +1,69 @@
+import { useState } from 'react';
+import { Scanner } from '@yudiel/react-qr-scanner';
+import { useMutation } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { systemApi } from '../../api/systemApi';
+
+export default function StaffCheckIn() {
+    const [scannedId, setScannedId] = useState('');
+
+    // Sử dụng useMutation để xử lý hành động Check-in
+    const checkInMutation = useMutation({
+        mutationFn: (ticketId) => systemApi.checkInTicket(ticketId),
+        onSuccess: (res) => {
+            toast.success(
+                `✅ CHECK-IN THÀNH CÔNG!\nGhế: ${res.data.seat.row_letter}${res.data.seat.seat_number}\nGiá: ${parseInt(res.data.price).toLocaleString()} VNĐ`,
+                { duration: 4000 }
+            );
+        },
+        onError: (error) => {
+            const message = error.response?.data?.message || 'Không thể check-in vé này';
+            toast.error(`❌ LỖI: ${message}`, { duration: 4000 });
+        }
+    });
+
+    const handleCheckIn = (result) => {
+        // Kiểm tra nếu đang xử lý hoặc kết quả quét trống thì bỏ qua
+        if (checkInMutation.isLoading || !result || result.length === 0) return;
+
+        const ticketId = result[0].rawValue;
+        setScannedId(ticketId);
+
+        // Gọi API thực hiện check-in
+        checkInMutation.mutate(ticketId);
+    };
+
+    return (
+        <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
+            <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19] min-[0px]:max-[420px]:text-[28px]">Soát Vé (Check-in)</h1>
+            <p className="mb-0 mt-3 text-sm text-[#7b6446]">Đưa mã QR của khách hàng vào khung hình</p>
+
+            {/* Khung quét QR */}
+            <div className="relative mt-4 overflow-hidden border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+                <Scanner
+                    onScan={handleCheckIn}
+                    allowMultiple={true}
+                    scanDelay={2000} // Tạm dừng 2 giây giữa các lần quét để tránh trùng lặp
+                />
+
+                {checkInMutation.isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-[rgba(21,34,56,0.7)] p-4 text-center text-white">
+                        <strong>Đang xác thực vé...</strong>
+                    </div>
+                )}
+            </div>
+
+            {/* Thông tin vé vừa quét */}
+            <div className="mt-4 border border-[#ddcbb6] bg-[#fff6ec] p-4">
+                <p className="mb-2 mt-0 text-xs uppercase tracking-[0.06em] text-[#8c7356]">ID vừa quét:</p>
+                <code className="break-all bg-[#3b2b19] px-[10px] py-[6px] text-xs text-[#fff6ec]">
+                    {scannedId || 'Đang chờ quét...'}
+                </code>
+            </div>
+
+            <div className="mt-5 border-l-4 border-l-[#cfb596] bg-[#fff6ec] px-4 py-3 text-sm text-[#7b6446]">
+                Giao diện dành riêng cho nhân viên soát vé tại cửa phòng chiếu.
+            </div>
+        </div>
+    );
+}
