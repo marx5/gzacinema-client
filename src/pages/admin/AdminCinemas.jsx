@@ -9,7 +9,6 @@ export default function AdminCinemas() {
     const [formData, setFormData] = useState({ name: '', address: '' });
     const [editId, setEditId] = useState(null);
 
-    // 1. Lấy danh sách rạp bằng useQuery
     const { data: cinemas = [], isLoading } = useQuery({
         queryKey: ['admin-cinemas'],
         queryFn: async () => {
@@ -19,18 +18,16 @@ export default function AdminCinemas() {
         onError: () => toast.error('Lỗi tải danh sách rạp')
     });
 
-    // 2. Mutation cho việc Thêm rạp
     const createMutation = useMutation({
         mutationFn: (newCinema) => cinemaApi.create(newCinema),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-cinemas']); // Làm mới danh sách
+            queryClient.invalidateQueries(['admin-cinemas']);
             toast.success('Thêm rạp mới thành công!');
             resetForm();
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi thêm rạp')
     });
 
-    // 3. Mutation cho việc Cập nhật rạp
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) => cinemaApi.update(id, data),
         onSuccess: () => {
@@ -41,7 +38,6 @@ export default function AdminCinemas() {
         onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi cập nhật')
     });
 
-    // 4. Mutation cho việc Xóa rạp
     const deleteMutation = useMutation({
         mutationFn: (id) => cinemaApi.delete(id),
         onSuccess: () => {
@@ -51,7 +47,6 @@ export default function AdminCinemas() {
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa rạp này')
     });
 
-    // Xử lý Form Submit
     const handleSubmit = (e) => {
         e.preventDefault();
         if (editId) {
@@ -61,13 +56,11 @@ export default function AdminCinemas() {
         }
     };
 
-    // Xử lý Xóa
     const handleDelete = (id) => {
         if (!window.confirm('Bạn có chắc chắn muốn xóa rạp này? Toàn bộ phòng và suất chiếu liên quan sẽ bị ảnh hưởng!')) return;
         deleteMutation.mutate(id);
     };
 
-    // Điền dữ liệu để sửa
     const handleEditClick = (cinema) => {
         setEditId(cinema.id);
         setFormData({ name: cinema.name, address: cinema.address });

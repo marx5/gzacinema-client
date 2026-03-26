@@ -9,7 +9,6 @@ export default function AdminRooms() {
     const queryClient = useQueryClient();
     const [roomName, setRoomName] = useState('');
 
-    // 1. Lấy thông tin rạp và danh sách phòng bằng useQuery
     const { data, isLoading } = useQuery({
         queryKey: ['admin-rooms', cinemaId],
         queryFn: async () => {
@@ -25,7 +24,6 @@ export default function AdminRooms() {
         onError: () => toast.error('Lỗi tải dữ liệu phòng')
     });
 
-    // 2. Mutation cho việc Thêm phòng
     const createMutation = useMutation({
         mutationFn: (newRoom) => cinemaApi.createRoom(cinemaId, newRoom),
         onSuccess: () => {
@@ -36,7 +34,6 @@ export default function AdminRooms() {
         onError: (error) => toast.error(error.response?.data?.message || 'Lỗi thêm phòng')
     });
 
-    // 3. Mutation cho việc Xóa phòng
     const deleteMutation = useMutation({
         mutationFn: (roomId) => cinemaApi.deleteRoom(roomId),
         onSuccess: () => {

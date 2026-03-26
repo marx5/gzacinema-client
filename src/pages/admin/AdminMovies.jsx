@@ -20,7 +20,7 @@ export default function AdminMovies() {
         queryKey: ['admin-movies'],
         queryFn: async () => {
             const res = await movieApi.getAll();
-            return res.data;
+            return res.data?.movie || res.data?.movies || res.data;
         },
         onError: () => toast.error('Lỗi tải danh sách phim')
     });

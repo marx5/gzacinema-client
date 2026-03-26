@@ -14,6 +14,8 @@ import AdminMovies from "../pages/admin/AdminMovies";
 import AdminShowtimes from "../pages/admin/AdminShowtimes";
 import AdminCinemas from "../pages/admin/AdminCinemas";
 import AdminRooms from "../pages/admin/AdminRooms";
+import Profile from "../pages/Profile";
+import AdminBookings from "../pages/admin/AdminBookings";
 
 
 export default function AppRouter() {
@@ -36,7 +38,8 @@ export default function AppRouter() {
                     <Route path="/admin/showtimes" element={<AdminShowtimes />} />
                     <Route path="/admin/cinemas" element={<AdminCinemas />} />
                     <Route path="/admin/cinemas/:cinemaId/rooms" element={<AdminRooms />} />
-
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/admin/bookings" element={<AdminBookings />} />
                 </Route>
             </Routes>
         </BrowserRouter>

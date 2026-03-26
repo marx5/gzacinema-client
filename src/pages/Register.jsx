@@ -5,6 +5,7 @@ import { authApi } from '../api/authApi';
 import toast from 'react-hot-toast';
 
 export default function Register() {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,7 +27,7 @@ export default function Register() {
         if (password !== confirmPassword) {
             return toast.error('Mật khẩu xác nhận không khớp');
         }
-        registerMutation.mutate({ email, password });
+        registerMutation.mutate({ full_name: fullName, email, password });
     };
 
     return (
@@ -35,6 +36,11 @@ export default function Register() {
                 <h2 className="m-0 text-center font-display text-[32px] font-bold tracking-[0.01em] text-[#3b2b19] md:text-[28px]">Đăng Ký</h2>
                 <p className="mb-6 mt-2 text-center text-sm text-[#7b6446]">Tạo tài khoản để bắt đầu đặt vé tại Gzacinema</p>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <input
+                        type="text" placeholder="Họ và tên" required
+                        value={fullName} onChange={(e) => setFullName(e.target.value)}
+                        className="min-h-[42px] w-full border border-[#cfb596] bg-white px-[14px] py-3 text-sm outline-none focus:outline-brand-500"
+                    />
                     <input
                         type="email" placeholder="Email" required
                         value={email} onChange={(e) => setEmail(e.target.value)}

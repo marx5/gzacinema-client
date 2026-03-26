@@ -11,7 +11,6 @@ export default function Login() {
     const loginStore = useAuthStore((state) => state.login);
     const navigate = useNavigate();
 
-    // Sử dụng useMutation để quản lý luồng đăng nhập
     const loginMutation = useMutation({
         mutationFn: (credentials) => authApi.login(credentials),
         onSuccess: (res) => {

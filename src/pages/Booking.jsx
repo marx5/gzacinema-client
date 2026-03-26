@@ -1,19 +1,80 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '../api/bookingApi';
 import toast from 'react-hot-toast';
+import React from 'react';
+
+
+const SeatButton = React.memo(({ seat, onClick, disabled, className }) => {
+    return (
+        <button
+            onClick={() => onClick(seat)}
+            disabled={disabled}
+            className={className}
+            type="button"
+        >
+            {seat.row_letter}{seat.seat_number}
+        </button>
+    );
+});
+SeatButton.displayName = "SeatButton";
+
+
+const CountdownTimer = ({ showtimeId, onExpire }) => {
+    const [timeLeft, setTimeLeft] = useState(() => {
+        const savedExpiry = localStorage.getItem(`timer_${showtimeId}`);
+        if (savedExpiry) {
+            const remaining = Math.floor((parseInt(savedExpiry, 10) - Date.now()) / 1000);
+            return remaining > 0 ? remaining : 0;
+        }
+        return 300;
+    });
+
+    const savedOnExpire = useRef(onExpire);
+    useEffect(() => { savedOnExpire.current = onExpire; }, [onExpire]);
+
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            savedOnExpire.current();
+            return;
+        }
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    savedOnExpire.current();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [timeLeft]);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    return (
+        <div className={`px-[10px] py-[6px] font-bold text-white ${timeLeft <= 60 ? 'bg-[#b0232f]' : 'bg-[#1f8d52]'}`}>
+            ⏱ {formatTime(timeLeft)}
+        </div>
+    );
+};
 
 export default function Booking() {
     const { showtimeId } = useParams();
 
     const [mySelectedSeats, setMySelectedSeats] = useState([]);
-    const [timeLeft, setTimeLeft] = useState(0);
     const [processing, setProcessing] = useState(false);
 
-    // 🚀 SỬ DỤNG REACT QUERY VỚI REFETCH INTERVAL (POLLING)
-    // Tự động làm mới sơ đồ ghế mỗi 10 giây để cập nhật trạng thái từ người dùng khác
+    const [timerKey, setTimerKey] = useState(Date.now());
+
     const { data: seatData, isLoading, refetch } = useQuery({
         queryKey: ['seats', showtimeId],
         queryFn: async () => {
@@ -23,49 +84,28 @@ export default function Booking() {
         refetchInterval: 10000
     });
 
-    // Đồng bộ danh sách ghế đang giữ của mình khi dữ liệu từ server thay đổi
     useEffect(() => {
         if (seatData) {
             const heldByMe = seatData.seats
                 .filter(s => s.status === 'held_by_me')
                 .map(s => s.id);
 
-            // Hợp nhất ghế local và ghế trên server để tránh bị mất ghế khi F5
+            if (heldByMe.length > 0 && !localStorage.getItem(`timer_${showtimeId}`)) {
+                localStorage.setItem(`timer_${showtimeId}`, Date.now() + 300000);
+            }
+
             setMySelectedSeats(prev => Array.from(new Set([...prev, ...heldByMe])));
         }
-    }, [seatData]);
+    }, [seatData, showtimeId]);
 
-    // ⏱ LOGIC ĐỒNG HỒ ĐẾM NGƯỢC
-    useEffect(() => {
-        if (mySelectedSeats.length === 0) {
-            setTimeLeft(0);
-            return;
-        }
+    const handleTimeExpire = useCallback(() => {
+        toast.error('Đã hết thời gian giữ ghế! Vui lòng chọn lại.');
+        setMySelectedSeats([]);
+        localStorage.removeItem(`timer_${showtimeId}`);
+        refetch();
+    }, [refetch, showtimeId]);
 
-        // Khởi tạo 5 phút nếu chưa có đồng hồ
-        if (timeLeft === 0 && mySelectedSeats.length > 0) {
-            setTimeLeft(300);
-        }
-
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    toast.error('⏰ Đã hết thời gian giữ ghế! Vui lòng chọn lại.');
-                    setMySelectedSeats([]);
-                    refetch();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [mySelectedSeats.length, timeLeft]);
-
-    // 🖱 XỬ LÝ CLICK CHỌN GHẾ (BAO GỒM GHẾ CẶP SWEETBOX)
     const handleSeatClick = async (seat) => {
-        // Chặn nếu ghế đã bán hoặc NGƯỜI KHÁC đang giữ
         if (seat.status === 'booked' || (seat.status === 'held' && !mySelectedSeats.includes(seat.id))) {
             toast.error('Ghế này đã có người chọn!');
             return;
@@ -73,7 +113,6 @@ export default function Booking() {
 
         let seatsToProcess = [seat];
 
-        // Logic tự động tìm ghế cặp nếu là Sweetbox
         if (seat.type === 'sweetbox') {
             const partnerNumber = seat.seat_number % 2 !== 0 ? seat.seat_number + 1 : seat.seat_number - 1;
             const partnerSeat = seatData.seats.find(s => s.row_letter === seat.row_letter && s.seat_number === partnerNumber);
@@ -91,26 +130,28 @@ export default function Booking() {
 
         try {
             if (isDeselecting) {
-                // --- LOGIC BỎ CHỌN ---
-                await Promise.all(seatsToProcess.map(s => bookingApi.unholdSeat({ showtimeId, seatId: s.id })));
                 const idsToRemove = seatsToProcess.map(s => s.id);
-                setMySelectedSeats(prev => prev.filter(id => !idsToRemove.includes(id)));
-            } else {
-                // --- LOGIC CHỌN MỚI & GIA HẠN GHẾ CŨ ---
-                await Promise.all(seatsToProcess.map(s => bookingApi.holdSeat({ showtimeId, seatId: s.id })));
+                const remainingSeats = mySelectedSeats.filter(id => !idsToRemove.includes(id));
+                setMySelectedSeats(remainingSeats);
 
-                // Gia hạn các ghế đã chọn trước đó để đồng bộ 300s trong Redis
-                const oldSeats = mySelectedSeats.filter(id => !seatsToProcess.map(s => s.id).includes(id));
-                if (oldSeats.length > 0) {
-                    await Promise.all(oldSeats.map(id => bookingApi.holdSeat({ showtimeId, seatId: id })));
+                if (remainingSeats.length === 0) {
+                    localStorage.removeItem(`timer_${showtimeId}`);
                 }
 
-                setMySelectedSeats(prev => [...prev, ...seatsToProcess.map(s => s.id)]);
-                setTimeLeft(300); // Reset đồng hồ UI
+                await Promise.all(seatsToProcess.map(s => bookingApi.unholdSeat({ showtimeId, seatId: s.id })));
+            } else {
+                const newSeatIds = seatsToProcess.map(s => s.id);
+                setMySelectedSeats(prev => [...prev, ...newSeatIds]);
+
+                localStorage.setItem(`timer_${showtimeId}`, Date.now() + 300000);
+                setTimerKey(Date.now());
+
+                await Promise.all(seatsToProcess.map(s => bookingApi.holdSeat({ showtimeId, seatId: s.id })));
             }
-            refetch(); // Cập nhật lại sơ đồ ngay lập tức
+            refetch();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Thao tác thất bại');
+            toast.error('Lỗi mạng, không thể thao tác. Vui lòng thử lại!');
+            refetch();
         }
     };
 
@@ -118,10 +159,10 @@ export default function Booking() {
         if (mySelectedSeats.length === 0) return;
         setProcessing(true);
         try {
-            const res = await bookingApi.createPayment({
-                showtimeId,
-                seatIds: mySelectedSeats
-            });
+            const res = await bookingApi.createPayment({ showtimeId, seatIds: mySelectedSeats });
+
+            localStorage.removeItem(`timer_${showtimeId}`);
+
             window.location.href = res.data.paymentUrl;
         } catch (error) {
             toast.error(error.response?.data?.message || 'Lỗi khởi tạo thanh toán');
@@ -129,7 +170,6 @@ export default function Booking() {
         }
     };
 
-    // --- CÁC HÀM TÍNH TOÁN HIỂN THỊ ---
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
@@ -138,11 +178,14 @@ export default function Booking() {
 
     const basePrice = parseFloat(seatData?.showtime_info?.base_price || 0);
 
-    const getGroupedCartItems = () => {
-        if (!seatData) return [];
+    const { groupedCartItems, totalPrice } = useMemo(() => {
+        if (!seatData) return { groupedCartItems: [], totalPrice: 0 };
+
         const items = [];
         const processedIds = new Set();
-        const selectedDetails = mySelectedSeats.map(id => seatData.seats.find(s => s.id === id)).filter(Boolean);
+
+        const selectedSeatsSet = new Set(mySelectedSeats);
+        const selectedDetails = seatData.seats.filter(s => selectedSeatsSet.has(s.id));
 
         selectedDetails.forEach(seat => {
             if (processedIds.has(seat.id)) return;
@@ -175,16 +218,20 @@ export default function Booking() {
             });
             processedIds.add(seat.id);
         });
-        return items;
-    };
 
-    const groupedCartItems = getGroupedCartItems();
-    const totalPrice = groupedCartItems.reduce((sum, item) => sum + item.price, 0);
+        const total = items.reduce((sum, item) => sum + item.price, 0);
+        return { groupedCartItems: items, totalPrice: total };
+
+    }, [mySelectedSeats, seatData, basePrice]);
+
+    const mySelectedSeatsSet = useMemo(() => new Set(mySelectedSeats), [mySelectedSeats]);
 
     const getSeatClassName = (seat) => {
         const base = 'border border-transparent px-1 py-[9px] text-[12px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-80';
 
-        if (mySelectedSeats.includes(seat.id)) {
+        const isSelectedByMe = mySelectedSeatsSet.has(seat.id);
+
+        if (isSelectedByMe) {
             return `${base} bg-[#1f8d52] border-white scale-[1.08]`;
         }
 
@@ -192,7 +239,7 @@ export default function Booking() {
             return `${base} bg-[#b0232f]`;
         }
 
-        if (seat.status === 'held' && !mySelectedSeats.includes(seat.id)) {
+        if (seat.status === 'held' && !isSelectedByMe) {
             return `${base} bg-[#b2720a]`;
         }
 
@@ -211,26 +258,32 @@ export default function Booking() {
     if (!seatData) return <div className="py-10 text-center text-[#7b6446]">Không tìm thấy rạp!</div>;
 
     return (
-        <div className="mx-auto mt-10 flex w-full max-w-[1080px] flex-wrap gap-6 px-5 md:mt-8 md:px-4">
+        <div className="mx-auto mt-6 flex w-full max-w-[1080px] flex-col gap-6 px-4 md:mt-8 lg:flex-row lg:items-start">
             {/* CỘT TRÁI: SƠ ĐỒ GHẾ */}
-            <div className="flex-[1_1_620px] border border-[#ddcbb6] bg-white p-8 shadow-[0_8px_22px_rgba(76,45,17,0.10)] lg:basis-[560px] md:p-6 sm:p-5">
+            <div className="w-full lg:w-[65%] border border-[#ddcbb6] bg-white p-4 md:p-6 shadow-sm">
                 <h3 className="m-0 text-center font-display text-lg tracking-[0.08em] text-brand-500">MÀN HÌNH</h3>
                 <div className="mx-auto mb-8 mt-3 h-[6px] w-[82%] bg-[#cfb596]"></div>
 
-                <div className="grid grid-cols-10 gap-2 md:grid-cols-8 sm:grid-cols-6 min-[0px]:max-[420px]:grid-cols-5">
-                    {seatData.seats.map(seat => {
-                        return (
-                            <button
-                                key={seat.id}
-                                onClick={() => handleSeatClick(seat)}
-                                disabled={seat.status === 'booked' || (seat.status === 'held' && !mySelectedSeats.includes(seat.id))}
-                                className={getSeatClassName(seat)}
-                                type="button"
-                            >
-                                {seat.row_letter}{seat.seat_number}
-                            </button>
-                        );
-                    })}
+                <p className="mb-2 text-center text-[13px] italic text-[#8c7356] md:hidden">
+                    ↔ Vuốt ngang để xem toàn bộ sơ đồ ghế
+                </p>
+                <div className="w-full overflow-x-auto scroll-smooth pb-4 custom-scrollbar">
+                    <div className="grid min-w-[460px] grid-cols-10 gap-2">
+                        {seatData.seats.map(seat => {
+                            const isDisabled = seat.status === 'booked' || (seat.status === 'held' && !mySelectedSeatsSet.has(seat.id));
+                            const className = getSeatClassName(seat);
+
+                            return (
+                                <SeatButton
+                                    key={seat.id}
+                                    seat={seat}
+                                    onClick={handleSeatClick}
+                                    disabled={isDisabled}
+                                    className={className}
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
                 {/* Chú thích màu sắc */}
                 <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-[#7b6446] min-[0px]:max-[420px]:justify-start min-[0px]:max-[420px]:gap-3">
@@ -243,13 +296,15 @@ export default function Booking() {
             </div>
 
             {/* CỘT PHẢI: HÓA ĐƠN */}
-            <div className="h-fit flex-[1_1_340px] border border-[#ddcbb6] border-t-4 border-t-brand-500 bg-white p-8 shadow-[0_8px_22px_rgba(76,45,17,0.10)] md:p-6 sm:p-5">
+            <div className="h-fit w-full lg:sticky lg:top-[100px] lg:w-[35%] border border-[#ddcbb6] border-t-4 border-t-brand-500 bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between border-b border-[#ddcbb6] pb-3 sm:flex-col sm:items-start sm:gap-2">
                     <h2 className="m-0 font-display text-[30px] text-[#3b2b19]">Hóa Đơn</h2>
-                    {timeLeft > 0 && (
-                        <div className={`px-[10px] py-[6px] font-bold text-white ${timeLeft <= 60 ? 'bg-[#b0232f]' : 'bg-[#1f8d52]'}`}>
-                            ⏱ {formatTime(timeLeft)}
-                        </div>
+                    {mySelectedSeats.length > 0 && (
+                        <CountdownTimer
+                            key={timerKey}
+                            showtimeId={showtimeId}
+                            onExpire={handleTimeExpire}
+                        />
                     )}
                 </div>
 

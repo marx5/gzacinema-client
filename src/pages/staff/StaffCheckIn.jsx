@@ -7,7 +7,6 @@ import { systemApi } from '../../api/systemApi';
 export default function StaffCheckIn() {
     const [scannedId, setScannedId] = useState('');
 
-    // Sử dụng useMutation để xử lý hành động Check-in
     const checkInMutation = useMutation({
         mutationFn: (ticketId) => systemApi.checkInTicket(ticketId),
         onSuccess: (res) => {
@@ -23,13 +22,11 @@ export default function StaffCheckIn() {
     });
 
     const handleCheckIn = (result) => {
-        // Kiểm tra nếu đang xử lý hoặc kết quả quét trống thì bỏ qua
         if (checkInMutation.isLoading || !result || result.length === 0) return;
 
         const ticketId = result[0].rawValue;
         setScannedId(ticketId);
 
-        // Gọi API thực hiện check-in
         checkInMutation.mutate(ticketId);
     };
 
@@ -43,7 +40,7 @@ export default function StaffCheckIn() {
                 <Scanner
                     onScan={handleCheckIn}
                     allowMultiple={true}
-                    scanDelay={2000} // Tạm dừng 2 giây giữa các lần quét để tránh trùng lặp
+                    scanDelay={2000}
                 />
 
                 {checkInMutation.isLoading && (

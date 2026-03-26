@@ -21,15 +21,21 @@ axiosClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            originalRequest.url !== '/auth/refresh'
+        ) {
             originalRequest._retry = true;
             try {
                 const res = await axiosClient.post("/auth/refresh");
                 const newAccessToken = res.accessToken;
 
-                localStorage.setItem("token", newAccessToken);
-                originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                return axiosClient(originalRequest);
+                if (newAccessToken) {
+                    localStorage.setItem("token", newAccessToken);
+                    originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                    return axiosClient(originalRequest);
+                }
             } catch (refreshError) {
                 localStorage.removeItem("token");
                 window.location.href = "/login";

@@ -6,7 +6,6 @@ export default function PaymentResult() {
     const [status, setStatus] = useState('processing');
 
     useEffect(() => {
-        // Lấy mã phản hồi từ URL do VNPay trả về
         const responseCode = searchParams.get('vnp_ResponseCode');
 
         if (responseCode === '00') {

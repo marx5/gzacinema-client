@@ -5,13 +5,11 @@ import { cinemaApi } from '../../api/cinemaApi';
 import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
-    // --- STATE CHO BỘ LỌC ---
-    const [filterType, setFilterType] = useState('all'); // all, today, week, month, custom
+    const [filterType, setFilterType] = useState('all');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
     const [selectedCinema, setSelectedCinema] = useState('');
 
-    // 1. Fetch danh sách Rạp (Query này được cache vĩnh viễn vì danh sách rạp ít thay đổi)
     const { data: cinemas = [] } = useQuery({
         queryKey: ['admin-cinemas-list'],
         queryFn: async () => {
@@ -21,17 +19,13 @@ export default function AdminDashboard() {
         onError: () => toast.error("Không thể tải danh sách rạp")
     });
 
-    // 2. Fetch Thống kê (Query này tự động chạy lại mỗi khi bất kỳ state bộ lọc nào thay đổi)
     const { data: stats, isLoading } = useQuery({
-        // queryKey đóng vai trò như dependency array của useEffect
         queryKey: ['admin-stats', filterType, customStartDate, customEndDate, selectedCinema],
         queryFn: async () => {
             let params = {};
 
-            // Áp dụng bộ lọc Rạp
             if (selectedCinema) params.cinemaId = selectedCinema;
 
-            // Áp dụng bộ lọc Thời gian
             const today = new Date();
             if (filterType === 'today') {
                 params.startDate = today.toISOString().split('T')[0];
@@ -54,9 +48,8 @@ export default function AdminDashboard() {
             const res = await systemApi.getStats(params);
             return res.data;
         },
-        // Chỉ chạy query custom khi đã nhập đủ cả 2 ngày
         enabled: filterType !== 'custom' || (!!customStartDate && !!customEndDate),
-        keepPreviousData: true, // Giữ dữ liệu cũ hiển thị trong khi đang tải dữ liệu mới (tránh nháy màn hình)
+        keepPreviousData: true,
     });
 
     if (isLoading && !stats) return <div className="py-10 text-center text-[#7b6446]">Đang phân tích dữ liệu...</div>;

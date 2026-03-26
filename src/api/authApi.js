@@ -5,5 +5,6 @@ export const authApi = {
     register: (data) => axiosClient.post('/auth/register', data),
     logout: () => axiosClient.post('/auth/logout'),
     getProfile: () => axiosClient.get('/users/me'),
-    getHistory: () => axiosClient.get('/users/history')
+    getHistory: () => axiosClient.get('/users/history'),
+    updateProfile: (data) => axiosClient.put('/users/me', data)
 };

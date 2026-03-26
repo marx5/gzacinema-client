@@ -37,7 +37,6 @@ export default function MovieDetails() {
         }
     }, [availableDates, selectedDate]);
 
-    // Hàm tiện ích để đổi link YouTube sang định dạng Embed
     const getYoutubeEmbedUrl = (url) => {
         if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -45,7 +44,6 @@ export default function MovieDetails() {
         return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
     };
 
-    // Hàm tiện ích định dạng ngày ra tiếng Việt (VD: Hôm nay, 24/10)
     const formatDisplayDate = (dateString) => {
         const dateObj = new Date(dateString);
         const today = new Date();

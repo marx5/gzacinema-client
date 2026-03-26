@@ -30,7 +30,6 @@ export const useAuthStore = create(devtools((set) => ({
             return;
         }
         try {
-            // Sử dụng authApi thay vì axiosClient trực tiếp
             const res = await authApi.getProfile();
             set({ user: res.data, isAuthenticated: true, isLoading: false }, false, "auth/checkAuth_success");
         } catch (error) {

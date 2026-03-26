@@ -4,12 +4,11 @@ import { authApi } from '../api/authApi';
 
 
 export default function History() {
-    // Tự động fetch, tự động cache, tự động loading!
     const { data: history = [], isLoading } = useQuery({
         queryKey: ['history'],
         queryFn: async () => {
             const res = await authApi.getHistory();
-            return res.data;
+            return res.data?.history || res.data;
         }
     });
     if (isLoading) return <div className="py-10 text-center text-[#7b6446]">Đang tải lịch sử mua vé...</div>;
@@ -63,7 +62,7 @@ export default function History() {
                                             {/* Mã QR chứa Ticket ID */}
                                             <div className="flex h-[92px] w-[92px] items-center justify-center border border-[#ddcbb6] bg-white p-[6px]">
                                                 <QRCodeSVG
-                                                    value={ticket.id} // Nội dung mã QR chính là ID của vé
+                                                    value={ticket.id}
                                                     size={80}
                                                     bgColor={"#ffffff"}
                                                     fgColor={"#000000"}
