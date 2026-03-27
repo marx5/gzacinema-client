@@ -13,7 +13,7 @@ export default function Home() {
             const res = activeTab === 'showing'
                 ? await movieApi.getShowing()
                 : await movieApi.getComingSoon();
-            return res.data?.movie || res.data?.movies || res.data;
+            return res.data.movie;
         }
     });
 
