@@ -28,9 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           reverseOrder={false}
           toastOptions={{
             style: {
-              border: '1px solid ' + 'var(--brand-border)',
+              border: '1px solid #ddcbb6',
               padding: '16px',
-              color: 'var(--brand-dark)',
+              color: '#3b2b19',
               backgroundColor: '#fff',
               fontFamily: "'Inter', sans-serif",
               fontWeight: '600',
@@ -48,10 +48,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             },
             error: {
               style: {
-                borderLeft: '4px solid var(--brand-error)',
+                borderLeft: '4px solid #b0232f',
               },
               iconTheme: {
-                primary: 'var(--brand-error)',
+                primary: '#b0232f',
                 secondary: '#fff',
               },
             },

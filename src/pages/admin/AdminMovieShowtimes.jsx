@@ -95,7 +95,7 @@ export default function AdminMovieShowtimes() {
         });
     };
 
-    if (!movie) return <div className="py-20 text-center font-bold text-brand-text">Đang tải dữ liậu...</div>;
+    if (!movie) return <div className="py-20 text-center font-bold text-brand-text">Đang tải dữ liệu...</div>;
 
     return (
         <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 md:mt-8 mb-20">
@@ -163,7 +163,7 @@ export default function AdminMovieShowtimes() {
                     <h2 className="m-0 mb-5 font-display text-[26px] text-brand-dark">Lịch chiếu đã lên</h2>
 
                     {isShowtimesLoading ? (
-                        <div className="text-brand-text">Đang tải dữ liậu...</div>
+                        <div className="text-brand-text">Đang tải dữ liệu...</div>
                     ) : Object.keys(groupedShowtimes).length === 0 ? (
                         <div className="border border-dashed border-[#cfb596] bg-white py-12 text-center text-brand-text-muted">
                             Chưa có suất chiếu nào cho bộ phim này.

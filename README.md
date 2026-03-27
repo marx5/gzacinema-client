@@ -31,6 +31,7 @@ English: The application supports 3 main feature groups:
 - Zustand (auth store)
 - Tailwind CSS
 - react-hot-toast
+- socket.io-client
 - @yudiel/react-qr-scanner
 - qrcode.react
 
@@ -48,9 +49,11 @@ English: The application supports 3 main feature groups:
 - Xem chi tiết phim, trailer YouTube và lịch chiếu theo ngày/rạp.
 - Đặt vé theo suất chiếu:
 	- Hiển thị sơ đồ ghế.
-	- Giữ ghế / bỏ giữ ghế theo thời gian thực tương đối.
+	- Giữ ghế / bỏ giữ ghế theo thời gian thực với Socket.IO.
 	- Hỗ trợ ghế thường, VIP, sweetbox.
 	- Đồng hồ giữ ghế 5 phút (lưu trạng thái theo showtime trên localStorage).
+- Tối ưu URL ảnh Cloudinary theo kích thước hiển thị (q_auto, f_auto, w_*).
+- Router dùng lazy loading (code splitting) để giảm JS tải ban đầu.
 - Tạo link thanh toán qua cổng thanh toán (VNPay flow).
 - Nhận kết quả thanh toán tại trang callback.
 - Xem lịch sử mua vé, hiển thị QR code cho từng vé.
@@ -142,6 +145,13 @@ English:
 - `VITE_API_URL`: base URL cho toàn bộ request từ frontend.
 - `VITE_API_URL`: base URL for all frontend API requests.
 
+Ghi chú Socket URL:
+
+English: Socket URL note:
+
+- Client Socket.IO sẽ tự bỏ hậu tố `/api` để kết nối về backend origin.
+- Socket.IO client automatically strips `/api` to connect to backend origin.
+
 ## 7) Scripts
 
 ## 7) Scripts
@@ -166,6 +176,7 @@ src/
 	components/     # Components dùng chung
 	pages/          # Các trang user/admin/staff
 	store/          # Zustand store (auth)
+	utils/          # Helper dùng chung (cloudinary, socket)
 	styles/         # CSS dùng chung
 	index.css       # Tailwind + style tổng
 	main.jsx        # Entry point + QueryClientProvider
@@ -189,19 +200,23 @@ src/
 ## 10) Booking and Payment Flow (Summary)
 
 1. Người dùng vào trang chi tiết phim và chọn suất chiếu.
-2. Frontend tải sơ đồ ghế theo showtime.
-3. Người dùng giữ ghế (`/bookings/hold`) hoặc bỏ giữ (`/bookings/unhold`).
-4. Frontend tạo URL thanh toán (`/payments/create-payment-url`).
-5. Trình duyệt chuyển sang cổng thanh toán.
-6. Sau khi thanh toán, user được redirect về `/payment/success`.
-7. Trang kết quả đọc `vnp_ResponseCode` để hiển thị thành công/thất bại.
+2. Frontend tải sơ đồ ghế theo showtime (React Query).
+3. Frontend mở Socket.IO connection, join vào room của showtime (`join_showtime`).
+4. Người dùng giữ ghế (`/bookings/hold`) hoặc bỏ giữ (`/bookings/unhold`).
+5. Backend broadcast sự kiện cập nhật ghế (`seat_status_changed`), client cập nhật cache ngay.
+6. Frontend tạo URL thanh toán (`/payments/create-payment-url`).
+7. Trình duyệt chuyển sang cổng thanh toán.
+8. Sau khi thanh toán, user được redirect về `/payment/success`.
+9. Trang kết quả đọc `vnp_ResponseCode` để hiển thị thành công/thất bại.
 1. User opens movie details and selects a showtime.
-2. Frontend loads seat map for that showtime.
-3. User holds seats (`/bookings/hold`) or releases seats (`/bookings/unhold`).
-4. Frontend requests payment URL (`/payments/create-payment-url`).
-5. Browser is redirected to payment gateway.
-6. After payment, user is redirected to `/payment/success`.
-7. Result page reads `vnp_ResponseCode` to show success or failure.
+2. Frontend loads seat map for that showtime (React Query).
+3. Frontend opens a Socket.IO connection and joins the showtime room (`join_showtime`).
+4. User holds seats (`/bookings/hold`) or releases seats (`/bookings/unhold`).
+5. Backend broadcasts seat updates (`seat_status_changed`), and client updates cache instantly.
+6. Frontend requests payment URL (`/payments/create-payment-url`).
+7. Browser is redirected to payment gateway.
+8. After payment, user is redirected to `/payment/success`.
+9. Result page reads `vnp_ResponseCode` to show success or failure.
 
 ## 11) Danh sách route chính
 
@@ -248,22 +263,26 @@ Hãy đảm bảo:
 
 Make sure:
 
-- Backend bật CORS cho origin frontend.
+- Backend bật CORS cho origin frontend (HTTP + WebSocket/Socket.IO).
 - Cookie refresh token hoạt động đúng với `withCredentials: true`.
 - URL backend khớp với `VITE_API_URL`.
-- Backend enables CORS for the frontend origin.
+- Backend hỗ trợ các sự kiện Socket.IO: `join_showtime`, `leave_showtime`, `seat_status_changed`.
+- Backend enables CORS for frontend origin (HTTP + WebSocket/Socket.IO).
 - Refresh token cookie works correctly with `withCredentials: true`.
 - Backend URL matches `VITE_API_URL`.
+- Backend supports Socket.IO events: `join_showtime`, `leave_showtime`, `seat_status_changed`.
 
 ## 13) Gợi ý cải thiện tiếp
 
 ## 13) Suggested Next Improvements
 
 - Bổ sung route guard theo role (`admin`, `staff`) ở frontend.
+- Bổ sung mô tả chuẩn payload Socket.IO (shape dữ liệu cho `seat_status_changed`).
 - Thêm `.env.example` chính thức vào repo.
 - Thêm hướng dẫn deploy (Nginx/Vercel) và quy trình CI lint/build.
 - Bổ sung ảnh chụp màn hình cho các luồng chính.
 - Add role-based route guards (`admin`, `staff`) on frontend.
+- Add Socket.IO payload contract documentation (`seat_status_changed` data shape).
 - Add an official `.env.example` file to the repository.
 - Add deployment guide (Nginx/Vercel) and CI steps for lint/build.
 - Add screenshots for key user flows.
