@@ -35,7 +35,7 @@ export default function AdminRooms() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (roomId) => cinemaApi.deleteRoom(roomId),
+        mutationFn: (roomId) => cinemaApi.deleteRoom(cinemaId, roomId),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-rooms', cinemaId]);
             toast.success('Đã xóa phòng chiếu');
