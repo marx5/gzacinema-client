@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { movieApi } from '../api/movieApi';
+import { Helmet } from 'react-helmet-async';
+import { optimizeCloudinaryUrl } from '../utils/cloudinary';
 
 export default function MovieDetails() {
     const { id } = useParams();
@@ -44,7 +46,7 @@ export default function MovieDetails() {
         return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
     };
 
-    const formatDisplayDate = (dateString) => {
+    const formatDisplayDateUI = (dateString) => {
         const dateObj = new Date(dateString);
         const today = new Date();
         const tomorrow = new Date(today);
@@ -54,12 +56,11 @@ export default function MovieDetails() {
         const isTomorrow = dateObj.toLocaleDateString() === tomorrow.toLocaleDateString();
 
         const formattedDate = dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        const days = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
 
-        if (isToday) return `Hôm nay, ${formattedDate}`;
-        if (isTomorrow) return `Ngày mai, ${formattedDate}`;
-
-        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-        return `${days[dateObj.getDay()]}, ${formattedDate}`;
+        if (isToday) return { top: 'Hôm nay', bottom: formattedDate };
+        if (isTomorrow) return { top: 'Ngày mai', bottom: formattedDate };
+        return { top: days[dateObj.getDay()], bottom: formattedDate };
     };
 
     const filteredShowtimes = data?.showtimesGrouped?.map(cinema => ({
@@ -67,94 +68,150 @@ export default function MovieDetails() {
         showtimes: cinema.showtimes.filter(st => new Date(st.start_time).toLocaleDateString('en-CA') === selectedDate)
     })).filter(cinema => cinema.showtimes.length > 0) || [];
 
-    if (isLoading) return <div className="py-6 text-center text-[#7b6446]">Đang tải chi tiết...</div>;
-    if (!data?.movie) return <div className="py-6 text-center text-[#7b6446]">Không tìm thấy bộ phim này!</div>;
+    if (isLoading) return <div className="py-20 text-center text-lg font-bold text-brand-text">Đang tải thông tin phim...</div>;
+    if (!data?.movie) return <div className="py-20 text-center text-lg font-bold text-brand-error">Không tìm thấy bộ phim này!</div>;
 
     const { movie } = data;
+    const trailerEmbedUrl = getYoutubeEmbedUrl(movie.trailer_url);
+
     return (
-        <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
-            {/* 1. THÔNG TIN PHIM & TRAILER */}
-            <div className="mb-8 grid grid-cols-[320px_1fr] gap-6 overflow-hidden border border-[#ddcbb6] border-t-4 border-t-brand-500 bg-white shadow-[0_8px_22px_rgba(76,45,17,0.10)] lg:grid-cols-[280px_1fr] md:grid-cols-1">
-                <div>
+        <div className="mx-auto mt-6 w-full max-w-[1080px] px-4 md:mt-10">
+            <Helmet>
+                <title>{movie.title} | Gzacinema - Đặt vé ngay</title>
+                <meta name="description" content={movie.description?.substring(0, 160)} />
+                <meta property="og:title" content={movie.title} />
+                <meta property="og:image" content={optimizeCloudinaryUrl(movie.thumbnail, 500)} />
+            </Helmet>
+
+            {/* KHU VỰC 1: HERO BANNER (THÔNG TIN PHIM) */}
+            <div className="flex flex-col gap-6 md:flex-row md:gap-8 lg:gap-10">
+                {/* Poster Phim */}
+                <div className="mx-auto w-[60%] shrink-0 md:w-[280px] lg:w-[320px]">
                     <img
-                        src={movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba'}
+                        src={optimizeCloudinaryUrl(movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba', 500)}
                         alt={movie.title}
-                        className="h-full min-h-[430px] w-full object-cover md:min-h-[360px]"
+                        loading="lazy"
+                        className="aspect-[2/3] w-full border border-brand-border object-cover shadow-[0_8px_22px_rgba(76,45,17,0.15)]"
                     />
                 </div>
-                <div className="p-6 md:p-5 sm:p-4">
-                    <h1 className="mb-4 mt-0 font-display text-[36px] text-[#3b2b19] lg:text-[30px] sm:text-[26px]">{movie.title}</h1>
-                    <p className="my-2 leading-[1.65] text-[#7b6446]"><strong className="text-[#3b2b19]">Thể loại:</strong> {movie.genre || 'Đang cập nhật'}</p>
-                    <p className="my-2 leading-[1.65] text-[#7b6446]"><strong className="text-[#3b2b19]">Thời lượng:</strong> {movie.duration_minutes} phút</p>
-                    <p className="my-2 leading-[1.65] text-[#7b6446]"><strong className="text-[#3b2b19]">Khởi chiếu:</strong> {new Date(movie.release_date).toLocaleDateString('vi-VN')}</p>
-                    <p className="my-2 leading-[1.65] text-[#7b6446]"><strong className="text-[#3b2b19]">Nội dung:</strong> {movie.description}</p>
 
-                    {movie.trailer_url && (
-                        <div className="mt-5">
-                            <h3 className="mb-3 mt-0 text-lg text-[#3b2b19]">Trailer Phim</h3>
-                            <iframe
-                                width="100%"
-                                height="250"
-                                src={getYoutubeEmbedUrl(movie.trailer_url)}
-                                title="Trailer"
-                                frameBorder="0"
-                                allowFullScreen
-                                className="h-[260px] w-full border border-[#cfb596] md:h-[220px] sm:h-[200px]"
-                            ></iframe>
-                        </div>
-                    )}
+                {/* Chi tiết thông tin */}
+                <div className="flex flex-1 flex-col justify-center">
+                    <h1 className="m-0 font-display text-[32px] font-bold text-[#3b2b19] md:text-[40px] leading-tight">
+                        {movie.title}
+                    </h1>
+
+                    {/* Các thông số phim: Nằm ngang, cách nhau bởi dấu chấm */}
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-bold text-[#7b6446]">
+                        <span className="border border-[#ddcbb6] bg-white px-2 py-1 uppercase">{movie.genre || 'Đang cập nhật'}</span>
+                        <span>•</span>
+                        <span>{movie.duration_minutes} phút</span>
+                        <span>•</span>
+                        <span>Khởi chiếu: {new Date(movie.release_date).toLocaleDateString('vi-VN')}</span>
+                    </div>
+
+                    {/* Dòng phân cách */}
+                    <div className="my-5 h-[1px] w-full bg-[#ddcbb6]"></div>
+
+                    <div className="text-base leading-[1.8] text-[#5c4a3d]">
+                        <strong className="text-[#3b2b19]">Nội dung:</strong> {movie.description}
+                    </div>
                 </div>
             </div>
 
-            {/* 2. LỊCH CHIẾU VỚI THANH TAB NGÀY */}
-            <h2 className="mb-4 border-b-2 border-[#ddcbb6] pb-3 font-display text-[30px] text-[#3b2b19] sm:text-[26px]">Lịch Chiếu</h2>
+            {/* KHU VỰC 2: TRAILER & LỊCH CHIẾU (Chia 2 cột trên Desktop) */}
+            <div className="mt-12 flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
 
-            {availableDates.length === 0 ? (
-                <p className="py-6 text-center text-[#7b6446]">Hiện chưa có lịch chiếu cho phim này.</p>
-            ) : (
-                <>
-                    {/* Thanh Tab Ngày */}
-                    <div className="mb-4 flex gap-3 overflow-x-auto pb-4">
-                        {availableDates.map(date => (
-                            <button
-                                key={date}
-                                onClick={() => setSelectedDate(date)}
-                                className={`whitespace-nowrap border px-4 py-[10px] text-sm font-bold transition ${selectedDate === date
-                                    ? 'border-brand-500 bg-brand-500 text-white'
-                                    : 'border-[#cfb596] bg-white text-[#7b6446] hover:border-brand-500 hover:text-brand-600'
-                                    } sm:min-w-[104px] sm:px-2 sm:py-[9px]`}
-                                type="button"
-                            >
-                                {formatDisplayDate(date)}
-                            </button>
-                        ))}
-                    </div>
+                {/* Cột trái: Lịch chiếu (Rộng hơn) */}
+                <div className="w-full lg:flex-[1.6]">
+                    <h2 className="m-0 border-b-2 border-brand-500 pb-2 font-display text-[26px] text-brand-dark inline-block mb-6">
+                        Lịch Chiếu Phim
+                    </h2>
 
-                    {/* Danh sách rạp và suất chiếu đã lọc theo ngày */}
-                    {filteredShowtimes.length === 0 ? (
-                        <p className="py-6 text-center text-[#7b6446]">Không có suất chiếu nào trong ngày này.</p>
+                    {availableDates.length === 0 ? (
+                        <div className="border border-dashed border-[#cfb596] bg-brand-bg py-10 text-center text-brand-text">
+                            Phim này hiện chưa có lịch chiếu.
+                        </div>
                     ) : (
-                        filteredShowtimes.map((group, idx) => (
-                            <div key={idx} className="mb-5 border border-[#ddcbb6] bg-white p-5 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                                <h3 className="m-0 text-[22px] text-[#3b2b19]">{group.cinema_info.name}</h3>
-                                <p className="mb-4 mt-2 text-sm text-[#8c7356]">{group.cinema_info.address}</p>
-
-                                <div className="flex flex-wrap gap-3">
-                                    {group.showtimes.map(st => {
-                                        const timeString = new Date(st.start_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                                        return (
-                                            <Link key={st.showtime_id} to={`/booking/${st.showtime_id}`} className="min-w-[116px] border border-brand-500 bg-white px-3 py-[10px] text-center text-brand-500 transition hover:bg-brand-500 hover:text-white sm:min-w-[104px] sm:px-2 sm:py-[9px]">
-                                                <strong>{timeString}</strong>
-                                                <div className="mt-[3px] text-xs text-inherit">{st.room_name}</div>
-                                            </Link>
-                                        )
-                                    })}
-                                </div>
+                        <>
+                            {/* Thanh Tab Ngày (Thiết kế dạng Calendar) */}
+                            <div className="mb-8 flex gap-3 overflow-x-auto pb-2 snap-x custom-scrollbar">
+                                {availableDates.map(date => {
+                                    const { top, bottom } = formatDisplayDateUI(date);
+                                    const isSelected = selectedDate === date;
+                                    return (
+                                        <button
+                                            key={date}
+                                            onClick={() => setSelectedDate(date)}
+                                            className={`flex min-w-[90px] shrink-0 snap-start flex-col items-center border p-2 transition-all ${isSelected
+                                                ? 'border-brand-500 bg-brand-500 text-white shadow-md scale-105'
+                                                : 'border-[#cfb596] bg-white text-brand-text hover:border-brand-500 hover:text-brand-600'
+                                                }`}
+                                            type="button"
+                                        >
+                                            <span className="text-xs uppercase tracking-wider">{top}</span>
+                                            <span className={`mt-1 text-lg font-bold ${isSelected ? 'text-white' : 'text-brand-dark'}`}>
+                                                {bottom}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
-                        ))
+
+                            {/* Danh sách rạp */}
+                            <div className="flex flex-col gap-5">
+                                {filteredShowtimes.length === 0 ? (
+                                    <p className="py-4 text-center text-[#7b6446]">Không có suất chiếu nào trong ngày này.</p>
+                                ) : (
+                                    filteredShowtimes.map((group, idx) => (
+                                        <div key={idx} className="border border-[#ddcbb6] bg-white p-5 shadow-sm transition hover:shadow-md">
+                                            <h3 className="m-0 text-[20px] font-bold text-[#3b2b19]">{group.cinema_info.name}</h3>
+                                            <p className="mb-4 mt-1 text-xs text-[#8c7356]">{group.cinema_info.address}</p>
+
+                                            <div className="flex flex-wrap gap-3">
+                                                {group.showtimes.map(st => {
+                                                    const timeString = new Date(st.start_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                                                    return (
+                                                        <Link
+                                                            key={st.showtime_id}
+                                                            to={`/booking/${st.showtime_id}`}
+                                                            className="flex min-w-[100px] flex-col items-center border border-brand-border bg-[#fffaf3] px-3 py-2 transition hover:border-brand-500 hover:bg-brand-500 hover:text-white group"
+                                                        >
+                                                            <strong className="text-[18px] text-brand-dark group-hover:text-white">{timeString}</strong>
+                                                            <span className="mt-1 text-[11px] uppercase tracking-wide text-brand-text group-hover:text-white">
+                                                                {st.room_name}
+                                                            </span>
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </>
                     )}
-                </>
-            )}
+                </div>
+
+                {/* Cột phải: Trailer (Nhỏ hơn, dính màn hình) */}
+                {trailerEmbedUrl && (
+                    <div className="w-full lg:sticky lg:top-[100px] lg:flex-[1]">
+                        <h3 className="m-0 mb-4 font-display text-[22px] text-brand-dark">Trailer</h3>
+                        <div className="aspect-video w-full overflow-hidden border-2 border-[#ddcbb6] shadow-md bg-black">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={trailerEmbedUrl}
+                                title="Trailer"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 }

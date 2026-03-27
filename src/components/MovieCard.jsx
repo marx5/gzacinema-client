@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { optimizeCloudinaryUrl } from '../utils/cloudinary';
 
 
 export default function MovieCard({ movie }) {
@@ -7,23 +8,24 @@ export default function MovieCard({ movie }) {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
-        <article className="mx-auto flex h-full w-full max-w-[300px] md:max-w-[180px] lg:max-w-[200px] flex-col justify-between overflow-hidden border border-[#ddcbb6] bg-white shadow-[0_8px_18px_rgba(76,45,17,0.10)] transition hover:-translate-y-[3px] hover:border-brand-500 hover:shadow-[0_12px_24px_rgba(76,45,17,0.16)]">
-            <div className="relative bg-[#eadfce]">
+        <article className="mx-auto flex h-full w-full max-w-[300px] md:max-w-[180px] lg:max-w-[200px] flex-col justify-between overflow-hidden border border-brand-border bg-white shadow-[0_8px_18px_rgba(76,45,17,0.10)] transition hover:-translate-y-[3px] hover:border-brand-500 hover:shadow-[0_12px_24px_rgba(76,45,17,0.16)]">
+            <div className="relative bg-brand-bg-light">
                 {/* CHUẨN UX: Sử dụng aspect-[2/3] để poster phim không bị méo */}
                 <img
-                    src={movie.thumbnail || defaultImg}
+                    src={optimizeCloudinaryUrl(movie.thumbnail || defaultImg, 300)}
                     alt={movie.title}
+                    loading="lazy"
                     onLoad={() => setIsLoaded(true)}
-                    className={`aspect-[2/3] w-full border-b border-[#eadfce] object-cover transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className={`aspect-[2/3] w-full border-b border-brand-bg-light object-cover transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                 />
 
                 <div className="p-2 md:p-3">
                     {/* SỬA: Giảm kích thước text và padding từ md: để card gọn hơn trên Laptop */}
-                    <h3 className="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-[15px] md:text-[18px] lg:text-[16px] font-extrabold text-[#3b2b19]" title={movie.title}>{movie.title}</h3>
+                    <h3 className="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-[15px] md:text-[18px] lg:text-[16px] font-extrabold text-brand-dark" title={movie.title}>{movie.title}</h3>
 
-                    <p className="my-1.5 text-[11px] md:text-[13px] text-[#7b6446] truncate"><strong className="text-[#3f2f1f]">Thể loại:</strong> {movie.genre || 'Đang cập nhật'}</p>
-                    <p className="my-1 text-[11px] md:text-[13px] text-[#7b6446]"><strong className="text-[#3f2f1f]">Thời lượng:</strong> {movie.duration_minutes} phút</p>
-                    <p className="my-1 text-[11px] md:text-[13px] text-[#7b6446]"><strong className="text-[#3f2f1f]">Khởi chiếu:</strong> {new Date(movie.release_date).toLocaleDateString('vi-VN')}</p>
+                    <p className="my-1.5 text-[11px] md:text-[13px] text-brand-text truncate"><strong className="text-[#3f2f1f]">Thể loại:</strong> {movie.genre || 'Đang cập nhật'}</p>
+                    <p className="my-1 text-[11px] md:text-[13px] text-brand-text"><strong className="text-[#3f2f1f]">Thời lượng:</strong> {movie.duration_minutes} phút</p>
+                    <p className="my-1 text-[11px] md:text-[13px] text-brand-text"><strong className="text-[#3f2f1f]">Khởi chiếu:</strong> {new Date(movie.release_date).toLocaleDateString('vi-VN')}</p>
                 </div>
             </div>
 

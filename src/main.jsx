@@ -5,7 +5,8 @@ import './index.css';
 import { Toaster } from 'react-hot-toast';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { HelmetProvider } from 'react-helmet-async';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,43 +20,45 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        toastOptions={{
-          style: {
-            border: '1px solid #ddcbb6',
-            padding: '16px',
-            color: '#3b2b19',
-            backgroundColor: '#fff',
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: '600',
-            boxShadow: '0 8px 22px rgba(76,45,17,0.12)',
-            borderRadius: '4px',
-          },
-          success: {
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
             style: {
-              borderLeft: '4px solid #1f8d52',
+              border: '1px solid ' + 'var(--brand-border)',
+              padding: '16px',
+              color: 'var(--brand-dark)',
+              backgroundColor: '#fff',
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: '600',
+              boxShadow: '0 8px 22px rgba(76,45,17,0.12)',
+              borderRadius: '4px',
             },
-            iconTheme: {
-              primary: '#1f8d52',
-              secondary: '#fff',
+            success: {
+              style: {
+                borderLeft: '4px solid #1f8d52',
+              },
+              iconTheme: {
+                primary: '#1f8d52',
+                secondary: '#fff',
+              },
             },
-          },
-          error: {
-            style: {
-              borderLeft: '4px solid #b0232f',
+            error: {
+              style: {
+                borderLeft: '4px solid var(--brand-error)',
+              },
+              iconTheme: {
+                primary: 'var(--brand-error)',
+                secondary: '#fff',
+              },
             },
-            iconTheme: {
-              primary: '#b0232f',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-    </QueryClientProvider>
+          }}
+        />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );

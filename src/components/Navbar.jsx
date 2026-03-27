@@ -31,7 +31,7 @@ export default function Navbar() {
 
     return (
         <div className="sticky top-0 z-50 border-b border-[#d8c8b4] bg-[linear-gradient(180deg,#fffaf3_0%,#f6ecde_100%)] shadow-sm">
-            <nav className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-3 md:px-4">
+            <nav className="relative mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-3 md:px-4">
                 <Link to="/" className="font-display text-[28px] md:text-[36px] font-extrabold text-brand-600 hover:text-brand-700">
                     Gzacinema
                 </Link>
@@ -50,12 +50,11 @@ export default function Navbar() {
                 </button>
 
                 {/* DANH SÁCH MENU (DESKTOP: Flex hàng ngang, MOBILE: Khối absolute xổ xuống) */}
-                <div className={`${isMobileNavOpen ? 'absolute top-full left-0 right-0 flex flex-col bg-white border-b border-[#d8c8b4] p-5 shadow-lg gap-4' : 'hidden'} md:static md:flex md:flex-row md:items-center md:gap-3 md:bg-transparent md:p-0 md:shadow-none md:border-none`}>
-
+                <div className={`${isMobileNavOpen ? 'absolute top-[calc(100%+4px)] right-5 flex w-[260px] flex-col gap-4 rounded-b-lg border border-[#d8c8b4] bg-white p-5 shadow-xl' : 'hidden'} md:static md:flex md:w-auto md:flex-row md:items-center md:gap-3 md:border-none md:bg-transparent md:p-0 md:shadow-none`}>
                     {isAuthenticated ? (
                         <>
                             <span className="truncate text-sm text-[#73593d]">
-                                Xin chào, <strong className="text-[#3f2f1f]">{user?.email}</strong>
+                                Xin chào, <strong className="text-[#3f2f1f]">{user?.full_name}</strong>
                             </span>
                             <Link to="/history" onClick={() => setIsMobileNavOpen(false)} className="border border-[#d8c8b4] bg-white px-3 py-2 text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:text-brand-700 text-center">Vé của tôi</Link>
                             <Link to="/profile" onClick={() => setIsMobileNavOpen(false)} className="border border-[#d8c8b4] bg-white px-3 py-2 text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:text-brand-700 text-center">Hồ sơ</Link>
@@ -65,7 +64,7 @@ export default function Navbar() {
                                     {/* Trên Mobile, ẩn nút Quản lý dạng Dropdown đi, show list ra luôn. Trên Desktop giữ nguyên Dropdown */}
                                     <button
                                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className="hidden md:block w-full border border-[#d8c8b4] bg-white px-4 py-[10px] text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:bg-[#fff6ec]"
+                                        className="hidden md:block w-full border border-[#d8c8b4] bg-white px-4 py-[10px] text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:bg-brand-bg"
                                     >
                                         Quản lý ▾
                                     </button>
@@ -75,20 +74,20 @@ export default function Navbar() {
                                         <div className="absolute right-0 top-[calc(100%+6px)] z-[100] hidden md:flex min-w-[220px] flex-col border border-[#d8c8b4] bg-white shadow-xl">
                                             {user?.role === 'admin' && (
                                                 <>
-                                                    <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="border-b border-[#eadfce] px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Thống kê</Link>
-                                                    <Link to="/admin/movies" onClick={() => setIsMenuOpen(false)} className="border-b border-[#eadfce] px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Phim</Link>
-                                                    <Link to="/admin/showtimes" onClick={() => setIsMenuOpen(false)} className="border-b border-[#eadfce] px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Lịch chiếu</Link>
-                                                    <Link to="/admin/cinemas" onClick={() => setIsMenuOpen(false)} className="border-b border-[#eadfce] px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Rạp</Link>
-                                                    <Link to="/admin/bookings" onClick={() => setIsMenuOpen(false)} className="border-b border-[#eadfce] px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Hóa đơn</Link>
+                                                    <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Thống kê</Link>
+                                                    <Link to="/admin/movies" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Phim</Link>
+                                                    <Link to="/admin/showtimes" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Lịch chiếu</Link>
+                                                    <Link to="/admin/cinemas" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Rạp</Link>
+                                                    <Link to="/admin/bookings" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Hóa đơn</Link>
                                                 </>
                                             )}
-                                            <Link to="/staff/checkin" onClick={() => setIsMenuOpen(false)} className="px-4 py-[11px] text-sm hover:bg-[#fff6ec]">Soát vé QR</Link>
+                                            <Link to="/staff/checkin" onClick={() => setIsMenuOpen(false)} className="px-4 py-[11px] text-sm hover:bg-brand-bg">Soát vé QR</Link>
                                         </div>
                                     )}
 
                                     {/* Menu Admin trên Mobile (Render trực tiếp) */}
                                     <div className="md:hidden mt-2 flex flex-col gap-2 border-t border-[#d8c8b4] pt-2">
-                                        <span className="text-xs text-[#8c7356] font-bold">MENU QUẢN LÝ</span>
+                                        <span className="text-xs text-brand-text-muted font-bold">MENU QUẢN LÝ</span>
                                         {user?.role === 'admin' && (
                                             <>
                                                 <Link to="/admin" onClick={() => setIsMobileNavOpen(false)} className="text-sm py-1 font-bold text-brand-600">Thống kê</Link>

@@ -87,48 +87,48 @@ export default function AdminShowtimes() {
         }
     };
 
-    if (isInitLoading) return <div className="py-10 text-center text-[#7b6446]">Đang tải hệ thống...</div>;
+    if (isInitLoading) return <div className="py-10 text-center text-brand-text">Đang tải hệ thống...</div>;
 
     const { cinemas = [], movies = [] } = initData || {};
     const isSubmitting = createMutation.isLoading;
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
-            <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19]">Quản Lý Lịch Chiếu</h1>
+            <h1 className="m-0 border-b border-brand-border pb-3 font-display text-[34px] text-brand-dark">Quản Lý Lịch Chiếu</h1>
 
             <div className="mt-5 grid grid-cols-[380px_1fr] gap-6 md:grid-cols-1">
                 {/* CỘT TRÁI: FORM TẠO */}
-                <div className="h-fit border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                    <h3 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-lg text-[#3b2b19]">Lên lịch mới</h3>
+                <div className="h-fit border border-brand-border bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+                    <h3 className="m-0 border-b border-brand-border pb-3 font-display text-lg text-brand-dark">Lên lịch mới</h3>
                     <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
                         <div>
-                            <label className="block text-sm font-bold text-[#3b2b19] mb-2">1. Chọn Rạp:</label>
-                            <select value={selectedCinema} onChange={(e) => setSelectedCinema(e.target.value)} className="w-full border border-[#ddcbb6] px-3 py-2 text-sm">
+                            <label className="block text-sm font-bold text-brand-dark mb-2">1. Chọn Rạp:</label>
+                            <select value={selectedCinema} onChange={(e) => setSelectedCinema(e.target.value)} className="w-full border border-brand-border px-3 py-2 text-sm">
                                 <option value="">-- Chọn rạp --</option>
                                 {cinemas.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#3b2b19] mb-2">2. Chọn Phòng:</label>
-                            <select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)} disabled={!selectedCinema || isRoomsLoading} className="w-full border border-[#ddcbb6] px-3 py-2 text-sm">
+                            <label className="block text-sm font-bold text-brand-dark mb-2">2. Chọn Phòng:</label>
+                            <select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)} disabled={!selectedCinema || isRoomsLoading} className="w-full border border-brand-border px-3 py-2 text-sm">
                                 <option value="">{isRoomsLoading ? 'Đang tải...' : '-- Chọn phòng --'}</option>
                                 {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#3b2b19] mb-2">3. Chọn Phim:</label>
-                            <select value={selectedMovie} onChange={(e) => setSelectedMovie(e.target.value)} className="w-full border border-[#ddcbb6] px-3 py-2 text-sm">
+                            <label className="block text-sm font-bold text-brand-dark mb-2">3. Chọn Phim:</label>
+                            <select value={selectedMovie} onChange={(e) => setSelectedMovie(e.target.value)} className="w-full border border-brand-border px-3 py-2 text-sm">
                                 <option value="">-- Chọn phim --</option>
                                 {movies.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#3b2b19] mb-2">4. Giờ chiếu:</label>
-                            <input type="datetime-local" required value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full border border-[#ddcbb6] px-3 py-2 text-sm" />
+                            <label className="block text-sm font-bold text-brand-dark mb-2">4. Giờ chiếu:</label>
+                            <input type="datetime-local" required value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full border border-brand-border px-3 py-2 text-sm" />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#3b2b19] mb-2">5. Giá vé gốc (VNĐ):</label>
-                            <input type="number" required min="1000" step="1000" value={basePrice} onChange={(e) => setBasePrice(e.target.value)} className="w-full border border-[#ddcbb6] px-3 py-2 text-sm" />
+                            <label className="block text-sm font-bold text-brand-dark mb-2">5. Giá vé gốc (VNĐ):</label>
+                            <input type="number" required min="1000" step="1000" value={basePrice} onChange={(e) => setBasePrice(e.target.value)} className="w-full border border-brand-border px-3 py-2 text-sm" />
                         </div>
                         <button type="submit" disabled={isSubmitting} className="mt-2 bg-brand-500 px-6 py-[10px] text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60">
                             {isSubmitting ? 'Đang tạo...' : 'Tạo Suất Chiếu'}
@@ -138,17 +138,17 @@ export default function AdminShowtimes() {
 
                 {/* CỘT PHẢI: DANH SÁCH */}
                 <div>
-                    <h3 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-2xl text-[#3b2b19]">Danh sách Suất chiếu</h3>
+                    <h3 className="m-0 border-b border-brand-border pb-3 font-display text-2xl text-brand-dark">Danh sách Suất chiếu</h3>
                     <div className="mt-4 flex flex-col gap-3">
                         {isShowtimesLoading ? <p>Đang tải...</p> : (showtimes.length === 0 ? <p>Chưa có suất chiếu nào.</p> : (
                             showtimes.map(st => (
-                                <div key={st.id} className="flex justify-between items-center border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)] sm:flex-col sm:items-start sm:gap-3">
+                                <div key={st.id} className="flex justify-between items-center border border-brand-border bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)] sm:flex-col sm:items-start sm:gap-3">
                                     <div>
-                                        <h4 className="m-0 font-bold text-[#3b2b19]">{st.movie.title}</h4>
-                                        <p className="m-0 mt-1 text-sm text-[#7b6446]">{st.room.cinema.name} - {st.room.name}</p>
+                                        <h4 className="m-0 font-bold text-brand-dark">{st.movie.title}</h4>
+                                        <p className="m-0 mt-1 text-sm text-brand-text">{st.room.cinema.name} - {st.room.name}</p>
                                         <p className="m-0 mt-1 text-sm font-bold text-brand-500">{new Date(st.start_time).toLocaleString('vi-VN')}</p>
                                     </div>
-                                    <button onClick={() => handleDelete(st.id)} className="bg-[#b0232f] px-4 py-2 text-xs font-bold text-white hover:bg-[#8a1924]">Xóa</button>
+                                    <button onClick={() => handleDelete(st.id)} className="bg-brand-error px-4 py-2 text-xs font-bold text-white hover:bg-[#8a1924]">Xóa</button>
                                 </div>
                             ))
                         ))}

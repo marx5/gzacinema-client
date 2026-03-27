@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { bookingApi } from '../api/bookingApi';
 import toast from 'react-hot-toast';
 import React from 'react';
+import { socket } from '../utils/socket';
+import { useAuthStore } from '../store/useAuthStore';
 
 
 const SeatButton = React.memo(({ seat, onClick, disabled, className }) => {
@@ -61,7 +63,7 @@ const CountdownTimer = ({ showtimeId, onExpire }) => {
     };
 
     return (
-        <div className={`px-[10px] py-[6px] font-bold text-white ${timeLeft <= 60 ? 'bg-[#b0232f]' : 'bg-[#1f8d52]'}`}>
+        <div className={`px-[10px] py-[6px] font-bold text-white ${timeLeft <= 60 ? 'bg-brand-error' : 'bg-[#1f8d52]'}`}>
             ⏱ {formatTime(timeLeft)}
         </div>
     );
@@ -69,6 +71,7 @@ const CountdownTimer = ({ showtimeId, onExpire }) => {
 
 export default function Booking() {
     const { showtimeId } = useParams();
+    const queryClient = useQueryClient();
 
     const [mySelectedSeats, setMySelectedSeats] = useState([]);
     const [processing, setProcessing] = useState(false);
@@ -80,9 +83,40 @@ export default function Booking() {
         queryFn: async () => {
             const res = await bookingApi.getSeats(showtimeId);
             return res.data;
-        },
-        refetchInterval: 10000
+        }
     });
+    const { user } = useAuthStore();
+
+
+    useEffect(() => {
+        socket.connect();
+        socket.emit('join_showtime', showtimeId);
+
+        socket.on('seat_status_changed', (updatedSeat) => {
+            queryClient.setQueryData(['seats', showtimeId], (oldData) => {
+                if (!oldData) return oldData;
+
+                const newSeats = oldData.seats.map(seat => {
+                    if (seat.id === updatedSeat.id) {
+                        let finalStatus = updatedSeat.status;
+                        if (finalStatus === 'held' && updatedSeat.held_by === user?.id) {
+                            finalStatus = 'held_by_me';
+                        }
+                        return { ...seat, status: updatedSeat.status };
+                    }
+                    return seat;
+                });
+
+                return { ...oldData, seats: newSeats };
+            });
+        });
+
+        return () => {
+            socket.emit('leave_showtime', showtimeId);
+            socket.off('seat_status_changed');
+            socket.disconnect();
+        };
+    }, [showtimeId, queryClient, user?.id]);
 
     useEffect(() => {
         if (seatData) {
@@ -148,7 +182,6 @@ export default function Booking() {
 
                 await Promise.all(seatsToProcess.map(s => bookingApi.holdSeat({ showtimeId, seatId: s.id })));
             }
-            refetch();
         } catch (error) {
             toast.error('Lỗi mạng, không thể thao tác. Vui lòng thử lại!');
             refetch();
@@ -236,7 +269,7 @@ export default function Booking() {
         }
 
         if (seat.status === 'booked') {
-            return `${base} bg-[#b0232f]`;
+            return `${base} bg-brand-error`;
         }
 
         if (seat.status === 'held' && !isSelectedByMe) {
@@ -254,17 +287,17 @@ export default function Booking() {
         return `${base} bg-[#64748b]`;
     };
 
-    if (isLoading) return <div className="py-10 text-center text-[#7b6446]">Đang tải rạp chiếu...</div>;
-    if (!seatData) return <div className="py-10 text-center text-[#7b6446]">Không tìm thấy rạp!</div>;
+    if (isLoading) return <div className="py-10 text-center text-brand-text">Đang tải rạp chiếu...</div>;
+    if (!seatData) return <div className="py-10 text-center text-brand-text">Không tìm thấy rạp!</div>;
 
     return (
         <div className="mx-auto mt-6 flex w-full max-w-[1080px] flex-col gap-6 px-4 md:mt-8 lg:flex-row lg:items-start">
             {/* CỘT TRÁI: SƠ ĐỒ GHẾ */}
-            <div className="w-full lg:w-[65%] border border-[#ddcbb6] bg-white p-4 md:p-6 shadow-sm">
+            <div className="w-full lg:w-[65%] border border-brand-border bg-white p-4 md:p-6 shadow-sm">
                 <h3 className="m-0 text-center font-display text-lg tracking-[0.08em] text-brand-500">MÀN HÌNH</h3>
                 <div className="mx-auto mb-8 mt-3 h-[6px] w-[82%] bg-[#cfb596]"></div>
 
-                <p className="mb-2 text-center text-[13px] italic text-[#8c7356] md:hidden">
+                <p className="mb-2 text-center text-[13px] italic text-brand-text-muted md:hidden">
                     ↔ Vuốt ngang để xem toàn bộ sơ đồ ghế
                 </p>
                 <div className="w-full overflow-x-auto scroll-smooth pb-4 custom-scrollbar">
@@ -286,19 +319,19 @@ export default function Booking() {
                     </div>
                 </div>
                 {/* Chú thích màu sắc */}
-                <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-[#7b6446] min-[0px]:max-[420px]:justify-start min-[0px]:max-[420px]:gap-3">
+                <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-brand-text min-[0px]:max-[420px]:justify-start min-[0px]:max-[420px]:gap-3">
                     <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-[#64748b]"></span> Thường</span>
                     <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-[#5f45ad]"></span> VIP</span>
                     <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-[#b65a10]"></span> Đôi</span>
                     <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-[#1f8d52]"></span> Đang chọn</span>
-                    <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-[#b0232f]"></span> Đã bán</span>
+                    <span className="inline-flex items-center gap-2"><span className="h-3 w-3 bg-brand-error"></span> Đã bán</span>
                 </div>
             </div>
 
             {/* CỘT PHẢI: HÓA ĐƠN */}
-            <div className="h-fit w-full lg:sticky lg:top-[100px] lg:w-[35%] border border-[#ddcbb6] border-t-4 border-t-brand-500 bg-white p-5 shadow-sm">
-                <div className="mb-4 flex items-center justify-between border-b border-[#ddcbb6] pb-3 sm:flex-col sm:items-start sm:gap-2">
-                    <h2 className="m-0 font-display text-[30px] text-[#3b2b19]">Hóa Đơn</h2>
+            <div className="h-fit w-full lg:sticky lg:top-[100px] lg:w-[35%] border border-brand-border border-t-4 border-t-brand-500 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between border-b border-brand-border pb-3 sm:flex-col sm:items-start sm:gap-2">
+                    <h2 className="m-0 font-display text-[30px] text-brand-dark">Hóa Đơn</h2>
                     {mySelectedSeats.length > 0 && (
                         <CountdownTimer
                             key={timerKey}
@@ -308,10 +341,10 @@ export default function Booking() {
                     )}
                 </div>
 
-                <p className="mb-3 text-sm text-[#7b6446]"><strong className="text-[#3b2b19]">Phòng:</strong> {seatData.showtime_info.room_name}</p>
-                <p className="mb-3 text-sm text-[#7b6446]"><strong className="text-[#3b2b19]">Thời gian:</strong> {new Date(seatData.showtime_info.start_time).toLocaleString('vi-VN')}</p>
+                <p className="mb-3 text-sm text-brand-text"><strong className="text-brand-dark">Phòng:</strong> {seatData.showtime_info.room_name}</p>
+                <p className="mb-3 text-sm text-brand-text"><strong className="text-brand-dark">Thời gian:</strong> {new Date(seatData.showtime_info.start_time).toLocaleString('vi-VN')}</p>
 
-                <div className="min-h-[180px] border border-[#ddcbb6] bg-[#fff6ec] p-4">
+                <div className="min-h-[180px] border border-brand-border bg-brand-bg p-4">
                     <h4 className="mb-3 mt-0 text-[#7b6446]">Giỏ hàng:</h4>
                     {groupedCartItems.length === 0 ? (
                         <p className="mt-6 text-center text-[#8c7356]">Chưa có ghế nào.</p>

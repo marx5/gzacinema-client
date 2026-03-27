@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { bookingApi } from '../../api/bookingApi';
 
 export default function AdminBookings() {
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('');
 
-    const { data, isLoading } = useQuery({
+    const { data, isFetching } = useQuery({
         queryKey: ['admin-bookings', page, statusFilter],
         queryFn: async () => {
             const params = { page, limit: 15 };
@@ -14,10 +14,8 @@ export default function AdminBookings() {
             const res = await bookingApi.getAllAdmin(params);
             return res.data;
         },
-        keepPreviousData: true
+        placeholderData: keepPreviousData
     });
-
-    if (isLoading && !data) return <div className="py-10 text-center text-[#7b6446]">Đang tải hóa đơn...</div>;
 
     const { bookings = [], total_pages = 1 } = data || {};
 
@@ -41,7 +39,14 @@ export default function AdminBookings() {
                 </select>
             </div>
 
-            <div className="overflow-x-auto border border-[#ddcbb6] bg-white shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+            <div className="relative overflow-x-auto border border-[#ddcbb6] bg-white shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+                {isFetching && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+                        <span className="rounded-md bg-white px-4 py-2 font-bold text-brand-600 shadow-md">
+                            Đang cập nhật...
+                        </span>
+                    </div>
+                )}
                 <table className="w-full text-left text-sm text-[#3b2b19] min-w-[800px]">
                     <thead className="bg-[#fff6ec] border-b border-[#ddcbb6]">
                         <tr>
@@ -54,10 +59,10 @@ export default function AdminBookings() {
                         </tr>
                     </thead>
                     <tbody>
-                        {bookings.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="px-4 py-8 text-center text-[#8c7356]">Không tìm thấy hóa đơn nào.</td>
-                            </tr>
+                        {!data ? (
+                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[#8c7356]">Đang tải dữ liệu...</td></tr>
+                        ) : bookings.length === 0 ? (
+                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[#8c7356]">Không tìm thấy hóa đơn nào.</td></tr>
                         ) : (
                             bookings.map(b => (
                                 <tr key={b.id} className="border-b border-dashed border-[#ddcbb6] hover:bg-[#faf4ed]">

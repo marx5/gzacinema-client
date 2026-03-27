@@ -21,8 +21,8 @@ export default function Home() {
         <div className="mx-auto mt-12 w-full max-w-[1080px] px-5 md:mt-20 md:px-4">
             <div className="mb-6 flex items-end justify-between gap-6 md:mb-5 md:flex-col md:items-start">
                 <div>
-                    <h1 className="m-0 font-display text-[26px] md:text-[36px] lg:text-[30px] font-bold leading-[1.25] text-[#3b2b19]">Lịch Phim</h1>
-                    <p className="mt-2 text-sm text-[#7b6446]">Cập nhật suất chiếu mới nhất tại hệ thống Gzacinema</p>
+                    <h1 className="m-0 font-display text-[26px] md:text-[36px] lg:text-[30px] font-bold leading-[1.25] text-brand-dark">Lịch Phim</h1>
+                    <p className="mt-2 text-sm text-brand-text">Cập nhật suất chiếu mới nhất tại hệ thống Gzacinema</p>
                 </div>
             </div>
 

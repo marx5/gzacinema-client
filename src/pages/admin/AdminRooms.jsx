@@ -53,7 +53,7 @@ export default function AdminRooms() {
         deleteMutation.mutate(roomId);
     };
 
-    if (isLoading) return <div className="py-10 text-center text-[#7b6446]">Đang tải hệ thống...</div>;
+    if (isLoading) return <div className="py-10 text-center text-brand-text">Đang tải hệ thống...</div>;
 
     const { cinemaInfo, rooms = [] } = data || {};
     const isSubmitting = createMutation.isLoading;
@@ -65,18 +65,18 @@ export default function AdminRooms() {
                 <Link to="/admin/cinemas" className="inline-block text-sm font-bold text-brand-500 hover:text-brand-600">← Quay lại Danh sách Rạp</Link>
             </div>
 
-            <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19] min-[0px]:max-[420px]:text-[28px]">
+            <h1 className="m-0 border-b border-brand-border pb-3 font-display text-[34px] text-brand-dark min-[0px]:max-[420px]:text-[28px]">
                 Quản Lý Phòng: <span>{cinemaInfo?.name}</span>
             </h1>
 
             {/* FORM THÊM PHÒNG NHANH */}
-            <div className="mt-5 border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+            <div className="mt-5 border border-brand-border bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                 <form onSubmit={handleCreateRoom} className="flex gap-4 md:flex-col">
                     <div className="flex-1">
-                        <label className="block text-sm font-bold text-[#3b2b19] mb-2">Tên phòng mới (Ví dụ: Room 1, IMAX...):</label>
+                        <label className="block text-sm font-bold text-brand-dark mb-2">Tên phòng mới (Ví dụ: Room 1, IMAX...):</label>
                         <input
                             type="text" required value={roomName} onChange={(e) => setRoomName(e.target.value)}
-                            className="w-full border border-[#ddcbb6] px-3 py-2 text-sm"
+                            className="w-full border border-brand-border px-3 py-2 text-sm"
                         />
                     </div>
                     <button
@@ -92,17 +92,17 @@ export default function AdminRooms() {
             {/* DANH SÁCH PHÒNG */}
             <div className="mt-6 grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
                 {rooms.length === 0 ? (
-                    <p className="col-span-full text-center text-[#8c7356]">Rạp này chưa có phòng chiếu nào.</p>
+                    <p className="col-span-full text-center text-brand-text-muted">Rạp này chưa có phòng chiếu nào.</p>
                 ) : (
                     rooms.map(room => (
-                        <div key={room.id} className="border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+                        <div key={room.id} className="border border-brand-border bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                             <div>
-                                <h3 className="m-0 font-bold text-[#3b2b19]">{room.name}</h3>
-                                <p className="mb-0 m-0 mt-1 text-sm text-[#8c7356]">Sức chứa: 50 ghế</p>
+                                <h3 className="m-0 font-bold text-brand-dark">{room.name}</h3>
+                                <p className="mb-0 m-0 mt-1 text-sm text-brand-text-muted">Sức chứa: 50 ghế</p>
                             </div>
                             <button
                                 onClick={() => handleDeleteRoom(room.id)}
-                                className="mt-3 w-full bg-[#b0232f] px-4 py-2 text-sm font-bold text-white hover:bg-[#8a1924]"
+                                className="mt-3 w-full bg-brand-error px-4 py-2 text-sm font-bold text-white hover:bg-[#8a1924]"
                                 type="button"
                             >
                                 Xóa
