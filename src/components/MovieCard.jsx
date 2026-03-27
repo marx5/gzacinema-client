@@ -21,7 +21,7 @@ export default function MovieCard({ movie }) {
 
                 <div className="p-2 md:p-3">
                     {/* SỬA: Giảm kích thước text và padding từ md: để card gọn hơn trên Laptop */}
-                    <h3 className="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-[15px] md:text-[18px] lg:text-[16px] font-extrabold text-brand-dark" title={movie.title}>{movie.title}</h3>
+                    <h3 className="m-0 whitespace-normal break-words leading-snug text-[15px] md:text-[18px] lg:text-[16px] font-extrabold text-brand-dark" title={movie.title}>{movie.title}</h3>
 
                     <p className="my-1.5 text-[11px] md:text-[13px] text-brand-text truncate"><strong className="text-[#3f2f1f]">Thể loại:</strong> {movie.genre || 'Đang cập nhật'}</p>
                     <p className="my-1 text-[11px] md:text-[13px] text-brand-text"><strong className="text-[#3f2f1f]">Thời lượng:</strong> {movie.duration_minutes} phút</p>
