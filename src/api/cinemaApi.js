@@ -8,6 +8,6 @@ export const cinemaApi = {
     delete: (id) => axiosClient.delete(`/cinemas/${id}`),
 
     getRooms: (cinemaId) => axiosClient.get(`/rooms/cinema/${cinemaId}`),
-    createRoom: (cinemaId, data) => axiosClient.post(`/rooms/${cinemaId}`, data),
+    createRoom: (cinemaId, data) => axiosClient.post(`/cinemas/${cinemaId}/rooms`, data),
     deleteRoom: (roomId) => axiosClient.delete(`/rooms/${roomId}`)
 };
