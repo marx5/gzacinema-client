@@ -74,6 +74,9 @@ export default function MovieDetails() {
 
     const { movie } = data;
     const trailerEmbedUrl = getYoutubeEmbedUrl(movie.trailer_url);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const releaseDateStr = String(movie.release_date || '').split('T')[0];
+    const movieCategoryLabel = releaseDateStr > todayStr ? 'Phim sắp chiếu' : 'Phim đang chiếu';
 
     return (
         <div className="mx-auto mt-6 w-full max-w-[1080px] px-4 md:mt-10">
@@ -85,7 +88,7 @@ export default function MovieDetails() {
             </Helmet>
 
             <Breadcrumb items={[
-                { label: 'Phim đang chiếu', link: '/' },
+                { label: movieCategoryLabel, link: '/' },
                 { label: movie.title }
             ]} />
 
