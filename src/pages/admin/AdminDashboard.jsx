@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { systemApi } from '../../api/systemApi';
 import { cinemaApi } from '../../api/cinemaApi';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '../../utils/formatters';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminDashboard() {
     const [filterType, setFilterType] = useState('all');
@@ -19,7 +21,7 @@ export default function AdminDashboard() {
         onError: () => toast.error("Không thể tải danh sách rạp")
     });
 
-    const { data: stats, isLoading } = useQuery({
+    const { data: stats, isLoading, isFetching } = useQuery({
         queryKey: ['admin-stats', filterType, customStartDate, customEndDate, selectedCinema],
         queryFn: async () => {
             let params = {};
@@ -49,16 +51,16 @@ export default function AdminDashboard() {
             return res.data;
         },
         enabled: filterType !== 'custom' || (!!customStartDate && !!customEndDate),
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
     });
 
     if (isLoading && !stats) return <div className="py-10 text-center text-[#7b6446]">Đang phân tích dữ liệu...</div>;
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
+            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Thống kê Doanh thu' }]} />
             <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19] min-[0px]:max-[420px]:text-[28px]">Phân Tích & Thống Kê</h1>
 
-            {/* THANH CÔNG CỤ LỌC (FILTER TOOLBAR) */}
             <div className="mt-5 border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
 
                 <div className="mb-4">
@@ -100,14 +102,21 @@ export default function AdminDashboard() {
                 )}
             </div>
 
-            {/* HIỂN THỊ CHỈ SỐ */}
             {stats && (
-                <>
-                    <div className="mt-6 grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
+                <div className="relative mt-6">
+                    {isFetching && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[1px] transition-all duration-300">
+                            <span className="rounded-md border border-[#ddcbb6] bg-white px-5 py-2 text-sm font-bold text-brand-600 shadow-md">
+                                Đang tải dữ liệu...
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
                         <div className="border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                             <h3 className="mb-2 m-0 text-sm uppercase tracking-[0.06em] text-[#8c7356]">Tổng Doanh Thu</h3>
                             <p className="mb-0 m-0 text-[28px] font-extrabold text-brand-500">
-                                {parseInt(stats.overview.total_revenue).toLocaleString()} <span className="text-sm font-bold text-[#8c7356]">VNĐ</span>
+                                {parseInt(stats.overview.total_revenue).toLocaleString('vi-VN')} <span className="text-sm font-bold text-[#8c7356]">VNĐ</span>
                             </p>
                         </div>
                         <div className="border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
@@ -133,13 +142,13 @@ export default function AdminDashboard() {
                                 <div key={movie.movie_id} className="border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                                     <div className="flex items-start justify-between gap-4 md:flex-col">
                                         <div className="flex items-start gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center bg-brand-500 text-sm font-bold text-white">
+                                            <div className="flex shrink-0 h-10 w-10 items-center justify-center bg-brand-500 text-sm font-bold text-white">
                                                 {index + 1}
                                             </div>
                                             <h3 className="mb-0 m-0 font-bold text-[#3b2b19]">{movie.title}</h3>
                                         </div>
                                         <div className="text-right md:text-left">
-                                            <p className="mb-1 m-0 text-sm font-bold text-brand-500">{parseInt(movie.total_revenue).toLocaleString()} VNĐ</p>
+                                            <p className="mb-1 m-0 text-sm font-bold text-brand-500">{formatCurrency(movie.total_revenue)}</p>
                                             <p className="mb-0 m-0 text-xs text-[#8c7356]">{movie.booking_count} lượt đặt</p>
                                         </div>
                                     </div>
@@ -147,7 +156,7 @@ export default function AdminDashboard() {
                             ))}
                         </div>
                     )}
-                </>
+                </div>
             )}
         </div>
     );

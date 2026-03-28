@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { movieApi } from '../../api/movieApi';
 import { optimizeCloudinaryUrl } from '../../utils/cloudinary';
 import AdminMovieForm from './AdminMovieForm';
+import TableSkeleton from '../../components/TableSkeleton';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminMovies() {
     const queryClient = useQueryClient();
@@ -66,7 +68,7 @@ export default function AdminMovies() {
 
     return (
         <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 md:mt-8 mb-20">
-            {/* Header & Nút thêm mới */}
+            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Quản lý Phim' }]} />
             <div className="mb-6 flex items-center justify-between sm:flex-col sm:items-start sm:gap-4">
                 <h1 className="m-0 font-display text-[32px] text-[#3b2b19]">Quản Lý Phim</h1>
                 <button
@@ -77,7 +79,6 @@ export default function AdminMovies() {
                 </button>
             </div>
 
-            {/* Bộ lọc */}
             <div className="mb-6 flex items-center gap-3 bg-white p-4 border border-[#ddcbb6] shadow-sm">
                 <label className="text-sm font-bold text-[#3b2b19]">Lọc theo trạng thái:</label>
                 <select
@@ -91,10 +92,8 @@ export default function AdminMovies() {
                 </select>
             </div>
 
-            {/* KHU VỰC BẢNG DỮ LIỆU (CÓ LỚP PHỦ OVERLAY) */}
             <div className="relative overflow-x-auto border border-[#ddcbb6] bg-white shadow-[0_8px_22px_rgba(76,45,17,0.08)]">
 
-                {/* HIỆU ỨNG MỜ KHI ĐANG TẢI (ĐỔI TRANG / ĐỔI BỘ LỌC) */}
                 {isFetching && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
                         <span className="rounded-md border border-[#ddcbb6] bg-white px-5 py-2 text-sm font-bold text-brand-600 shadow-md">
@@ -115,7 +114,7 @@ export default function AdminMovies() {
                     </thead>
                     <tbody>
                         {!data ? (
-                            <tr><td colSpan="5" className="px-4 py-10 text-center text-[#8c7356]">Đang khởi tạo dữ liệu...</td></tr>
+                            <TableSkeleton rows={6} columns={5} />
                         ) : movies.length === 0 ? (
                             <tr><td colSpan="5" className="px-4 py-10 text-center text-[#8c7356]">Không tìm thấy bộ phim nào.</td></tr>
                         ) : (
@@ -132,7 +131,6 @@ export default function AdminMovies() {
                                     <td className="px-4 py-3">{new Date(movie.release_date).toLocaleDateString('vi-VN')}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex justify-center gap-2">
-                                            {/* Nút Lịch chiếu (Đã làm ở bước trước) */}
                                             <Link to={`/admin/movies/${movie.id}/showtimes`} className="border border-brand-500 bg-[#fffaf3] px-3 py-[6px] text-xs font-bold text-brand-600 transition hover:bg-brand-500 hover:text-white">
                                                 LỊCH CHIẾU
                                             </Link>
@@ -155,7 +153,6 @@ export default function AdminMovies() {
                 </table>
             </div>
 
-            {/* Điều hướng Phân trang (Pagination) */}
             {totalPages > 1 && (
                 <div className="mt-8 flex justify-center gap-2">
                     <button

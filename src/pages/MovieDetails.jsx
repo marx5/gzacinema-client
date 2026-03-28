@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { movieApi } from '../api/movieApi';
 import { Helmet } from 'react-helmet-async';
 import { optimizeCloudinaryUrl } from '../utils/cloudinary';
+import Breadcrumb from '../components/Breadcrumb';
 
 export default function MovieDetails() {
     const { id } = useParams();
@@ -83,9 +84,12 @@ export default function MovieDetails() {
                 <meta property="og:image" content={optimizeCloudinaryUrl(movie.thumbnail, 500)} />
             </Helmet>
 
-            {/* KHU VỰC 1: HERO BANNER (THÔNG TIN PHIM) */}
+            <Breadcrumb items={[
+                { label: 'Phim đang chiếu', link: '/' },
+                { label: movie.title }
+            ]} />
+
             <div className="flex flex-col gap-6 md:flex-row md:gap-8 lg:gap-10">
-                {/* Poster Phim */}
                 <div className="mx-auto w-[60%] shrink-0 md:w-[280px] lg:w-[320px]">
                     <img
                         src={optimizeCloudinaryUrl(movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba', 500)}
@@ -95,13 +99,11 @@ export default function MovieDetails() {
                     />
                 </div>
 
-                {/* Chi tiết thông tin */}
                 <div className="flex flex-1 flex-col justify-center">
                     <h1 className="m-0 font-display text-[32px] font-bold text-[#3b2b19] md:text-[40px] leading-tight">
                         {movie.title}
                     </h1>
 
-                    {/* Các thông số phim: Nằm ngang, cách nhau bởi dấu chấm */}
                     <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-bold text-[#7b6446]">
                         <span className="border border-[#ddcbb6] bg-white px-2 py-1 uppercase">{movie.genre || 'Đang cập nhật'}</span>
                         <span>•</span>
@@ -110,7 +112,6 @@ export default function MovieDetails() {
                         <span>Khởi chiếu: {new Date(movie.release_date).toLocaleDateString('vi-VN')}</span>
                     </div>
 
-                    {/* Dòng phân cách */}
                     <div className="my-5 h-[1px] w-full bg-[#ddcbb6]"></div>
 
                     <div className="text-base leading-[1.8] text-[#5c4a3d]">
@@ -119,10 +120,8 @@ export default function MovieDetails() {
                 </div>
             </div>
 
-            {/* KHU VỰC 2: TRAILER & LỊCH CHIẾU (Chia 2 cột trên Desktop) */}
             <div className="mt-12 flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
 
-                {/* Cột trái: Lịch chiếu (Rộng hơn) */}
                 <div className="w-full lg:flex-[1.6]">
                     <h2 className="m-0 border-b-2 border-brand-500 pb-2 font-display text-[26px] text-brand-dark inline-block mb-6">
                         Lịch Chiếu Phim
@@ -134,7 +133,6 @@ export default function MovieDetails() {
                         </div>
                     ) : (
                         <>
-                            {/* Thanh Tab Ngày (Thiết kế dạng Calendar) */}
                             <div className="mb-8 flex gap-3 overflow-x-auto pb-2 snap-x custom-scrollbar">
                                 {availableDates.map(date => {
                                     const { top, bottom } = formatDisplayDateUI(date);
@@ -158,7 +156,6 @@ export default function MovieDetails() {
                                 })}
                             </div>
 
-                            {/* Danh sách rạp */}
                             <div className="flex flex-col gap-5">
                                 {filteredShowtimes.length === 0 ? (
                                     <p className="py-4 text-center text-[#7b6446]">Không có suất chiếu nào trong ngày này.</p>
@@ -193,7 +190,6 @@ export default function MovieDetails() {
                     )}
                 </div>
 
-                {/* Cột phải: Trailer (Nhỏ hơn, dính màn hình) */}
                 {trailerEmbedUrl && (
                     <div className="w-full lg:sticky lg:top-[100px] lg:flex-[1]">
                         <h3 className="m-0 mb-4 font-display text-[22px] text-brand-dark">Trailer</h3>

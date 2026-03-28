@@ -6,6 +6,7 @@ import { cinemaApi } from '../../api/cinemaApi';
 import { movieApi } from '../../api/movieApi';
 import { systemApi } from '../../api/systemApi';
 import { optimizeCloudinaryUrl } from '../../utils/cloudinary';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminMovieShowtimes() {
     const { id: movieId } = useParams();
@@ -99,12 +100,13 @@ export default function AdminMovieShowtimes() {
 
     return (
         <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 md:mt-8 mb-20">
-            {/* 1. BREADCRUMBS & THÔNG TIN PHIM */}
             <div className="mb-8 border border-brand-border border-t-4 border-t-brand-500 bg-white p-5 shadow-sm">
-                <div className="mb-4 flex items-center gap-2 text-sm text-brand-text-muted">
-                    <Link to="/admin/movies" className="font-bold hover:text-brand-600 hover:underline">Phim</Link>
-                    <span>/</span>
-                    <span className="font-bold text-brand-dark">Quản lý Lịch Chiếu</span>
+                <div className="mb-2">
+                    <Breadcrumb items={[
+                        { label: 'Quản trị', link: '/admin' },
+                        { label: 'Danh sách Phim', link: '/admin/movies' },
+                        { label: 'Lịch chiếu' }
+                    ]} />
                 </div>
 
                 <div className="flex items-center gap-5 sm:flex-row sm:items-start">
@@ -119,10 +121,8 @@ export default function AdminMovieShowtimes() {
                 </div>
             </div>
 
-            {/* 2. KHU VỰC CHÍNH: FORM THÊM & DANH SÁCH LỊCH CHIẾU */}
             <div className="grid grid-cols-[340px_1fr] gap-6 lg:grid-cols-[300px_1fr] md:grid-cols-1">
 
-                {/* CỘT TRÁI: FORM THÊM MỚI */}
                 <div className="h-fit lg:sticky lg:top-[90px]">
                     <div className="border border-brand-border bg-[#fffaf3] p-5 shadow-[0_8px_22px_rgba(76,45,17,0.08)]">
                         <h3 className="m-0 mb-4 border-b border-brand-border pb-3 font-display text-xl text-brand-dark">
@@ -158,7 +158,6 @@ export default function AdminMovieShowtimes() {
                     </div>
                 </div>
 
-                {/* CỘT PHẢI: DANH SÁCH LỊCH CHIẾU ĐÃ NHÓM */}
                 <div>
                     <h2 className="m-0 mb-5 font-display text-[26px] text-brand-dark">Lịch chiếu đã lên</h2>
 
@@ -170,25 +169,20 @@ export default function AdminMovieShowtimes() {
                         </div>
                     ) : (
                         <div className="flex flex-col gap-6">
-                            {/* Vòng lặp Ngày */}
                             {Object.keys(groupedShowtimes).sort().map(dateStr => (
                                 <div key={dateStr} className="border border-[#ddcbb6] bg-white shadow-sm overflow-hidden">
-                                    {/* Header Ngày */}
                                     <div className="bg-[#fff6ec] border-b border-[#ddcbb6] px-5 py-3">
                                         <h3 className="m-0 text-lg font-bold text-brand-600">📅 Ngày: {dateStr}</h3>
                                     </div>
 
-                                    {/* Vòng lặp Rạp trong ngày đó */}
                                     <div className="p-5 flex flex-col gap-5">
                                         {Object.keys(groupedShowtimes[dateStr]).map(cinemaName => (
                                             <div key={cinemaName} className="border-l-4 border-[#cfb596] pl-4">
                                                 <h4 className="m-0 mb-3 text-base font-bold text-brand-dark">{cinemaName}</h4>
 
-                                                {/* Danh sách các Giờ chiếu (Chips) */}
                                                 <div className="flex flex-wrap gap-3">
                                                     {groupedShowtimes[dateStr][cinemaName].map(st => (
                                                         <div key={st.id} className="group relative flex min-w-[100px] flex-col overflow-hidden border border-[#ddcbb6] bg-white transition-all hover:border-brand-500 hover:shadow-md">
-                                                            {/* Khối hiển thị Giờ & Phòng */}
                                                             <div className="flex flex-col items-center justify-center p-2 text-center">
                                                                 <strong className="text-xl text-[#3b2b19]">
                                                                     {new Date(st.start_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
@@ -198,7 +192,6 @@ export default function AdminMovieShowtimes() {
                                                                 </span>
                                                             </div>
 
-                                                            {/* Nút Xóa (Dạng trượt từ dưới lên khi Hover) */}
                                                             <button
                                                                 onClick={() => window.confirm('Xóa suất chiếu này chứ?') && deleteMutation.mutate(st.id)}
                                                                 className="h-0 w-full bg-brand-error text-[11px] font-bold text-white transition-all duration-300 group-hover:h-7 group-hover:py-1"

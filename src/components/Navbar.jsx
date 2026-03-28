@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
@@ -8,9 +9,9 @@ export default function Navbar() {
     const navigate = useNavigate();
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const menuRef = useRef(null);
 
+    // Đóng dropdown khi click ra ngoài
     useEffect(() => {
         function handleClickOutside(event) {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -26,92 +27,78 @@ export default function Navbar() {
         toast.success('Đã đăng xuất thành công');
         navigate('/');
         setIsMenuOpen(false);
-        setIsMobileNavOpen(false);
     };
 
     return (
-        <div className="sticky top-0 z-50 border-b border-[#d8c8b4] bg-[linear-gradient(180deg,#fffaf3_0%,#f6ecde_100%)] shadow-sm">
-            <nav className="relative mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-3 md:px-4">
-                <Link to="/" className="font-display text-[28px] md:text-[36px] font-extrabold text-brand-600 hover:text-brand-700">
-                    Gzacinema
+        <header className="sticky top-0 z-[900] w-full border-b border-[#ddcbb6] bg-white/90 shadow-sm backdrop-blur-md">
+            <nav className="mx-auto flex h-[72px] w-full max-w-[1080px] items-center justify-between px-5 md:px-4">
+
+                {/* LOGO BÊN TRÁI */}
+                <Link to="/" className="font-display text-[32px] font-extrabold text-[#3b2b19] transition hover:opacity-80">
+                    Gzacinema<span className="text-brand-500">.</span>
                 </Link>
 
-                <button
-                    className="md:hidden p-2 text-[#3f2f1f]"
-                    onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {isMobileNavOpen ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        ) : (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        )}
-                    </svg>
-                </button>
-
-                {/* DANH SÁCH MENU (DESKTOP: Flex hàng ngang, MOBILE: Khối absolute xổ xuống) */}
-                <div className={`${isMobileNavOpen ? 'absolute top-[calc(100%+4px)] right-5 flex w-[260px] flex-col gap-4 rounded-b-lg border border-[#d8c8b4] bg-white p-5 shadow-xl' : 'hidden'} md:static md:flex md:w-auto md:flex-row md:items-center md:gap-3 md:border-none md:bg-transparent md:p-0 md:shadow-none`}>
+                {/* USER BÊN PHẢI */}
+                <div>
                     {isAuthenticated ? (
-                        <>
-                            <span className="truncate text-sm text-[#73593d]">
-                                Xin chào, <strong className="text-[#3f2f1f]">{user?.full_name}</strong>
+                        <div className="relative flex items-center gap-3" ref={menuRef}>
+                            {/* Chữ Xin chào */}
+                            <span className="text-sm text-[#7b6446] md:visible invisible">
+                                Xin chào, <strong className="text-[#3b2b19]">{user?.full_name}</strong>
                             </span>
-                            <Link to="/history" onClick={() => setIsMobileNavOpen(false)} className="border border-[#d8c8b4] bg-white px-3 py-2 text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:text-brand-700 text-center">Vé của tôi</Link>
-                            <Link to="/profile" onClick={() => setIsMobileNavOpen(false)} className="border border-[#d8c8b4] bg-white px-3 py-2 text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:text-brand-700 text-center">Hồ sơ</Link>
 
-                            {(user?.role === 'admin' || user?.role === 'staff') && (
-                                <div className="relative" ref={menuRef}>
-                                    {/* Trên Mobile, ẩn nút Quản lý dạng Dropdown đi, show list ra luôn. Trên Desktop giữ nguyên Dropdown */}
-                                    <button
-                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className="hidden md:block w-full border border-[#d8c8b4] bg-white px-4 py-[10px] text-sm font-bold text-[#3f2f1f] hover:border-brand-500 hover:bg-brand-bg"
-                                    >
-                                        Quản lý ▾
-                                    </button>
+                            {/* Nút bấm mở Dropdown */}
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddcbb6] bg-[#f6efe3] font-bold text-[#3b2b19] transition hover:border-brand-500 hover:bg-brand-500 hover:text-white cursor-pointer"
+                            >
+                                {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+                            </button>
 
-                                    {/* Dropdown Desktop */}
-                                    {isMenuOpen && (
-                                        <div className="absolute right-0 top-[calc(100%+6px)] z-[100] hidden md:flex min-w-[220px] flex-col border border-[#d8c8b4] bg-white shadow-xl">
-                                            {user?.role === 'admin' && (
-                                                <>
-                                                    <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Thống kê</Link>
-                                                    <Link to="/admin/movies" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Phim</Link>
-                                                    <Link to="/admin/showtimes" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Lịch chiếu</Link>
-                                                    <Link to="/admin/cinemas" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Rạp</Link>
-                                                    <Link to="/admin/bookings" onClick={() => setIsMenuOpen(false)} className="border-b border-brand-bg-light px-4 py-[11px] text-sm hover:bg-brand-bg">Hóa đơn</Link>
-                                                </>
-                                            )}
-                                            <Link to="/staff/checkin" onClick={() => setIsMenuOpen(false)} className="px-4 py-[11px] text-sm hover:bg-brand-bg">Soát vé QR</Link>
-                                        </div>
-                                    )}
+                            {/* Dropdown Menu */}
+                            {isMenuOpen && (
+                                <div className="absolute right-0 top-[110%] z-[999] w-[220px] overflow-hidden rounded-md border border-[#ddcbb6] bg-white shadow-xl">
 
-                                    {/* Menu Admin trên Mobile (Render trực tiếp) */}
-                                    <div className="md:hidden mt-2 flex flex-col gap-2 border-t border-[#d8c8b4] pt-2">
-                                        <span className="text-xs text-brand-text-muted font-bold">MENU QUẢN LÝ</span>
-                                        {user?.role === 'admin' && (
+                                    <div className="border-b border-[#ddcbb6] bg-[#fcf9f4] px-4 py-3">
+                                        <p className="m-0 text-xs text-[#7b6446]">Tài khoản</p>
+                                        <p className="m-0 truncate font-bold text-[#3b2b19]">{user?.email}</p>
+                                    </div>
+
+                                    <div className="flex flex-col py-1">
+                                        <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="px-4 py-2.5 text-sm font-medium text-[#3b2b19] transition hover:bg-[#fff6ec] hover:text-brand-600">Hồ sơ cá nhân</Link>
+                                        <Link to="/history" onClick={() => setIsMenuOpen(false)} className="px-4 py-2.5 text-sm font-medium text-[#3b2b19] transition hover:bg-[#fff6ec] hover:text-brand-600">Vé của tôi</Link>
+                                        {(user?.role === 'admin' || user?.role === 'staff') && (
                                             <>
-                                                <Link to="/admin" onClick={() => setIsMobileNavOpen(false)} className="text-sm py-1 font-bold text-brand-600">Thống kê</Link>
-                                                <Link to="/admin/movies" onClick={() => setIsMobileNavOpen(false)} className="text-sm py-1 font-bold text-brand-600">Phim</Link>
-                                                <Link to="/admin/showtimes" onClick={() => setIsMobileNavOpen(false)} className="text-sm py-1 font-bold text-brand-600">Lịch chiếu</Link>
+                                                <div className="my-1 border-t border-dashed border-[#ddcbb6]"></div>
+                                                <div className="px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-[#8c7356]">Khu vực Quản trị</div>
+                                                {user?.role === 'admin' && (
+                                                    <>
+                                                        <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Thống kê</Link>
+                                                        <Link to="/admin/movies" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Phim</Link>
+                                                        <Link to="/admin/showtimes" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Lịch chiếu</Link>
+                                                        <Link to="/admin/cinemas" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Rạp</Link>
+                                                        <Link to="/admin/bookings" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Hóa đơn</Link>
+                                                    </>
+                                                )}
+                                                <Link to="/staff/checkin" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-sm font-medium text-[#3b2b19] transition hover:bg-brand-500 hover:text-white">Soát vé QR</Link>
                                             </>
                                         )}
-                                        <Link to="/staff/checkin" onClick={() => setIsMobileNavOpen(false)} className="text-sm py-1 font-bold text-brand-600">Soát vé QR</Link>
+
+                                        <div className="my-1 border-t border-[#ddcbb6]"></div>
+                                        <button onClick={handleLogout} className="w-full px-4 py-2.5 text-left text-sm font-bold text-[#b0232f] transition hover:bg-[#fceceb]">Đăng xuất</button>
                                     </div>
                                 </div>
                             )}
-
-                            <button onClick={handleLogout} className="mt-2 md:mt-0 border border-[#9b2d30] bg-white px-3 py-2 text-sm font-bold text-[#9b2d30] hover:bg-[#7e2326] hover:text-white">Đăng xuất</button>
-                        </>
+                        </div>
                     ) : (
-                        <>
-                            <Link to="/login" onClick={() => setIsMobileNavOpen(false)} className="border border-[#d8c8b4] bg-white px-3 py-2 text-sm font-bold text-[#3f2f1f] text-center">Đăng nhập</Link>
-                            <Link to="/register" onClick={() => setIsMobileNavOpen(false)}>
-                                <button className="w-full bg-brand-500 px-4 py-[10px] text-sm font-bold text-white hover:bg-brand-600">Đăng ký</button>
-                            </Link>
-                        </>
+                        <div className="flex items-center gap-3">
+                            <Link to="/login" className="px-3 py-2 text-sm font-bold text-[#3b2b19] transition hover:text-brand-500">Đăng nhập</Link>
+                            <Link to="/register" className="bg-brand-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-600 rounded-sm">Đăng ký</Link>
+                        </div>
                     )}
                 </div>
+
             </nav>
-        </div>
+        </header>
     );
 }

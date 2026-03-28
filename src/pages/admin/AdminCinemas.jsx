@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { cinemaApi } from '../../api/cinemaApi';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminCinemas() {
     const queryClient = useQueryClient();
@@ -77,7 +78,7 @@ export default function AdminCinemas() {
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4 grid grid-cols-[380px_1fr] gap-6 md:grid-cols-1">
-            {/* CỘT TRÁI: FORM THÊM/SỬA */}
+            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Hệ thống Rạp' }]} />
             <div className="border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                 <h2 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-lg text-[#3b2b19]">
                     {editId ? 'Cập Nhật Rạp' : 'Thêm Rạp Mới'}
@@ -117,7 +118,6 @@ export default function AdminCinemas() {
                 </form>
             </div>
 
-            {/* CỘT PHẢI: DANH SÁCH RẠP */}
             <div>
                 <h2 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-2xl text-[#3b2b19]">Danh Sách Rạp</h2>
 

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { bookingApi } from '../../api/bookingApi';
+import TableSkeleton from '../../components/TableSkeleton';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminBookings() {
     const [page, setPage] = useState(1);
@@ -27,6 +30,7 @@ export default function AdminBookings() {
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
+            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Quản lý Hóa đơn' }]} />
             <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19]">Quản Lý Hóa Đơn</h1>
 
             <div className="mt-4 mb-6 flex items-center gap-3">
@@ -60,7 +64,7 @@ export default function AdminBookings() {
                     </thead>
                     <tbody>
                         {!data ? (
-                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[#8c7356]">Đang tải dữ liệu...</td></tr>
+                            <TableSkeleton rows={8} columns={6} />
                         ) : bookings.length === 0 ? (
                             <tr><td colSpan="6" className="px-4 py-8 text-center text-[#8c7356]">Không tìm thấy hóa đơn nào.</td></tr>
                         ) : (
@@ -74,12 +78,12 @@ export default function AdminBookings() {
                                     <td className="px-4 py-3">
                                         <div className="font-bold text-brand-600">{b.showtime?.movie?.title}</div>
                                         <div className="text-xs text-[#8c7356]">
-                                            {b.showtime?.room?.name} | {new Date(b.showtime?.start_time).toLocaleString('vi-VN')}
+                                            {b.showtime?.room?.name} | {formatDateTime(b.showtime?.start_time)}
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">{b.tickets?.length || 0} vé</td>
                                     <td className="px-4 py-3 text-right font-bold text-brand-500">
-                                        {parseInt(b.total_amount).toLocaleString()} đ
+                                        {formatCurrency(b.total_amount)}
                                     </td>
                                     <td className="px-4 py-3 text-center">{getStatusBadge(b.status)}</td>
                                 </tr>
@@ -89,7 +93,6 @@ export default function AdminBookings() {
                 </table>
             </div>
 
-            {/* Phân trang */}
             {total_pages > 1 && (
                 <div className="mt-6 flex justify-center gap-2">
                     <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="border border-[#ddcbb6] bg-white px-3 py-1 text-sm disabled:opacity-50">Trước</button>

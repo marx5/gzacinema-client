@@ -76,7 +76,6 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                 onSubmit={handleSubmit(onSubmit)}
                 className="relative flex w-full max-w-[1000px] max-h-[95vh] flex-col overflow-hidden rounded-lg bg-[#fbf8f3] shadow-2xl animate-in fade-in zoom-in-95 duration-200"
             >
-                {/* 1. HEADER CỐ ĐỊNH TRÊN CÙNG */}
                 <div className="flex items-center justify-between bg-[#3b2b19] px-6 py-4 md:px-5 md:py-3 sm:flex-col sm:gap-4 sm:items-start shrink-0">
                     <h2 className="m-0 font-display text-[26px] text-white sm:text-2xl">
                         {isEditMode ? 'Chỉnh Sửa Phim' : 'Khai Báo Phim Mới'}
@@ -106,7 +105,6 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                     <div className="flex-1 overflow-y-auto p-6 md:p-5 custom-scrollbar">
                         <div className="flex flex-col md:flex-row gap-8 md:gap-10">
 
-                            {/* 2.1 CỘT TRÁI: POSTER PHIM */}
                             <div className="w-full shrink-0 md:w-[260px]">
                                 <label className="mb-2 block text-sm font-bold text-[#3b2b19]">Poster Phim *</label>
                                 <div className="aspect-[2/3] w-full max-w-[260px] sm:max-w-full mx-auto overflow-hidden border border-dashed border-[#cfb596] bg-white shadow-sm">
@@ -131,9 +129,7 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                                 {errors.thumbnail && <p className="mt-2 text-center text-xs font-bold text-red-500">{errors.thumbnail.message}</p>}
                             </div>
 
-                            {/* 2.2 CỘT PHẢI: THÔNG TIN CHI TIẾT VÀ MÔ TẢ */}
                             <div className="flex-1 flex flex-col gap-6">
-                                {/* Nhóm các input ngắn */}
                                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                     <div className="sm:col-span-2">
                                         <label className="mb-1 block text-sm font-bold text-[#3b2b19]">Tên phim *</label>
@@ -165,7 +161,6 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                                     </div>
                                 </div>
 
-                                {/* Textarea Mô tả (Nằm cùng cột bên phải) */}
                                 <div>
                                     <label className="mb-2 block text-sm font-bold text-[#3b2b19]">Mô tả nội dung phim *</label>
                                     <textarea

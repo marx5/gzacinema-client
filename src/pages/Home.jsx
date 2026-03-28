@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { movieApi } from '../api/movieApi';
 import MovieCard from '../components/MovieCard';
 import SkeletonCard from '../components/SkeletonCard';
@@ -14,17 +14,12 @@ export default function Home() {
                 ? await movieApi.getShowing()
                 : await movieApi.getComingSoon();
             return res.data.movie;
-        }
+        },
+        placeholderData: keepPreviousData
     });
 
     return (
-        <div className="mx-auto mt-12 w-full max-w-[1080px] px-5 md:mt-20 md:px-4">
-            <div className="mb-6 flex items-end justify-between gap-6 md:mb-5 md:flex-col md:items-start">
-                <div>
-                    <h1 className="m-0 font-display text-[26px] md:text-[36px] lg:text-[30px] font-bold leading-[1.25] text-brand-dark">Lịch Phim</h1>
-                    <p className="mt-2 text-sm text-brand-text">Cập nhật suất chiếu mới nhất tại hệ thống Gzacinema</p>
-                </div>
-            </div>
+        <div className="mx-auto mt-12 w-full max-w-[1080px] px-5 md:mt-5 md:px-4">
 
             <div className="mb-6 flex gap-3 overflow-x-auto border-b-2 border-[#dcc9b3] pb-3 custom-scrollbar">
                 <button

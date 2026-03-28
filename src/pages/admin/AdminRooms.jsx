@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cinemaApi } from '../../api/cinemaApi';
 import toast from 'react-hot-toast';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminRooms() {
     const { cinemaId } = useParams();
@@ -60,16 +61,16 @@ export default function AdminRooms() {
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
-            {/* Thanh điều hướng quay lại */}
-            <div className="mb-4">
-                <Link to="/admin/cinemas" className="inline-block text-sm font-bold text-brand-500 hover:text-brand-600">← Quay lại Danh sách Rạp</Link>
-            </div>
+            <Breadcrumb items={[
+                { label: 'Quản trị', link: '/admin' },
+                { label: 'Hệ thống Rạp', link: '/admin/cinemas' },
+                { label: `Phòng chiếu: ${cinemaInfo?.name || 'Đang tải...'}` }
+            ]} />
 
             <h1 className="m-0 border-b border-brand-border pb-3 font-display text-[34px] text-brand-dark min-[0px]:max-[420px]:text-[28px]">
                 Quản Lý Phòng: <span>{cinemaInfo?.name}</span>
             </h1>
 
-            {/* FORM THÊM PHÒNG NHANH */}
             <div className="mt-5 border border-brand-border bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                 <form onSubmit={handleCreateRoom} className="flex gap-4 md:flex-col">
                     <div className="flex-1">
@@ -89,7 +90,6 @@ export default function AdminRooms() {
                 </form>
             </div>
 
-            {/* DANH SÁCH PHÒNG */}
             <div className="mt-6 grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
                 {rooms.length === 0 ? (
                     <p className="col-span-full text-center text-brand-text-muted">Rạp này chưa có phòng chiếu nào.</p>

@@ -10,7 +10,6 @@ export default function MovieCard({ movie }) {
     return (
         <article className="mx-auto flex h-full w-full max-w-[300px] md:max-w-[180px] lg:max-w-[200px] flex-col justify-between overflow-hidden border border-brand-border bg-white shadow-[0_8px_18px_rgba(76,45,17,0.10)] transition hover:-translate-y-[3px] hover:border-brand-500 hover:shadow-[0_12px_24px_rgba(76,45,17,0.16)]">
             <div className="relative bg-brand-bg-light">
-                {/* CHUẨN UX: Sử dụng aspect-[2/3] để poster phim không bị méo */}
                 <img
                     src={optimizeCloudinaryUrl(movie.thumbnail || defaultImg, 300)}
                     alt={movie.title}
@@ -20,7 +19,6 @@ export default function MovieCard({ movie }) {
                 />
 
                 <div className="p-2 md:p-3">
-                    {/* SỬA: Giảm kích thước text và padding từ md: để card gọn hơn trên Laptop */}
                     <h3 className="m-0 whitespace-normal break-words leading-snug text-[15px] md:text-[18px] lg:text-[16px] font-extrabold text-brand-dark" title={movie.title}>{movie.title}</h3>
 
                     <p className="my-1.5 text-[11px] md:text-[13px] text-brand-text truncate"><strong className="text-[#3f2f1f]">Thể loại:</strong> {movie.genre || 'Đang cập nhật'}</p>

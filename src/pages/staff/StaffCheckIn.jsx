@@ -3,6 +3,7 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { systemApi } from '../../api/systemApi';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function StaffCheckIn() {
     const [scannedId, setScannedId] = useState('');
@@ -32,10 +33,10 @@ export default function StaffCheckIn() {
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
+            <Breadcrumb items={[{ label: 'Nhân viên', link: '/staff/checkin' }, { label: 'Soát vé QR' }]} />
             <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19] min-[0px]:max-[420px]:text-[28px]">Soát Vé (Check-in)</h1>
             <p className="mb-0 mt-3 text-sm text-[#7b6446]">Đưa mã QR của khách hàng vào khung hình</p>
 
-            {/* Khung quét QR */}
             <div className="relative mt-4 overflow-hidden border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                 <Scanner
                     onScan={handleCheckIn}
@@ -50,7 +51,6 @@ export default function StaffCheckIn() {
                 )}
             </div>
 
-            {/* Thông tin vé vừa quét */}
             <div className="mt-4 border border-[#ddcbb6] bg-[#fff6ec] p-4">
                 <p className="mb-2 mt-0 text-xs uppercase tracking-[0.06em] text-[#8c7356]">ID vừa quét:</p>
                 <code className="break-all bg-[#3b2b19] px-[10px] py-[6px] text-xs text-[#fff6ec]">

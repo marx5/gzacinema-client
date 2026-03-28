@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { cinemaApi } from '../../api/cinemaApi';
 import { movieApi } from '../../api/movieApi';
 import { systemApi } from '../../api/systemApi';
+import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminShowtimes() {
     const queryClient = useQueryClient();
@@ -94,10 +95,10 @@ export default function AdminShowtimes() {
 
     return (
         <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4">
+            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Lịch chiếu Tổng' }]} />
             <h1 className="m-0 border-b border-brand-border pb-3 font-display text-[34px] text-brand-dark">Quản Lý Lịch Chiếu</h1>
 
             <div className="mt-5 grid grid-cols-[380px_1fr] gap-6 md:grid-cols-1">
-                {/* CỘT TRÁI: FORM TẠO */}
                 <div className="h-fit border border-brand-border bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
                     <h3 className="m-0 border-b border-brand-border pb-3 font-display text-lg text-brand-dark">Lên lịch mới</h3>
                     <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
@@ -136,7 +137,6 @@ export default function AdminShowtimes() {
                     </form>
                 </div>
 
-                {/* CỘT PHẢI: DANH SÁCH */}
                 <div>
                     <h3 className="m-0 border-b border-brand-border pb-3 font-display text-2xl text-brand-dark">Danh sách Suất chiếu</h3>
                     <div className="mt-4 flex flex-col gap-3">
