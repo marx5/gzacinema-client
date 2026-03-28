@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 
 export const movieApi = {
-    getAll: () => axiosClient.get('/movies'),
+    getAll: (params = {}) => axiosClient.get('/movies', { params }),
     getShowing: () => axiosClient.get('/movies?status=showing'),
     getComingSoon: () => axiosClient.get('/movies?status=coming_soon'),
     getById: (id) => axiosClient.get(`/movies/${id}`),
