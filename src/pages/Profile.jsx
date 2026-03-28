@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { authApi } from '../api/authApi';
 import { useAuthStore } from '../store/useAuthStore';
@@ -9,6 +9,7 @@ export default function Profile() {
     const { checkAuth } = useAuthStore();
 
     const [fullName, setFullName] = useState('');
+    const [isEditingName, setIsEditingName] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -19,19 +20,21 @@ export default function Profile() {
         queryFn: async () => {
             const res = await authApi.getProfile();
             return res.data;
-        },
-        onSuccess: (data) => {
-            if (data) {
-                setFullName(data.full_name || '');
-                setPhoneNumber(data.phone_number || '');
-            }
         }
     });
+
+    const profileData = profile?.data || profile || {};
+
+    useEffect(() => {
+        setFullName(profileData.full_name || '');
+        setPhoneNumber(profileData.phone_number || '');
+    }, [profileData.full_name, profileData.phone_number]);
 
     const updateMutation = useMutation({
         mutationFn: (data) => authApi.updateProfile(data),
         onSuccess: () => {
             toast.success('Cập nhật hồ sơ thành công!');
+            setIsEditingName(false);
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
@@ -44,9 +47,12 @@ export default function Profile() {
         e.preventDefault();
 
         const updateData = {
-            full_name: fullName,
             phone_number: phoneNumber
         };
+
+        if (fullName.trim() && fullName.trim() !== (profileData.full_name || '').trim()) {
+            updateData.full_name = fullName.trim();
+        }
 
         if (newPassword || oldPassword || confirmPassword) {
             if (!oldPassword) return toast.error('Vui lòng nhập mật khẩu cũ');
@@ -58,6 +64,11 @@ export default function Profile() {
 
         updateMutation.mutate(updateData);
     };
+
+    const isNameChanged = fullName.trim() !== (profileData.full_name || '').trim();
+    const isPhoneChanged = phoneNumber.trim() !== (profileData.phone_number || '').trim();
+    const hasPasswordInput = !!(oldPassword || newPassword || confirmPassword);
+    const shouldShowBottomSaveButton = isNameChanged || isPhoneChanged || hasPasswordInput;
 
     if (isLoading) return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center">
@@ -79,13 +90,13 @@ export default function Profile() {
 
                 <div className="mb-8 flex items-center gap-5 border-b border-dashed border-[#ddcbb6] pb-8">
                     <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#f6efe3] border-2 border-brand-500 text-3xl font-bold text-brand-600 uppercase shadow-sm">
-                        {profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || 'U'}
+                        {profileData.full_name?.charAt(0) || profileData.email?.charAt(0) || 'U'}
                     </div>
                     <div>
-                        <h2 className="m-0 text-[22px] font-display font-bold text-[#3b2b19]">{profile?.full_name}</h2>
-                        <p className="m-0 text-[15px] text-[#7b6446]">{profile?.email}</p>
-                        <span className={`mt-2 inline-block px-3 py-1 text-[11px] font-bold uppercase tracking-widest border ${profile?.role === 'admin' ? 'border-red-500 text-red-600' : profile?.role === 'staff' ? 'border-blue-500 text-blue-600' : 'hidden'}`}>
-                            Vai trò: {profile?.role}
+                        <h2 className="m-0 text-[22px] font-display font-bold text-[#3b2b19]">{profileData.full_name}</h2>
+                        <p className="m-0 text-[15px] text-[#7b6446]">{profileData.email}</p>
+                        <span className={`mt-2 inline-block px-3 py-1 text-[11px] font-bold uppercase tracking-widest border ${profileData.role === 'admin' ? 'border-red-500 text-red-600' : profileData.role === 'staff' ? 'border-blue-500 text-blue-600' : 'hidden'}`}>
+                            Vai trò: {profileData.role}
                         </span>
                     </div>
                 </div>
@@ -105,10 +116,45 @@ export default function Profile() {
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    placeholder={profile?.full_name || 'Chưa cập nhật'}
+                                    placeholder={profileData.full_name || 'Chưa cập nhật'}
                                     required
-                                    className="w-full border border-[#ddcbb6] bg-white px-4 py-2.5 text-[15px] text-[#3b2b19] transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                    readOnly={!isEditingName}
+                                    className={`w-full border px-4 py-2.5 text-[15px] text-[#3b2b19] transition-all ${isEditingName
+                                        ? 'border-[#ddcbb6] bg-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+                                        : 'cursor-not-allowed border-[#e4d7c7] bg-[#f4eee6]'
+                                        }`}
                                 />
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {!isEditingName ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsEditingName(true)}
+                                            className="border border-brand-500 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-brand-600 transition hover:bg-brand-500 hover:text-white"
+                                        >
+                                            Sửa tên
+                                        </button>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="submit"
+                                                disabled={updateMutation.isLoading}
+                                                className="bg-brand-500 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
+                                            >
+                                                Cập nhật tên
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setFullName(profileData.full_name || '');
+                                                    setIsEditingName(false);
+                                                }}
+                                                className="border border-[#c9b299] bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#7b6446] transition hover:bg-[#f7f0e7]"
+                                            >
+                                                Hủy
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-[13px] font-bold uppercase tracking-wider text-[#8c7356] mb-2">Số điện thoại</label>
@@ -116,7 +162,7 @@ export default function Profile() {
                                     type="tel"
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
-                                    placeholder={profile?.phone_number || 'Chưa cập nhật'}
+                                    placeholder={profileData.phone_number || 'Chưa cập nhật'}
                                     className="w-full border border-[#ddcbb6] bg-white px-4 py-2.5 text-[15px] text-[#3b2b19] transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                 />
                             </div>
@@ -161,23 +207,25 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    <div className="mt-4 flex justify-end pt-4 border-t border-dashed border-[#ddcbb6]">
-                        <button
-                            type="submit"
-                            disabled={updateMutation.isLoading}
-                            className="min-w-[180px] bg-brand-500 py-3.5 px-6 text-sm font-bold tracking-wider text-white transition-all hover:bg-brand-600 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed sm:w-full"
-                        >
-                            {updateMutation.isLoading ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    ĐANG LƯU...
-                                </span>
-                            ) : 'LƯU THAY ĐỔI'}
-                        </button>
-                    </div>
+                    {shouldShowBottomSaveButton && (
+                        <div className="mt-4 flex justify-end pt-4 border-t border-dashed border-[#ddcbb6]">
+                            <button
+                                type="submit"
+                                disabled={updateMutation.isLoading}
+                                className="min-w-[180px] bg-brand-500 py-3.5 px-6 text-sm font-bold tracking-wider text-white transition-all hover:bg-brand-600 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed sm:w-full"
+                            >
+                                {updateMutation.isLoading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        ĐANG LƯU...
+                                    </span>
+                                ) : 'LƯU THAY ĐỔI'}
+                            </button>
+                        </div>
+                    )}
                 </form>
             </div>
         </div>
