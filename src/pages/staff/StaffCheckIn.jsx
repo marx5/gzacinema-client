@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -8,6 +8,17 @@ import Breadcrumb from '../../components/Breadcrumb';
 export default function StaffCheckIn() {
     const [scannedId, setScannedId] = useState('');
     const [isScannerLocked, setIsScannerLocked] = useState(false);
+    const immediateLockRef = useRef(false);
+    const lastScanRef = useRef({ id: '', time: 0 });
+
+    const RE_SCAN_COOLDOWN_MS = 6000;
+
+    const unlockScanner = () => {
+        setTimeout(() => {
+            immediateLockRef.current = false;
+            setIsScannerLocked(false);
+        }, 2200);
+    };
 
     const checkInMutation = useMutation({
         mutationFn: (ticketId) => systemApi.checkInTicket(ticketId),
@@ -16,20 +27,30 @@ export default function StaffCheckIn() {
                 `✅ CHECK-IN THÀNH CÔNG!\nGhế: ${res.data.seat.row_letter}${res.data.seat.seat_number}\nGiá: ${parseInt(res.data.price).toLocaleString()} VNĐ`,
                 { duration: 4000 }
             );
-            setTimeout(() => setIsScannerLocked(false), 1200);
+            unlockScanner();
         },
         onError: (error) => {
             const message = error.response?.data?.message || 'Không thể check-in vé này';
             toast.error(`❌ LỖI: ${message}`, { duration: 4000 });
-            setTimeout(() => setIsScannerLocked(false), 1200);
+            unlockScanner();
         }
     });
 
     const handleCheckIn = (result) => {
-        if (checkInMutation.isLoading || isScannerLocked || !result || result.length === 0) return;
+        if (immediateLockRef.current || checkInMutation.isLoading || isScannerLocked || !result || result.length === 0) return;
 
         const ticketId = result[0].rawValue;
         if (!ticketId) return;
+
+        const now = Date.now();
+        const isRecentDuplicate =
+            lastScanRef.current.id === ticketId &&
+            now - lastScanRef.current.time < RE_SCAN_COOLDOWN_MS;
+
+        if (isRecentDuplicate) return;
+
+        immediateLockRef.current = true;
+        lastScanRef.current = { id: ticketId, time: now };
 
         setIsScannerLocked(true);
         setScannedId(ticketId);
