@@ -23,8 +23,15 @@ export default function StaffCheckIn() {
     const checkInMutation = useMutation({
         mutationFn: (ticketId) => systemApi.checkInTicket(ticketId),
         onSuccess: (res) => {
+            const ticket = res?.data;
+            const seatLabel =
+                ticket?.seat?.row_letter && ticket?.seat?.seat_number
+                    ? `${ticket.seat.row_letter}${ticket.seat.seat_number}`
+                    : (ticket?.seat_code || 'N/A');
+            const priceValue = Number(ticket?.price || 0);
+
             toast.success(
-                `✅ CHECK-IN THÀNH CÔNG!\nGhế: ${res.data.seat.row_letter}${res.data.seat.seat_number}\nGiá: ${parseInt(res.data.price).toLocaleString()} VNĐ`,
+                `✅ CHECK-IN THÀNH CÔNG!\nGhế: ${seatLabel}\nGiá: ${priceValue.toLocaleString()} VNĐ`,
                 { duration: 4000 }
             );
             unlockScanner();
@@ -37,7 +44,7 @@ export default function StaffCheckIn() {
     });
 
     const handleCheckIn = (result) => {
-        if (immediateLockRef.current || checkInMutation.isLoading || isScannerLocked || !result || result.length === 0) return;
+        if (immediateLockRef.current || checkInMutation.isPending || isScannerLocked || !result || result.length === 0) return;
 
         const ticketId = result[0].rawValue;
         if (!ticketId) return;
@@ -72,7 +79,7 @@ export default function StaffCheckIn() {
                         scanDelay={2000}
                     />
 
-                    {(checkInMutation.isLoading || isScannerLocked) && (
+                    {(checkInMutation.isPending || isScannerLocked) && (
                         <div className="absolute inset-0 flex items-center justify-center bg-[rgba(21,34,56,0.7)] p-4 text-center text-white">
                             <strong>Đang xác thực vé...</strong>
                         </div>
