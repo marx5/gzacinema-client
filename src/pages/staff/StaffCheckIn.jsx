@@ -37,18 +37,20 @@ export default function StaffCheckIn() {
             <h1 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-[34px] text-[#3b2b19] min-[0px]:max-[420px]:text-[28px]">Soát Vé (Check-in)</h1>
             <p className="mb-0 mt-3 text-sm text-[#7b6446]">Đưa mã QR của khách hàng vào khung hình</p>
 
-            <div className="relative mt-4 overflow-hidden border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                <Scanner
-                    onScan={handleCheckIn}
-                    allowMultiple={true}
-                    scanDelay={2000}
-                />
+            <div className="mt-4 mx-auto w-full max-w-[820px] border border-[#ddcbb6] bg-white p-3 sm:p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
+                <div className="relative mx-auto w-full overflow-hidden rounded-md border border-[#eadfce] bg-[#f8f2e9] aspect-[3/4] sm:aspect-[4/3] lg:aspect-[16/9]">
+                    <Scanner
+                        onScan={handleCheckIn}
+                        allowMultiple={true}
+                        scanDelay={2000}
+                    />
 
-                {checkInMutation.isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[rgba(21,34,56,0.7)] p-4 text-center text-white">
-                        <strong>Đang xác thực vé...</strong>
-                    </div>
-                )}
+                    {checkInMutation.isLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(21,34,56,0.7)] p-4 text-center text-white">
+                            <strong>Đang xác thực vé...</strong>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="mt-4 border border-[#ddcbb6] bg-[#fff6ec] p-4">

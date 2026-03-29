@@ -44,7 +44,7 @@ export default function Profile() {
     });
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
 
         const updateData = {
             phone_number: phoneNumber
@@ -128,7 +128,10 @@ export default function Profile() {
                                     {!isEditingName ? (
                                         <button
                                             type="button"
-                                            onClick={() => setIsEditingName(true)}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setIsEditingName(true);
+                                            }}
                                             className="border border-brand-500 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-brand-600 transition hover:bg-brand-500 hover:text-white"
                                         >
                                             Sửa tên
@@ -136,7 +139,8 @@ export default function Profile() {
                                     ) : (
                                         <>
                                             <button
-                                                type="submit"
+                                                type="button"
+                                                onClick={handleSubmit}
                                                 disabled={updateMutation.isLoading}
                                                 className="bg-brand-500 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
                                             >
