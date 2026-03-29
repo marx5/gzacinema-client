@@ -38,7 +38,7 @@ export default function StaffCheckIn() {
             <p className="mb-0 mt-3 text-sm text-[#7b6446]">Đưa mã QR của khách hàng vào khung hình</p>
 
             <div className="mt-4 mx-auto w-full max-w-[820px] border border-[#ddcbb6] bg-white p-3 sm:p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                <div className="relative mx-auto w-full overflow-hidden rounded-md border border-[#eadfce] bg-[#f8f2e9] aspect-[3/4] sm:aspect-[4/3] lg:aspect-[16/9]">
+                <div className="relative mx-auto w-full overflow-hidden rounded-md border border-[#eadfce] bg-[#f8f2e9] aspect-square">
                     <Scanner
                         onScan={handleCheckIn}
                         allowMultiple={true}
