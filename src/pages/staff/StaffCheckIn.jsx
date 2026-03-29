@@ -7,6 +7,7 @@ import Breadcrumb from '../../components/Breadcrumb';
 
 export default function StaffCheckIn() {
     const [scannedId, setScannedId] = useState('');
+    const [isScannerLocked, setIsScannerLocked] = useState(false);
 
     const checkInMutation = useMutation({
         mutationFn: (ticketId) => systemApi.checkInTicket(ticketId),
@@ -15,17 +16,22 @@ export default function StaffCheckIn() {
                 `✅ CHECK-IN THÀNH CÔNG!\nGhế: ${res.data.seat.row_letter}${res.data.seat.seat_number}\nGiá: ${parseInt(res.data.price).toLocaleString()} VNĐ`,
                 { duration: 4000 }
             );
+            setTimeout(() => setIsScannerLocked(false), 1200);
         },
         onError: (error) => {
             const message = error.response?.data?.message || 'Không thể check-in vé này';
             toast.error(`❌ LỖI: ${message}`, { duration: 4000 });
+            setTimeout(() => setIsScannerLocked(false), 1200);
         }
     });
 
     const handleCheckIn = (result) => {
-        if (checkInMutation.isLoading || !result || result.length === 0) return;
+        if (checkInMutation.isLoading || isScannerLocked || !result || result.length === 0) return;
 
         const ticketId = result[0].rawValue;
+        if (!ticketId) return;
+
+        setIsScannerLocked(true);
         setScannedId(ticketId);
 
         checkInMutation.mutate(ticketId);
@@ -41,11 +47,11 @@ export default function StaffCheckIn() {
                 <div className="relative mx-auto w-full overflow-hidden rounded-md border border-[#eadfce] bg-[#f8f2e9] aspect-square">
                     <Scanner
                         onScan={handleCheckIn}
-                        allowMultiple={true}
+                        allowMultiple={false}
                         scanDelay={2000}
                     />
 
-                    {checkInMutation.isLoading && (
+                    {(checkInMutation.isLoading || isScannerLocked) && (
                         <div className="absolute inset-0 flex items-center justify-center bg-[rgba(21,34,56,0.7)] p-4 text-center text-white">
                             <strong>Đang xác thực vé...</strong>
                         </div>
