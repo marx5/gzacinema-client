@@ -2,16 +2,15 @@ version: '3.8'
 
 services:
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        # Trỏ VITE_API_URL tới domain/IP của VPS
-        VITE_API_URL: ${VITE_API_URL}
+    image: nginx:alpine
     container_name: gzacinema-client
     restart: unless-stopped
     ports:
       - '80:80'
+    volumes:
+      # Nginx serve thẳng từ folder dist được SCP lên
+      - ./dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - gzacinema-net
 
