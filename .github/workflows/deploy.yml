@@ -76,5 +76,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            docker exec gzacinema-client nginx -s reload
+            cd /home/ubuntu/workspace/gzacinema/gzacinema-client
+            docker compose up -d --force-recreate
             echo "✅ Client deployed successfully!"
