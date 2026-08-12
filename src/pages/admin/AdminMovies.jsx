@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { movieApi } from '../../api/movieApi';
-import { optimizeCloudinaryUrl } from '../../utils/cloudinary';
 import AdminMovieForm from './AdminMovieForm';
 import TableSkeleton from '../../components/TableSkeleton';
 import Breadcrumb from '../../components/Breadcrumb';
@@ -121,7 +120,7 @@ export default function AdminMovies() {
                             movies.map(movie => (
                                 <tr key={movie.id} className="border-b border-dashed border-[#ddcbb6] transition hover:bg-[#faf4ed]">
                                     <td className="px-4 py-3">
-                                        <img src={optimizeCloudinaryUrl(movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop', 100)} alt={movie.title} loading="lazy" className="w-[60px] h-[90px] object-cover border border-[#ddcbb6]" />
+                                        <img src={movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop'} alt={movie.title} loading="lazy" className="w-[60px] h-[90px] object-cover border border-[#ddcbb6]" />
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="font-bold text-[16px] text-brand-700">{movie.title}</div>

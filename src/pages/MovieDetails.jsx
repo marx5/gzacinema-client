@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { movieApi } from '../api/movieApi';
 import { Helmet } from 'react-helmet-async';
-import { optimizeCloudinaryUrl } from '../utils/cloudinary';
 import Breadcrumb from '../components/Breadcrumb';
 
 export default function MovieDetails() {
@@ -84,7 +83,7 @@ export default function MovieDetails() {
                 <title>{movie.title} | Gzacinema - Đặt vé ngay</title>
                 <meta name="description" content={movie.description?.substring(0, 160)} />
                 <meta property="og:title" content={movie.title} />
-                <meta property="og:image" content={optimizeCloudinaryUrl(movie.thumbnail, 500)} />
+                <meta property="og:image" content={movie.thumbnail} />
             </Helmet>
 
             <Breadcrumb items={[
@@ -95,7 +94,7 @@ export default function MovieDetails() {
             <div className="flex flex-col gap-6 md:flex-row md:gap-8 lg:gap-10">
                 <div className="mx-auto w-[60%] shrink-0 md:w-[280px] lg:w-[320px]">
                     <img
-                        src={optimizeCloudinaryUrl(movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba', 500)}
+                        src={movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba'}
                         alt={movie.title}
                         loading="lazy"
                         className="aspect-[2/3] w-full border border-brand-border object-cover shadow-[0_8px_22px_rgba(76,45,17,0.15)]"

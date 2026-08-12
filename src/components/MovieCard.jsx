@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { optimizeCloudinaryUrl } from '../utils/cloudinary';
-
 
 export default function MovieCard({ movie }) {
     const defaultImg = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop";
@@ -11,7 +9,7 @@ export default function MovieCard({ movie }) {
         <article className="mx-auto flex h-full w-full max-w-[300px] md:max-w-[180px] lg:max-w-[200px] flex-col justify-between overflow-hidden border border-brand-border bg-white shadow-[0_8px_18px_rgba(76,45,17,0.10)] transition hover:-translate-y-[3px] hover:border-brand-500 hover:shadow-[0_12px_24px_rgba(76,45,17,0.16)]">
             <div className="relative bg-brand-bg-light">
                 <img
-                    src={optimizeCloudinaryUrl(movie.thumbnail || defaultImg, 300)}
+                    src={movie.thumbnail || defaultImg}
                     alt={movie.title}
                     loading="lazy"
                     onLoad={() => setIsLoaded(true)}

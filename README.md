@@ -52,7 +52,6 @@ English: The application supports 3 main feature groups:
 	- Giữ ghế / bỏ giữ ghế theo thời gian thực với Socket.IO.
 	- Hỗ trợ ghế thường, VIP, sweetbox.
 	- Đồng hồ giữ ghế 5 phút (lưu trạng thái theo showtime trên localStorage).
-- Tối ưu URL ảnh Cloudinary theo kích thước hiển thị (q_auto, f_auto, w_*).
 - Router dùng lazy loading (code splitting) để giảm JS tải ban đầu.
 - Tạo link thanh toán qua cổng thanh toán (VNPay flow).
 - Nhận kết quả thanh toán tại trang callback.

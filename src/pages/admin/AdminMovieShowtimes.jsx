@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { cinemaApi } from '../../api/cinemaApi';
 import { movieApi } from '../../api/movieApi';
 import { systemApi } from '../../api/systemApi';
-import { optimizeCloudinaryUrl } from '../../utils/cloudinary';
 import Breadcrumb from '../../components/Breadcrumb';
 
 export default function AdminMovieShowtimes() {
@@ -110,7 +109,7 @@ export default function AdminMovieShowtimes() {
                 </div>
 
                 <div className="flex items-center gap-5 sm:flex-row sm:items-start">
-                    <img src={optimizeCloudinaryUrl(movie.thumbnail, 120)} alt={movie.title} loading="lazy" className="h-[120px] w-[80px] object-cover shadow-md" />
+                    <img src={movie.thumbnail} alt={movie.title} loading="lazy" className="h-[120px] w-[80px] object-cover shadow-md" />
                     <div>
                         <h1 className="m-0 font-display text-[28px] font-bold text-brand-dark">{movie.title}</h1>
                         <div className="mt-2 flex gap-4 text-sm font-bold text-brand-text">
