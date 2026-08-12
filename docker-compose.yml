@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Trỏ VITE_API_URL tới domain/IP của VPS
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: gzacinema-client
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    networks:
+      - gzacinema-net
+
+networks:
+  gzacinema-net:
+    external: true

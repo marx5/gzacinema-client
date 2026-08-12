@@ -1,0 +1,36 @@
+name: Deploy Client to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+
+            # Di chuyển vào thư mục project
+            cd /app/client
+
+            # Pull code mới nhất
+            git pull origin main
+
+            # Build và restart container (VITE_API_URL đọc từ .env trên VPS)
+            docker-compose up --build -d
+
+            # Dọn dẹp image cũ không dùng
+            docker image prune -f
+
+            echo "✅ Client deployed successfully!"
