@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { movieApi } from '../../api/movieApi';
@@ -34,22 +34,23 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
         }
     };
 
-    const { isLoading: isFetchingMovie } = useQuery({
+    const { data: movieData, isLoading: isFetchingMovie } = useQuery({
         queryKey: ['admin-movie-detail', movieId],
         queryFn: async () => (await movieApi.getById(movieId)).data,
         enabled: isEditMode,
-        onSuccess: (data) => {
-            if (data) {
-                const formattedDate = data.release_date ? new Date(data.release_date).toISOString().split('T')[0] : '';
-                reset({ ...data, release_date: formattedDate });
+    });
 
-                if (data.thumbnail) {
-                    setPreviewImage(data.thumbnail);
-                    setValue("thumbnail", data.thumbnail);
-                }
+    useEffect(() => {
+        if (isEditMode && movieData) {
+            const formattedDate = movieData.release_date ? new Date(movieData.release_date).toISOString().split('T')[0] : '';
+            reset({ ...movieData, release_date: formattedDate });
+
+            if (movieData.thumbnail) {
+                setPreviewImage(movieData.thumbnail);
+                setValue("thumbnail", movieData.thumbnail);
             }
         }
-    });
+    }, [isEditMode, movieData, reset, setValue]);
 
     const mutation = useMutation({
         mutationFn: (data) => isEditMode ? movieApi.update(movieId, data) : movieApi.create(data),
