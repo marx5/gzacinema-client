@@ -5,7 +5,9 @@ import toast from 'react-hot-toast';
 import { cinemaApi } from '../../api/cinemaApi';
 import { movieApi } from '../../api/movieApi';
 import { systemApi } from '../../api/systemApi';
-import Breadcrumb from '../../components/Breadcrumb';
+import { Film, Calendar, Clock, Building2, Plus, ArrowLeft, Trash2, Sparkles, MapPin } from 'lucide-react';
+import { Button, Badge, Select, Input, DatePicker, MoneyInput } from '../../components/core';
+import { formatCurrency } from '../../utils/formatters';
 
 export default function AdminMovieShowtimes() {
     const { id: movieId } = useParams();
@@ -29,7 +31,7 @@ export default function AdminMovieShowtimes() {
     const { data: rooms = [], isFetching: isRoomsLoading } = useQuery({
         queryKey: ['admin-rooms-by-cinema', selectedCinema],
         queryFn: async () => (await cinemaApi.getRooms(selectedCinema)).data,
-        enabled: !!selectedCinema
+        enabled: Boolean(selectedCinema)
     });
 
     const { data: showtimes = [], isLoading: isShowtimesLoading } = useQuery({
@@ -79,9 +81,9 @@ export default function AdminMovieShowtimes() {
         mutationFn: (id) => systemApi.deleteShowtime(id),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-showtimes', movieId]);
-            toast.success('Đã xóa suất chiếu');
+            toast.success('Đã xóa suất chiếu thành công');
         },
-        onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa suất chiếu này')
+        onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa suất chiếu này (đã có khách mua vé)')
     });
 
     const handleCreate = (e) => {
@@ -91,111 +93,191 @@ export default function AdminMovieShowtimes() {
             movie_id: movieId,
             room_id: selectedRoom,
             start_time: new Date(startTime).toISOString(),
-            base_price: parseInt(basePrice)
+            base_price: parseInt(basePrice, 10)
         });
     };
 
-    if (!movie) return <div className="py-20 text-center font-bold text-brand-text">Đang tải dữ liệu...</div>;
+    if (!movie) {
+        return (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-cinema-gold" />
+                <p className="mt-4 font-medium text-cinema-text-muted">Đang tải thông tin phim...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 md:mt-8 mb-20">
-            <div className="mb-8 border border-brand-border border-t-4 border-t-brand-500 bg-white p-5 shadow-sm">
-                <div className="mb-2">
-                    <Breadcrumb items={[
-                        { label: 'Quản trị', link: '/admin' },
-                        { label: 'Danh sách Phim', link: '/admin/movies' },
-                        { label: 'Lịch chiếu' }
-                    ]} />
-                </div>
+        <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Header Movie Banner */}
+            <div className="glass-card rounded-md border border-white/10 p-5 shadow-cinematic relative overflow-hidden">
+                <div className="absolute top-0 left-0 h-1 w-full bg-gold-gradient" />
 
-                <div className="flex items-center gap-5 sm:flex-row sm:items-start">
-                    <img src={movie.thumbnail} alt={movie.title} loading="lazy" className="h-[120px] w-[80px] object-cover shadow-md" />
-                    <div>
-                        <h1 className="m-0 font-display text-[28px] font-bold text-brand-dark">{movie.title}</h1>
-                        <div className="mt-2 flex gap-4 text-sm font-bold text-brand-text">
-                            <span>Thời lượng: {movie.duration_minutes} phút</span>
-                            <span>Thể loại: {movie.genre || 'Đang cập nhật'}</span>
+                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5">
+                    <div className="flex items-center gap-4">
+                        <img
+                            src={movie.thumbnail}
+                            alt={movie.title}
+                            loading="lazy"
+                            className="h-24 w-16 object-cover rounded-md border border-white/10 shadow-md"
+                        />
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Badge variant="gold" size="sm">
+                                    {movie.genre || 'Điện ảnh'}
+                                </Badge>
+                                {movie.age_rating && (
+                                    <Badge variant="rose" size="sm">
+                                        {movie.age_rating}
+                                    </Badge>
+                                )}
+                            </div>
+                            <h2 className="m-0 font-display text-xl sm:text-2xl font-bold text-cinema-text">
+                                {movie.title}
+                            </h2>
+                            <p className="text-xs text-cinema-text-muted flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5 text-cinema-gold" />
+                                <span>Thời lượng: {movie.duration_minutes} phút</span>
+                            </p>
                         </div>
                     </div>
+
+                    <Link to="/admin/movies">
+                        <Button variant="secondary" size="sm" className="rounded-md shrink-0" leftIcon={<ArrowLeft className="w-4 h-4" />}>
+                            Về Danh Sách Phim
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
-            <div className="grid grid-cols-[340px_1fr] gap-6 lg:grid-cols-[300px_1fr] md:grid-cols-1">
-
-                <div className="h-fit lg:sticky lg:top-[90px]">
-                    <div className="border border-brand-border bg-[#fffaf3] p-5 shadow-[0_8px_22px_rgba(76,45,17,0.08)]">
-                        <h3 className="m-0 mb-4 border-b border-brand-border pb-3 font-display text-xl text-brand-dark">
-                            Tạo Suất Chiếu
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Form Lên Lịch Cho Phim Này */}
+                <div className="lg:col-span-4">
+                    <div className="glass-card rounded-md border border-white/10 p-5 shadow-cinematic space-y-4 lg:sticky lg:top-24">
+                        <h3 className="m-0 font-display text-base font-bold text-cinema-text border-b border-white/10 pb-3 flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-cinema-gold" />
+                            Tạo Suất Chiếu Cho Phim
                         </h3>
-                        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+
+                        <form onSubmit={handleCreate} className="space-y-3.5">
                             <div>
-                                <label className="mb-1 block text-sm font-bold text-brand-dark">Rạp chiếu:</label>
-                                <select value={selectedCinema} onChange={e => setSelectedCinema(e.target.value)} className="w-full border border-brand-border bg-white px-3 py-[10px] text-sm focus:border-brand-500 focus:outline-none">
-                                    <option value="">-- Chọn rạp --</option>
-                                    {cinemas.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
+                                <Select
+                                    label="Cụm rạp:"
+                                    icon={Building2}
+                                    size="sm"
+                                    value={selectedCinema}
+                                    onChange={(val) => { setSelectedCinema(val); setSelectedRoom(''); }}
+                                    options={[
+                                        { value: '', label: '-- Chọn rạp chiếu --' },
+                                        ...cinemas.map(c => ({ value: c.id, label: c.name }))
+                                    ]}
+                                />
                             </div>
+
                             <div>
-                                <label className="mb-1 block text-sm font-bold text-brand-dark">Phòng chiếu:</label>
-                                <select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} disabled={!selectedCinema} className="w-full border border-brand-border bg-white px-3 py-[10px] text-sm focus:border-brand-500 focus:outline-none disabled:bg-gray-100">
-                                    <option value="">{isRoomsLoading ? 'Đang tải...' : '-- Chọn phòng --'}</option>
-                                    {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </select>
+                                <Select
+                                    label="Phòng chiếu:"
+                                    icon={Clock}
+                                    size="sm"
+                                    value={selectedRoom}
+                                    onChange={(val) => setSelectedRoom(val)}
+                                    disabled={!selectedCinema}
+                                    options={[
+                                        { value: '', label: isRoomsLoading ? 'Đang tải...' : '-- Chọn phòng --' },
+                                        ...rooms.map(r => ({ value: r.id, label: `${r.name} (${r.total_seats || 50} ghế)` }))
+                                    ]}
+                                />
                             </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-bold text-brand-dark">Ngày & Giờ chiếu:</label>
-                                <input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} required className="w-full border border-brand-border bg-white px-3 py-[10px] text-sm focus:border-brand-500 focus:outline-none" />
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-bold text-brand-dark">Giá vé gốc (VNĐ):</label>
-                                <input type="number" value={basePrice} onChange={e => setBasePrice(e.target.value)} min="1000" step="1000" required className="w-full border border-brand-border bg-white px-3 py-[10px] text-sm focus:border-brand-500 focus:outline-none" />
-                            </div>
-                            <button type="submit" disabled={createMutation.isLoading} className="mt-2 w-full bg-brand-500 py-3 text-sm font-bold tracking-wider text-white transition hover:bg-brand-600 disabled:opacity-70">
-                                {createMutation.isLoading ? 'ĐANG XỬ LÝ...' : 'TẠO SUẤT CHIẾU'}
-                            </button>
+
+                            <DatePicker
+                                label="Ngày & Giờ chiếu:"
+                                size="sm"
+                                showTime
+                                required
+                                value={startTime}
+                                onChange={val => setStartTime(val)}
+                                placeholder="Chọn ngày & giờ chiếu"
+                            />
+
+                            <MoneyInput
+                                label="Giá vé cơ bản (VNĐ):"
+                                size="sm"
+                                required
+                                min={1000}
+                                value={basePrice}
+                                onChange={val => setBasePrice(val)}
+                                placeholder="Ví dụ: 70.000"
+                            />
+
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="md"
+                                isLoading={createMutation.isLoading}
+                                className="w-full rounded-md font-bold tracking-wide shadow-glow-gold-sm mt-2"
+                                leftIcon={<Plus className="w-4 h-4" />}
+                            >
+                                TẠO SUẤT CHIẾU
+                            </Button>
                         </form>
                     </div>
                 </div>
 
-                <div>
-                    <h2 className="m-0 mb-5 font-display text-[26px] text-brand-dark">Lịch chiếu đã lên</h2>
+                {/* Danh Sách Lịch Chiếu Theo Ngày */}
+                <div className="lg:col-span-8 space-y-4">
+                    <h3 className="m-0 font-display text-lg font-bold text-cinema-text border-b border-white/10 pb-3 flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-cinema-gold" />
+                        Danh Sách Suất Chiếu Của Phim
+                    </h3>
 
                     {isShowtimesLoading ? (
-                        <div className="text-brand-text">Đang tải dữ liệu...</div>
+                        <div className="py-12 text-center text-cinema-text-muted">Đang tải lịch chiếu...</div>
                     ) : Object.keys(groupedShowtimes).length === 0 ? (
-                        <div className="border border-dashed border-[#cfb596] bg-white py-12 text-center text-brand-text-muted">
-                            Chưa có suất chiếu nào cho bộ phim này.
+                        <div className="glass-card rounded-md border border-white/10 p-12 text-center text-cinema-text-muted space-y-2">
+                            <Calendar className="w-10 h-10 text-cinema-text-dim mx-auto" />
+                            <p className="text-sm font-semibold">Chưa có lịch chiếu nào cho bộ phim này.</p>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-6">
+                        <div className="space-y-4">
                             {Object.keys(groupedShowtimes).sort().map(dateStr => (
-                                <div key={dateStr} className="border border-[#ddcbb6] bg-white shadow-sm overflow-hidden">
-                                    <div className="bg-[#fff6ec] border-b border-[#ddcbb6] px-5 py-3">
-                                        <h3 className="m-0 text-lg font-bold text-brand-600">📅 Ngày: {dateStr}</h3>
+                                <div key={dateStr} className="glass-card rounded-md border border-white/10 overflow-hidden shadow-sm">
+                                    <div className="bg-cinema-surface-elevated/80 border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
+                                        <h4 className="m-0 text-sm font-bold text-cinema-gold flex items-center gap-2">
+                                            <Calendar className="w-4 h-4" />
+                                            Ngày: {dateStr}
+                                        </h4>
                                     </div>
 
-                                    <div className="p-5 flex flex-col gap-5">
+                                    <div className="p-4 space-y-4">
                                         {Object.keys(groupedShowtimes[dateStr]).map(cinemaName => (
-                                            <div key={cinemaName} className="border-l-4 border-[#cfb596] pl-4">
-                                                <h4 className="m-0 mb-3 text-base font-bold text-brand-dark">{cinemaName}</h4>
+                                            <div key={cinemaName} className="border-l-2 border-cinema-gold/60 pl-3.5 space-y-2">
+                                                <h5 className="m-0 text-xs font-bold uppercase tracking-wider text-cinema-text flex items-center gap-1.5">
+                                                    <MapPin className="w-3.5 h-3.5 text-cinema-gold" />
+                                                    {cinemaName}
+                                                </h5>
 
-                                                <div className="flex flex-wrap gap-3">
+                                                <div className="flex flex-wrap gap-2.5 pt-1">
                                                     {groupedShowtimes[dateStr][cinemaName].map(st => (
-                                                        <div key={st.id} className="group relative flex min-w-[100px] flex-col overflow-hidden border border-[#ddcbb6] bg-white transition-all hover:border-brand-500 hover:shadow-md">
-                                                            <div className="flex flex-col items-center justify-center p-2 text-center">
-                                                                <strong className="text-xl text-[#3b2b19]">
+                                                        <div
+                                                            key={st.id}
+                                                            className="group relative flex min-w-[110px] flex-col overflow-hidden rounded-md border border-white/10 bg-cinema-surface-elevated/60 transition-all hover:border-cinema-gold/50"
+                                                        >
+                                                            <div className="p-2 text-center space-y-0.5">
+                                                                <strong className="text-base font-black text-white">
                                                                     {new Date(st.start_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                                                                 </strong>
-                                                                <span className="mt-[2px] text-[11px] font-bold uppercase tracking-wider text-brand-text">
+                                                                <span className="block text-[10px] font-bold uppercase tracking-wider text-cinema-text-muted">
                                                                     {st.room?.name}
                                                                 </span>
                                                             </div>
 
                                                             <button
-                                                                onClick={() => window.confirm('Xóa suất chiếu này chứ?') && deleteMutation.mutate(st.id)}
-                                                                className="h-0 w-full bg-brand-error text-[11px] font-bold text-white transition-all duration-300 group-hover:h-7 group-hover:py-1"
+                                                                type="button"
+                                                                onClick={() => window.confirm('Bạn chắc chắn muốn xóa suất chiếu này?') && deleteMutation.mutate(st.id)}
+                                                                className="h-0 w-full bg-red-500/80 text-[10px] font-bold text-white transition-all duration-200 group-hover:h-6 group-hover:py-0.5 flex items-center justify-center gap-1"
                                                             >
-                                                                XÓA BỎ
+                                                                <Trash2 className="w-3 h-3" />
+                                                                Xóa
                                                             </button>
                                                         </div>
                                                     ))}

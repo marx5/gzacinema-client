@@ -5,37 +5,75 @@ export default {
     './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
+    borderRadius: {
+      none: '0px',
+      sm: '5px',
+      DEFAULT: '5px',
+      md: '5px',
+      lg: '5px',
+      xl: '5px',
+      '2xl': '5px',
+      '3xl': '5px',
+      full: '9999px',
+    },
     extend: {
       fontFamily: {
-        display: ['Inter', 'Segoe UI', 'sans-serif'],
-        body: ['Inter', 'Segoe UI', 'sans-serif'],
+        display: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
+        // Dark Cinematic Palette
+        cinema: {
+          bg: '#0B0C16',
+          'bg-subtle': '#111222',
+          surface: '#17182B',
+          'surface-elevated': '#1F213A',
+          'surface-hover': '#282B4A',
+          border: 'rgba(255, 255, 255, 0.08)',
+          'border-highlight': 'rgba(234, 179, 8, 0.3)',
+          gold: '#EAB308',
+          'gold-light': '#FDE047',
+          'gold-dark': '#CA8A04',
+          text: '#F8FAFC',
+          'text-muted': '#94A3B8',
+          'text-dim': '#64748B',
+        },
+        // Legacy Brand alias mapping for seamless compatibility
         brand: {
-          50: '#fff6ec',
-          100: '#fde6cb',
-          500: '#c77b2a',
-          600: '#a9651f',
-          700: '#874f18',
-          // Semantic colors
-          dark: '#3b2b19',        // Màu chữ tối
-          border: '#ddcbb6',      // Màu viền
-          bg: '#fff6ec',          // Màu nền nhạt
-          'bg-light': '#eadfce',  // Màu nền rất nhạt
-          text: '#7b6446',        // Màu chữ thường
-          'text-muted': '#8c7356', // Màu chữ nhạt hơn
-          error: '#b0232f',       // Màu lỗi/nguy hiểm
+          50: '#17182B',
+          100: '#1F213A',
+          500: '#EAB308',
+          600: '#CA8A04',
+          700: '#A16207',
+          dark: '#F8FAFC',
+          border: 'rgba(255, 255, 255, 0.1)',
+          bg: '#0B0C16',
+          'bg-light': '#17182B',
+          text: '#CBD5E1',
+          'text-muted': '#94A3B8',
+          error: '#EF4444',
           seat: {
-            available: '#ddd',
-            selected: '#ff9800',
-            held: '#d1d5db',
-            sold: '#999',
+            available: '#2A2D48',
+            selected: '#EAB308',
+            held: '#475569',
+            sold: '#1E2032',
+            vip: '#8B5CF6',
+            couple: '#EC4899',
           }
         },
       },
-      backgroundColor: {
-        'white-90': 'rgba(255, 255, 255, 0.9)',
+      boxShadow: {
+        'glow-gold': '0 0 25px -5px rgba(234, 179, 8, 0.4)',
+        'glow-gold-sm': '0 0 12px -2px rgba(234, 179, 8, 0.35)',
+        'glow-purple': '0 0 25px -5px rgba(139, 92, 246, 0.4)',
+        'cinematic': '0 20px 40px -15px rgba(0, 0, 0, 0.7)',
+        'card': '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
       },
+      backgroundImage: {
+        'cinema-radial': 'radial-gradient(ellipse at top, #1A1C36 0%, #0B0C16 70%)',
+        'gold-gradient': 'linear-gradient(135deg, #FDE047 0%, #EAB308 50%, #CA8A04 100%)',
+        'dark-glass': 'linear-gradient(180deg, rgba(27, 29, 49, 0.7) 0%, rgba(17, 18, 34, 0.85) 100%)',
+      }
     },
   },
   plugins: [],

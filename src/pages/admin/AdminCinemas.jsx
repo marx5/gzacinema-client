@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { cinemaApi } from '../../api/cinemaApi';
-import Breadcrumb from '../../components/Breadcrumb';
+import { Building2, Plus, Edit3, Trash2, MapPin, Sparkles, Tv } from 'lucide-react';
+import { Button, Badge, Input, Textarea } from '../../components/core';
 
 export default function AdminCinemas() {
     const queryClient = useQueryClient();
@@ -23,7 +24,7 @@ export default function AdminCinemas() {
         mutationFn: (newCinema) => cinemaApi.create(newCinema),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-cinemas']);
-            toast.success('Thêm rạp mới thành công!');
+            toast.success('Thêm cụm rạp mới thành công!');
             resetForm();
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi thêm rạp')
@@ -33,7 +34,7 @@ export default function AdminCinemas() {
         mutationFn: ({ id, data }) => cinemaApi.update(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-cinemas']);
-            toast.success('Cập nhật rạp thành công!');
+            toast.success('Cập nhật thông tin rạp thành công!');
             resetForm();
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi cập nhật')
@@ -43,7 +44,7 @@ export default function AdminCinemas() {
         mutationFn: (id) => cinemaApi.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-cinemas']);
-            toast.success('Đã xóa rạp');
+            toast.success('Đã xóa cụm rạp');
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa rạp này')
     });
@@ -57,8 +58,8 @@ export default function AdminCinemas() {
         }
     };
 
-    const handleDelete = (id) => {
-        if (!window.confirm('Bạn có chắc chắn muốn xóa rạp này? Toàn bộ phòng và suất chiếu liên quan sẽ bị ảnh hưởng!')) return;
+    const handleDelete = (id, name) => {
+        if (!window.confirm(`Bạn có chắc chắn muốn xóa rạp "${name}"? Toàn bộ phòng chiếu và suất chiếu liên quan sẽ bị xóa!`)) return;
         deleteMutation.mutate(id);
     };
 
@@ -72,79 +73,152 @@ export default function AdminCinemas() {
         setFormData({ name: '', address: '' });
     };
 
-    if (isLoading) return <div className="py-10 text-center text-[#7b6446]">Đang tải hệ thống...</div>;
+    if (isLoading) {
+        return (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-cinema-gold" />
+                <p className="mt-4 font-medium text-cinema-text-muted">Đang tải hệ thống rạp...</p>
+            </div>
+        );
+    }
 
     const isSubmitting = createMutation.isLoading || updateMutation.isLoading;
 
     return (
-        <div className="mx-auto mt-10 w-full max-w-[1080px] px-5 md:mt-8 md:px-4 grid grid-cols-[380px_1fr] gap-6 md:grid-cols-1">
-            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Hệ thống Rạp' }]} />
-            <div className="border border-[#ddcbb6] bg-white p-6 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                <h2 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-lg text-[#3b2b19]">
-                    {editId ? 'Cập Nhật Rạp' : 'Thêm Rạp Mới'}
-                </h2>
+        <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Form Thêm/Sửa Cụm Rạp */}
+                <div className="lg:col-span-5">
+                    <div className="glass-card rounded-md border border-white/10 p-6 shadow-cinematic space-y-5 lg:sticky lg:top-24">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <h3 className="m-0 font-display text-base font-bold text-cinema-text flex items-center gap-2">
+                                <Plus className="w-4 h-4 text-cinema-gold" />
+                                {editId ? 'Cập Nhật Cụm Rạp' : 'Thêm Cụm Rạp Mới'}
+                            </h3>
+                            {editId && (
+                                <Badge variant="gold" size="sm">
+                                    Đang chỉnh sửa
+                                </Badge>
+                            )}
+                        </div>
 
-                <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-                    <div>
-                        <label className="block text-sm font-bold text-[#3b2b19] mb-1">Tên rạp:</label>
-                        <input
-                            type="text" required value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full border border-[#ddcbb6] px-3 py-2 text-sm"
-                        />
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <Input
+                                label="Tên cụm rạp *"
+                                type="text"
+                                required
+                                value={formData.name}
+                                placeholder="Ví dụ: GZACINEMA Landmark 81"
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+
+                            <Textarea
+                                label="Địa chỉ rạp *"
+                                required
+                                rows={3}
+                                value={formData.address}
+                                placeholder="Tầng, Tòa nhà, Số đường, Phường/Quận, Thành phố..."
+                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            />
+
+                            <div className="flex items-center gap-2 pt-2">
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="md"
+                                    isLoading={isSubmitting}
+                                    className="flex-1 rounded-md font-bold tracking-wide shadow-glow-gold-sm"
+                                >
+                                    {isSubmitting ? 'ĐANG XỬ LÝ...' : (editId ? 'LƯU THAY ĐỔI' : 'THÊM CỤM RẠP')}
+                                </Button>
+
+                                {editId && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="md"
+                                        onClick={resetForm}
+                                        className="rounded-md text-xs"
+                                    >
+                                        Hủy
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
                     </div>
-                    <div>
-                        <label className="block text-sm font-bold text-[#3b2b19] mb-1">Địa chỉ:</label>
-                        <textarea
-                            required rows="3" value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            className="w-full border border-[#ddcbb6] px-3 py-2 text-sm"
-                        />
+                </div>
+
+                {/* Danh Sách Rạp */}
+                <div className="lg:col-span-7 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 className="m-0 font-display text-lg font-bold text-cinema-text">
+                            Danh Sách Cụm Rạp ({cinemas.length})
+                        </h3>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="mt-2 bg-brand-500 px-4 py-[10px] text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
-                    >
-                        {isSubmitting ? 'Đang xử lý...' : (editId ? 'Lưu Thay Đổi' : 'Thêm Rạp')}
-                    </button>
-
-                    {editId && (
-                        <button type="button" onClick={resetForm} className="bg-[#cfb596] px-4 py-[10px] text-sm font-bold text-white hover:bg-[#7a8fc1]">
-                            Hủy Sửa
-                        </button>
-                    )}
-                </form>
-            </div>
-
-            <div>
-                <h2 className="m-0 border-b border-[#ddcbb6] pb-3 font-display text-2xl text-[#3b2b19]">Danh Sách Rạp</h2>
-
-                <div className="mt-4 flex flex-col gap-3">
                     {cinemas.length === 0 ? (
-                        <p className="border border-[#ddcbb6] bg-white p-8 text-center text-[#8c7356] shadow-[0_8px_22px_rgba(76,45,17,0.10)]">Chưa có rạp nào trong hệ thống.</p>
+                        <div className="glass-card rounded-md border border-white/10 p-12 text-center text-cinema-text-muted space-y-2">
+                            <Building2 className="w-10 h-10 text-cinema-text-dim mx-auto" />
+                            <p className="text-sm font-semibold">Chưa có rạp nào trong hệ thống.</p>
+                        </div>
                     ) : (
-                        cinemas.map(cinema => (
-                            <div key={cinema.id} className="border border-[#ddcbb6] bg-white p-4 shadow-[0_8px_22px_rgba(76,45,17,0.10)]">
-                                <div className="mb-3 flex justify-between border-b border-[#ddcbb6] pb-3 md:flex-col md:gap-3">
-                                    <div>
-                                        <h3 className="m-0 font-bold text-[#3b2b19]">{cinema.name}</h3>
-                                        <p className="mb-0 m-0 mt-1 text-sm text-[#8c7356]">{cinema.address}</p>
+                        <div className="space-y-3.5">
+                            {cinemas.map(cinema => (
+                                <div
+                                    key={cinema.id}
+                                    className="glass-card rounded-md border border-white/10 p-5 shadow-sm space-y-4 hover:border-cinema-gold/30 transition-all"
+                                >
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="space-y-1">
+                                            <h4 className="m-0 text-base font-bold text-cinema-text">
+                                                {cinema.name}
+                                            </h4>
+                                            <p className="m-0 text-xs text-cinema-text-muted flex items-center gap-1.5">
+                                                <MapPin className="w-3.5 h-3.5 text-cinema-gold shrink-0" />
+                                                <span>{cinema.address}</span>
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                                            <Button
+                                                variant="glass"
+                                                size="sm"
+                                                onClick={() => handleEditClick(cinema)}
+                                                className="rounded-md text-xs"
+                                                leftIcon={<Edit3 className="w-3.5 h-3.5" />}
+                                            >
+                                                Sửa
+                                            </Button>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => handleDelete(cinema.id, cinema.name)}
+                                                className="rounded-md text-xs"
+                                                leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                                            >
+                                                Xóa
+                                            </Button>
+                                        </div>
                                     </div>
 
-                                    <div className="flex flex-col gap-2 md:flex-row">
-                                        <div className="flex gap-2">
-                                            <button onClick={() => handleEditClick(cinema)} className="bg-[#b89a4f] px-3 py-2 text-xs font-bold text-white hover:bg-[#9f8042]" type="button">Sửa</button>
-                                            <button onClick={() => handleDelete(cinema.id)} className="bg-[#b0232f] px-3 py-2 text-xs font-bold text-white hover:bg-[#8a1924]" type="button">Xóa</button>
-                                        </div>
+                                    <div className="border-t border-white/5 pt-3 flex items-center justify-between">
+                                        <span className="text-xs text-cinema-text-dim">
+                                            Quản lý sơ đồ ghế & phòng chiếu
+                                        </span>
                                         <Link to={`/admin/cinemas/${cinema.id}/rooms`}>
-                                            <button className="w-full bg-brand-500 px-3 py-2 text-xs font-bold text-white hover:bg-brand-600" type="button">Quản lý Phòng</button>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                className="rounded-md text-xs border-cinema-gold/30 hover:border-cinema-gold hover:text-cinema-gold"
+                                                leftIcon={<Tv className="w-3.5 h-3.5" />}
+                                            >
+                                                Quản lý Phòng chiếu &rarr;
+                                            </Button>
                                         </Link>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>

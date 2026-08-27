@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,6 +7,7 @@
 @layer base {
   html {
     scrollbar-gutter: stable;
+    color-scheme: dark;
   }
 
   :root {
@@ -18,8 +19,74 @@
 
   body {
     margin: 0;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    color: #2a2118;
-    background: radial-gradient(circle at top, #fff8ef 0%, #f6efe3 48%, #efe5d6 100%);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #F8FAFC;
+    background-color: #0B0C16;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(234, 179, 8, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(17, 18, 34, 1) 0px, #0B0C16 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Custom Cinema Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0B0C16;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1F213A;
+    border-radius: 5px;
+    border: 2px solid #0B0C16;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #CA8A04;
+  }
+
+  ::selection {
+    background: rgba(234, 179, 8, 0.3);
+    color: #FDE047;
+  }
+
+  /* Hide arrows/spinners from number input */
+  input[type=number]::-webkit-inner-spin-button, 
+  input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0; 
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(23, 24, 43, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .glass-card-hover {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card-hover:hover {
+    background: rgba(31, 33, 58, 0.85);
+    border-color: rgba(234, 179, 8, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(234, 179, 8, 0.2);
+  }
+
+  .gold-text-gradient {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FDE047 30%, #EAB308 70%, #B45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }

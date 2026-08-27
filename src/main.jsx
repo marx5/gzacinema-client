@@ -34,31 +34,34 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           }}
           toastOptions={{
             style: {
-              border: '1px solid #ddcbb6',
-              padding: '16px',
-              color: '#3b2b19',
-              backgroundColor: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              padding: '14px 18px',
+              color: '#F8FAFC',
+              backgroundColor: 'rgba(23, 24, 43, 0.95)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               fontFamily: "'Inter', sans-serif",
               fontWeight: '600',
-              boxShadow: '0 8px 22px rgba(76,45,17,0.12)',
-              borderRadius: '4px',
+              fontSize: '14px',
+              boxShadow: '0 15px 30px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(234, 179, 8, 0.2)',
+              borderRadius: '5px',
             },
             success: {
               style: {
-                borderLeft: '4px solid #1f8d52',
+                borderLeft: '4px solid #10B981',
               },
               iconTheme: {
-                primary: '#1f8d52',
-                secondary: '#fff',
+                primary: '#10B981',
+                secondary: '#0B0C16',
               },
             },
             error: {
               style: {
-                borderLeft: '4px solid #b0232f',
+                borderLeft: '4px solid #EF4444',
               },
               iconTheme: {
-                primary: '#b0232f',
-                secondary: '#fff',
+                primary: '#EF4444',
+                secondary: '#0B0C16',
               },
             },
           }}
@@ -72,7 +75,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <button
                     type="button"
                     onClick={() => toast.dismiss(t.id)}
-                    className="mt-0.5 shrink-0 text-base leading-none text-[#7b6446] transition hover:text-[#3b2b19]"
+                    className="mt-0.5 shrink-0 text-base leading-none text-white/60 transition hover:text-white"
                     aria-label="Đóng thông báo"
                   >
                     ×

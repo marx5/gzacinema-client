@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { movieApi } from '../../api/movieApi';
 import AdminMovieForm from './AdminMovieForm';
-import TableSkeleton from '../../components/TableSkeleton';
-import Breadcrumb from '../../components/Breadcrumb';
+import { Film, Plus, Calendar, Clock, Edit3, Trash2, Search, Sparkles, Filter } from 'lucide-react';
+import { Button, Badge, Select, TableSkeleton } from '../../components/core';
 
 export default function AdminMovies() {
     const queryClient = useQueryClient();
@@ -36,8 +36,8 @@ export default function AdminMovies() {
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa phim này')
     });
 
-    const handleDelete = (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa phim này? Mọi lịch chiếu liên quan cũng sẽ bị ảnh hưởng!')) {
+    const handleDelete = (id, title) => {
+        if (window.confirm(`Bạn có chắc chắn muốn xóa phim "${title}"? Mọi lịch chiếu liên quan cũng sẽ bị xóa!`)) {
             deleteMutation.mutate(id);
         }
     };
@@ -66,116 +66,182 @@ export default function AdminMovies() {
     const totalPages = data?.total_pages || 1;
 
     return (
-        <div className="mx-auto mt-6 w-full max-w-[1200px] px-4 md:mt-8 mb-20">
-            <Breadcrumb items={[{ label: 'Quản trị', link: '/admin' }, { label: 'Quản lý Phim' }]} />
-            <div className="mb-6 flex items-center justify-between sm:flex-col sm:items-start sm:gap-4">
-                <h1 className="m-0 font-display text-[32px] text-[#3b2b19]">Quản Lý Phim</h1>
-                <button
+        <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Standardized Action & Filter Row */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <Button
+                    variant="primary"
+                    size="sm"
                     onClick={handleOpenCreateModal}
-                    className="bg-brand-500 px-5 py-[10px] text-sm font-bold text-white transition hover:bg-brand-600"
+                    className="rounded-md font-bold tracking-wide shadow-glow-gold-sm shrink-0"
+                    leftIcon={<Plus className="w-4 h-4" />}
                 >
-                    + THÊM PHIM MỚI
-                </button>
+                    THÊM PHIM MỚI
+                </Button>
+
+                {/* Filter Controls on 1 Row - Aligned Right */}
+                <div className="flex flex-wrap items-center justify-end gap-2.5 ml-auto">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-cinema-surface text-cinema-gold shrink-0">
+                        <Filter className="w-4 h-4" />
+                    </div>
+
+                    <div className="w-44 sm:w-52">
+                        <Select
+                            value={statusFilter}
+                            size="sm"
+                            onChange={(val) => { setStatusFilter(val); setPage(1); }}
+                            options={[
+                                { value: '', label: 'Tất cả các phim' },
+                                { value: 'showing', label: 'Phim đang chiếu' },
+                                { value: 'coming_soon', label: 'Phim sắp chiếu' }
+                            ]}
+                        />
+                    </div>
+                </div>
             </div>
 
-            <div className="mb-6 flex items-center gap-3 bg-white p-4 border border-[#ddcbb6] shadow-sm">
-                <label className="text-sm font-bold text-[#3b2b19]">Lọc theo trạng thái:</label>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                    className="border border-[#ddcbb6] bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
-                >
-                    <option value="">Tất cả các phim</option>
-                    <option value="showing">Đang chiếu</option>
-                    <option value="coming_soon">Sắp chiếu</option>
-                </select>
-            </div>
-
-            <div className="relative overflow-x-auto border border-[#ddcbb6] bg-white shadow-[0_8px_22px_rgba(76,45,17,0.08)]">
-
+            {/* Movies Table */}
+            <div className="relative z-10 glass-card rounded-md border border-white/10 shadow-cinematic overflow-hidden">
                 {isFetching && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-                        <span className="rounded-md border border-[#ddcbb6] bg-white px-5 py-2 text-sm font-bold text-brand-600 shadow-md">
-                            Đang tải dữ liệu...
-                        </span>
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-cinema-bg/60 backdrop-blur-[2px]">
+                        <div className="flex items-center gap-2 rounded-md border border-cinema-gold/40 bg-cinema-surface px-4 py-2 text-xs font-bold text-cinema-gold shadow-glow-gold-sm">
+                            <div className="h-3 w-3 animate-spin rounded-full border-2 border-cinema-gold border-t-transparent" />
+                            Đang tải danh sách phim...
+                        </div>
                     </div>
                 )}
 
-                <table className="w-full text-left text-sm text-[#3b2b19] min-w-[900px]">
-                    <thead className="bg-[#fff6ec] border-b border-[#ddcbb6]">
-                        <tr>
-                            <th className="px-4 py-4 font-bold w-[80px]">Poster</th>
-                            <th className="px-4 py-4 font-bold">Thông tin phim</th>
-                            <th className="px-4 py-4 font-bold w-[120px]">Thời lượng</th>
-                            <th className="px-4 py-4 font-bold w-[140px]">Khởi chiếu</th>
-                            <th className="px-4 py-4 font-bold text-center w-[240px]">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {!data ? (
-                            <TableSkeleton rows={6} columns={5} />
-                        ) : movies.length === 0 ? (
-                            <tr><td colSpan="5" className="px-4 py-10 text-center text-[#8c7356]">Không tìm thấy bộ phim nào.</td></tr>
-                        ) : (
-                            movies.map(movie => (
-                                <tr key={movie.id} className="border-b border-dashed border-[#ddcbb6] transition hover:bg-[#faf4ed]">
-                                    <td className="px-4 py-3">
-                                        <img src={movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop'} alt={movie.title} loading="lazy" className="w-[60px] h-[90px] object-cover border border-[#ddcbb6]" />
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="font-bold text-[16px] text-brand-700">{movie.title}</div>
-                                        <div className="mt-1 text-xs text-[#8c7356] uppercase tracking-wide">{movie.genre || 'Chưa cập nhật'}</div>
-                                    </td>
-                                    <td className="px-4 py-3 font-bold text-[#7b6446]">{movie.duration_minutes} phút</td>
-                                    <td className="px-4 py-3">{new Date(movie.release_date).toLocaleDateString('vi-VN')}</td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex justify-center gap-2">
-                                            <Link to={`/admin/movies/${movie.id}/showtimes`} className="border border-brand-500 bg-[#fffaf3] px-3 py-[6px] text-xs font-bold text-brand-600 transition hover:bg-brand-500 hover:text-white">
-                                                LỊCH CHIẾU
-                                            </Link>
-                                            <button
-                                                onClick={() => handleOpenEditModal(movie.id)}
-                                                className="bg-[#b2720a] px-3 py-[6px] text-xs font-bold text-white transition hover:bg-[#8f5a06]"
-                                            >
-                                                SỬA
-                                            </button>
-
-                                            <button onClick={() => handleDelete(movie.id)} className="bg-[#b0232f] px-3 py-[6px] text-xs font-bold text-white transition hover:bg-[#8a1924]">
-                                                XÓA
-                                            </button>
-                                        </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-cinema-text min-w-[900px]">
+                        <thead className="bg-cinema-surface-elevated/80 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-cinema-text-muted">
+                            <tr>
+                                <th className="px-5 py-4 w-[90px]">Poster</th>
+                                <th className="px-5 py-4">Tên & Thể Loại</th>
+                                <th className="px-5 py-4 w-[130px]">Thời lượng</th>
+                                <th className="px-5 py-4 w-[150px]">Khởi chiếu</th>
+                                <th className="px-5 py-4 text-center w-[260px]">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {!data ? (
+                                <TableSkeleton rows={6} columns={5} />
+                            ) : movies.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="px-5 py-12 text-center text-cinema-text-muted">
+                                        <Film className="w-10 h-10 text-cinema-text-dim mx-auto mb-2" />
+                                        Không tìm thấy bộ phim nào phù hợp.
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                movies.map((movie) => (
+                                    <tr key={movie.id} className="hover:bg-white/[0.02] transition-colors">
+                                        <td className="px-5 py-3">
+                                            <img
+                                                src={movie.thumbnail || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop'}
+                                                alt={movie.title}
+                                                loading="lazy"
+                                                className="w-[60px] h-[90px] object-cover rounded-md border border-white/10 shadow-sm"
+                                            />
+                                        </td>
+                                        <td className="px-5 py-3">
+                                            <div className="font-bold text-base text-cinema-text line-clamp-1">
+                                                {movie.title}
+                                            </div>
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <Badge variant="glass" size="sm" className="rounded-md">
+                                                    {movie.genre || 'Chưa cập nhật'}
+                                                </Badge>
+                                                {movie.age_rating && (
+                                                    <Badge variant="rose" size="sm" className="rounded-md">
+                                                        {movie.age_rating}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-3 text-xs text-cinema-text-muted font-medium">
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock className="w-3.5 h-3.5 text-cinema-gold" />
+                                                <span>{movie.duration_minutes} phút</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-3 text-xs text-cinema-text-muted">
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="w-3.5 h-3.5 text-cinema-gold" />
+                                                <span>{new Date(movie.release_date).toLocaleDateString('vi-VN')}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-3">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Link to={`/admin/movies/${movie.id}/showtimes`}>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        className="rounded-md text-xs border-cinema-gold/30 hover:border-cinema-gold hover:text-cinema-gold"
+                                                        leftIcon={<Calendar className="w-3.5 h-3.5" />}
+                                                    >
+                                                        Lịch chiếu
+                                                    </Button>
+                                                </Link>
+
+                                                <Button
+                                                    variant="glass"
+                                                    size="sm"
+                                                    onClick={() => handleOpenEditModal(movie.id)}
+                                                    className="rounded-md text-xs hover:border-cinema-gold/40"
+                                                    leftIcon={<Edit3 className="w-3.5 h-3.5" />}
+                                                >
+                                                    Sửa
+                                                </Button>
+
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(movie.id, movie.title)}
+                                                    className="rounded-md text-xs"
+                                                    leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                                                >
+                                                    Xóa
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 border-t border-white/10 p-4 bg-white/[0.01]">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled={page === 1}
+                            onClick={() => setPage(p => p - 1)}
+                            className="rounded-md"
+                        >
+                            &larr; Trước
+                        </Button>
+
+                        <span className="px-3 text-xs font-bold text-cinema-text">
+                            Trang {page} / {totalPages}
+                        </span>
+
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled={page === totalPages}
+                            onClick={() => setPage(p => p + 1)}
+                            className="rounded-md"
+                        >
+                            Sau &rarr;
+                        </Button>
+                    </div>
+                )}
             </div>
 
-            {totalPages > 1 && (
-                <div className="mt-8 flex justify-center gap-2">
-                    <button
-                        disabled={page === 1}
-                        onClick={() => setPage(p => p - 1)}
-                        className="border border-[#ddcbb6] bg-white px-4 py-2 text-sm font-bold text-[#7b6446] disabled:opacity-50 hover:bg-[#fff6ec] transition"
-                    >
-                        &larr; TRƯỚC
-                    </button>
-
-                    <span className="flex items-center px-4 py-2 text-sm font-bold text-[#3b2b19]">
-                        Trang {page} / {totalPages}
-                    </span>
-
-                    <button
-                        disabled={page === totalPages}
-                        onClick={() => setPage(p => p + 1)}
-                        className="border border-[#ddcbb6] bg-white px-4 py-2 text-sm font-bold text-[#7b6446] disabled:opacity-50 hover:bg-[#fff6ec] transition"
-                    >
-                        SAU &rarr;
-                    </button>
-                </div>
-            )}
-
+            {/* Modal Form */}
             {isModalOpen && (
                 <AdminMovieForm
                     movieId={editingMovieId}
