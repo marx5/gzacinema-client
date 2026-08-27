@@ -5,6 +5,7 @@ import { bookingApi } from '../../api/bookingApi';
 import toast from 'react-hot-toast';
 import { socket } from '../../utils/socket';
 import { useAuthStore } from '../../store/useAuthStore';
+import { validateSeatSelection, validateSeatDeselection, areSeatsConnected } from '../../utils/seatValidator';
 
 import { SeatMap, BookingCart } from '../../components/modules/booking';
 import { Breadcrumb } from '../../components/layouts';
@@ -81,48 +82,73 @@ export default function Booking() {
         (s) => s.row_letter === seat.row_letter && s.seat_number === partnerNumber
       );
 
-      if (partnerSeat) {
-        if (
-          partnerSeat.status === 'booked' ||
-          (partnerSeat.status === 'held' && !mySelectedSeats.includes(partnerSeat.id))
-        ) {
-          toast.error('Một nửa của cặp ghế này đã bị chọn mất!');
-          return;
-        }
-        seatsToProcess.push(partnerSeat);
+      if (!partnerSeat) {
+        toast.error('Không tìm thấy nửa còn lại của cặp ghế Sweetbox!');
+        return;
       }
+
+      if (
+        partnerSeat.status === 'booked' ||
+        (partnerSeat.status === 'held' && !mySelectedSeats.includes(partnerSeat.id))
+      ) {
+        toast.error('Một nửa của cặp ghế này đã bị chọn mất!');
+        return;
+      }
+      seatsToProcess.push(partnerSeat);
     }
 
     const isDeselecting = mySelectedSeats.includes(seat.id) || seat.status === 'held_by_me';
+    const currentSelectedSeatObjects = seatData.seats.filter((s) => mySelectedSeats.includes(s.id));
+    const seatIdsToProcess = seatsToProcess.map((s) => s.id);
+
+    if (isDeselecting) {
+      const remainingSeats = currentSelectedSeatObjects.filter((s) => !seatIdsToProcess.includes(s.id));
+      const deselectValidation = validateSeatDeselection(remainingSeats);
+
+      if (!deselectValidation.isValid) {
+        toast.error(deselectValidation.error);
+        return;
+      }
+    } else {
+      const selectValidation = validateSeatSelection(currentSelectedSeatObjects, seatsToProcess);
+      if (!selectValidation.isValid) {
+        toast.error(selectValidation.error);
+        return;
+      }
+    }
 
     try {
       if (isDeselecting) {
-        const idsToRemove = seatsToProcess.map((s) => s.id);
-        const remainingSeats = mySelectedSeats.filter((id) => !idsToRemove.includes(id));
+        const remainingSeats = mySelectedSeats.filter((id) => !seatIdsToProcess.includes(id));
         setMySelectedSeats(remainingSeats);
 
         if (remainingSeats.length === 0) {
           localStorage.removeItem(`timer_${showtimeId}`);
         }
 
-        await Promise.all(seatsToProcess.map((s) => bookingApi.unholdSeat({ showtimeId, seatId: s.id })));
+        await bookingApi.unholdSeat({ showtimeId, seatIds: seatIdsToProcess });
       } else {
-        const newSeatIds = seatsToProcess.map((s) => s.id);
-        setMySelectedSeats((prev) => [...prev, ...newSeatIds]);
+        await bookingApi.holdSeat({ showtimeId, seatIds: seatIdsToProcess });
 
+        setMySelectedSeats((prev) => Array.from(new Set([...prev, ...seatIdsToProcess])));
         localStorage.setItem(`timer_${showtimeId}`, Date.now() + 300000);
         setTimerKey(Date.now());
-
-        await Promise.all(seatsToProcess.map((s) => bookingApi.holdSeat({ showtimeId, seatId: s.id })));
       }
     } catch (error) {
-      toast.error('Lỗi mạng, không thể thao tác. Vui lòng thử lại!');
+      toast.error(error.response?.data?.message || 'Lỗi mạng, không thể thao tác. Vui lòng thử lại!');
       refetch();
     }
   };
 
   const handleCheckout = async () => {
     if (mySelectedSeats.length === 0) return;
+
+    const selectedObjects = seatData.seats.filter((s) => mySelectedSeats.includes(s.id));
+    if (!areSeatsConnected(selectedObjects)) {
+      toast.error('Các ghế được chọn phải liền kề nhau và không được cách ghế!');
+      return;
+    }
+
     setProcessing(true);
     try {
       const res = await bookingApi.createPayment({ showtimeId, seatIds: mySelectedSeats });

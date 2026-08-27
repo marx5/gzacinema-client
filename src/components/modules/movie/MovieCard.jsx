@@ -46,9 +46,19 @@ MovieCard.Poster = function MovieCardPoster({ className = '' }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className={`relative aspect-[2/3] w-full overflow-hidden bg-cinema-surface-elevated ${className}`}>
+    <Link
+      to={`/movie/${movie.id}`}
+      className={`relative aspect-[2/3] w-full block overflow-hidden bg-cinema-surface-elevated cursor-pointer ${className}`}
+    >
       {/* Background glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-t from-cinema-bg via-transparent to-transparent opacity-80 z-10" />
+
+      {/* Quick View Overlay on Hover */}
+      <div className="absolute inset-0 z-15 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        <span className="bg-cinema-surface/90 backdrop-blur-md text-white text-xs font-bold px-3.5 py-1.5 rounded-xl border border-white/20 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+          Xem Chi Tiết
+        </span>
+      </div>
 
       <img
         src={movie.thumbnail || defaultImg}
@@ -71,7 +81,7 @@ MovieCard.Poster = function MovieCardPoster({ className = '' }) {
           </Badge>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -80,12 +90,14 @@ MovieCard.Content = function MovieCardContent({ className = '' }) {
 
   return (
     <div className={`p-3.5 sm:p-4 ${className}`}>
-      <h3
-        className="font-display text-base font-bold text-cinema-text line-clamp-1 group-hover:text-cinema-gold transition-colors duration-200"
-        title={movie.title}
-      >
-        {movie.title}
-      </h3>
+      <Link to={`/movie/${movie.id}`} className="block">
+        <h3
+          className="font-display text-base font-bold text-cinema-text line-clamp-1 group-hover:text-cinema-gold transition-colors duration-200 cursor-pointer"
+          title={movie.title}
+        >
+          {movie.title}
+        </h3>
+      </Link>
 
       <div className="mt-2.5 flex flex-col gap-1.5 text-xs text-cinema-text-muted">
         <div className="flex items-center gap-1.5 truncate">
@@ -111,6 +123,7 @@ MovieCard.Content = function MovieCardContent({ className = '' }) {
 
 MovieCard.Action = function MovieCardAction({ className = '' }) {
   const { movie } = useMovieCard();
+  const isComingSoon = movie.release_date && new Date(movie.release_date) > new Date();
 
   return (
     <div className={`p-3.5 sm:p-4 pt-0 mt-auto ${className}`}>
@@ -119,9 +132,9 @@ MovieCard.Action = function MovieCardAction({ className = '' }) {
           variant="secondary"
           size="sm"
           className="w-full group-hover:bg-gold-gradient group-hover:text-cinema-bg group-hover:font-bold group-hover:border-transparent transition-all duration-300"
-          leftIcon={<Ticket className="w-4 h-4" />}
+          leftIcon={isComingSoon ? <Film className="w-4 h-4" /> : <Ticket className="w-4 h-4" />}
         >
-          Đặt Vé Ngay
+          {isComingSoon ? 'Xem Chi Tiết' : 'Đặt Vé Ngay'}
         </Button>
       </Link>
     </div>

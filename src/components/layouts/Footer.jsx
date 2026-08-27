@@ -34,12 +34,12 @@ export default function Footer() {
             </h4>
             <ul className="flex flex-col gap-2.5 text-sm">
               <li>
-                <Link to="/" className="hover:text-cinema-gold transition-colors">
+                <Link to="/?tab=showing" className="hover:text-cinema-gold transition-colors">
                   Phim Đang Chiếu
                 </Link>
               </li>
               <li>
-                <Link to="/" className="hover:text-cinema-gold transition-colors">
+                <Link to="/?tab=coming_soon" className="hover:text-cinema-gold transition-colors">
                   Phim Sắp Chiếu
                 </Link>
               </li>

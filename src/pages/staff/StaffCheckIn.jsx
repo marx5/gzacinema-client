@@ -89,7 +89,7 @@ export default function StaffCheckIn() {
                 <div className="lg:col-span-7">
                     <div className="glass-card rounded-md border border-white/10 p-5 sm:p-6 shadow-cinematic space-y-4">
                         <p className="text-xs text-cinema-text-muted">
-                            Hướng camera về phía mã QR trên vé điện tử của khách hàng để hệ thống tự động xác thực và check-in.
+                            Hướng camera về phía mã QR trên vé của khách hàng để hệ thống tự động xác thực và check-in.
                         </p>
 
                         <div className="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-md border border-cinema-gold/30 bg-cinema-bg/90 aspect-square shadow-glow-gold-sm">

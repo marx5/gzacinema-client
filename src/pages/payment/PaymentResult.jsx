@@ -75,7 +75,7 @@ export default function PaymentResult() {
             <div>
               <h2 className="text-2xl sm:text-3xl font-black text-white">Thanh Toán Thành Công!</h2>
               <p className="text-sm text-cinema-text-muted mt-2">
-                Vé điện tử đã được phát hành. Chúc bạn có một trải nghiệm xem phim tuyệt vời tại GzaCinema!
+                Vé đã được phát hành. Chúc bạn có một trải nghiệm xem phim tuyệt vời tại GzaCinema!
               </p>
             </div>
 

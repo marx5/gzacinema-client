@@ -3,7 +3,7 @@ import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { Navbar, Footer } from "../components/layouts";
 import { ProtectedRoute, RoleRoute } from "../components/modules/auth";
-import { LazyLoading } from "../components/base";
+import { LazyLoading, ScrollToTop } from "../components/base";
 
 const Home = React.lazy(() => import("../pages/home"));
 const Login = React.lazy(() => import("../pages/auth/Login"));
@@ -41,6 +41,7 @@ const PublicLayout = () => (
 export default function AppRouter() {
     return (
         <BrowserRouter>
+            <ScrollToTop />
             <Routes>
                     {/* Admin Dedicated Area with Sidebar */}
                     <Route element={<RoleRoute allowedRoles={['admin', 'staff']} />}>

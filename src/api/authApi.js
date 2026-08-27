@@ -4,7 +4,7 @@ export const authApi = {
     login: (data) => axiosClient.post('/auth/login', data),
     register: (data) => axiosClient.post('/auth/register', data),
     logout: () => axiosClient.post('/auth/logout'),
-    getProfile: () => axiosClient.get('/users/me'),
+    getProfile: () => axiosClient.get('/users/profile'),
     getHistory: () => axiosClient.get('/users/history'),
-    updateProfile: (data) => axiosClient.put('/users/me', data)
+    updateProfile: (data) => axiosClient.put('/users/profile', data)
 };

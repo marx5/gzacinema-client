@@ -229,15 +229,14 @@ export default function AdminShowtimes() {
                                         </div>
                                     </div>
 
-                                    <Button
-                                        variant="danger"
-                                        size="sm"
+                                    <button
+                                        type="button"
+                                        title="Xóa suất chiếu"
                                         onClick={() => handleDelete(st.id)}
-                                        className="rounded-md shrink-0 text-xs"
-                                        leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                                        className="flex h-8 w-8 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 text-red-400 transition-all hover:border-red-400 hover:bg-red-500/20 hover:text-red-300 shrink-0"
                                     >
-                                        Xóa
-                                    </Button>
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             ))}
                         </div>

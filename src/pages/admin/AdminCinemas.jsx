@@ -179,25 +179,23 @@ export default function AdminCinemas() {
                                             </p>
                                         </div>
 
-                                        <div className="flex items-center gap-2 self-start sm:self-auto">
-                                            <Button
-                                                variant="glass"
-                                                size="sm"
+                                        <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                                            <button
+                                                type="button"
+                                                title="Sửa thông tin cụm rạp"
                                                 onClick={() => handleEditClick(cinema)}
-                                                className="rounded-md text-xs"
-                                                leftIcon={<Edit3 className="w-3.5 h-3.5" />}
+                                                className="flex h-8 w-8 items-center justify-center rounded-md border border-blue-500/30 bg-blue-500/10 text-blue-400 transition-all hover:border-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
                                             >
-                                                Sửa
-                                            </Button>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
+                                                <Edit3 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                title="Xóa cụm rạp"
                                                 onClick={() => handleDelete(cinema.id, cinema.name)}
-                                                className="rounded-md text-xs"
-                                                leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                                                className="flex h-8 w-8 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 text-red-400 transition-all hover:border-red-400 hover:bg-red-500/20 hover:text-red-300"
                                             >
-                                                Xóa
-                                            </Button>
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     </div>
 

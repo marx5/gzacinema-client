@@ -1,6 +1,7 @@
 export { default as Badge } from './Badge';
 export { default as Button } from './Button';
 export { default as Card } from './Card';
+export { default as DataTable } from './DataTable';
 export { default as DatePicker } from './DatePicker';
 export { default as Input } from './Input';
 export { default as Modal } from './Modal';
@@ -13,6 +14,7 @@ export { default as Textarea } from './Textarea';
 export * from './Badge';
 export * from './Button';
 export * from './Card';
+export * from './DataTable';
 export * from './DatePicker';
 export * from './Input';
 export * from './Modal';
@@ -21,3 +23,4 @@ export * from './Select';
 export * from './SkeletonCard';
 export * from './TableSkeleton';
 export * from './Textarea';
+

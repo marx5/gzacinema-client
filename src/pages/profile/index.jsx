@@ -77,7 +77,7 @@ export default function Profile() {
             <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
                 <h1 className="m-0 font-display text-2xl sm:text-3xl font-extrabold text-cinema-text tracking-tight flex items-center gap-2.5">
                     <Sparkles className="w-6 h-6 text-cinema-gold" />
-                    Hồ Sơ Của Tôi
+                    Hồ Sơ Cá Nhân
                 </h1>
             </div>
 
@@ -100,21 +100,6 @@ export default function Profile() {
                             <h2 className="m-0 text-xl sm:text-2xl font-display font-bold text-cinema-text truncate">
                                 {profileData.full_name || 'Chưa cập nhật tên'}
                             </h2>
-                            {profileData.role === 'admin' && (
-                                <Badge variant="gold" size="sm" className="rounded-md">
-                                    Quản trị viên
-                                </Badge>
-                            )}
-                            {profileData.role === 'staff' && (
-                                <Badge variant="purple" size="sm" className="rounded-md">
-                                    Nhân viên
-                                </Badge>
-                            )}
-                            {(!profileData.role || profileData.role === 'customer') && (
-                                <Badge variant="secondary" size="sm" className="rounded-md">
-                                    Thành viên
-                                </Badge>
-                            )}
                         </div>
 
                         <p className="m-0 text-sm text-cinema-text-muted truncate flex items-center justify-center sm:justify-start gap-1.5">

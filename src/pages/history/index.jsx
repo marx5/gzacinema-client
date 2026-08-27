@@ -19,7 +19,7 @@ export default function History() {
     return (
       <div className="mx-auto w-full max-w-5xl px-4 py-20 flex flex-col items-center justify-center gap-4 text-cinema-text-muted animate-pulse">
         <Ticket className="w-12 h-12 text-cinema-gold animate-bounce" />
-        <p className="text-base font-semibold">Đang tải danh sách vé điện tử...</p>
+        <p className="text-base font-semibold">Đang tải danh sách vé...</p>
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default function History() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <Ticket className="w-8 h-8 text-cinema-gold" />
-          Vé Điện Tử Của Tôi
+          Vé Của Tôi
         </h1>
         <Badge variant="glass" size="md">
           Tổng cộng: {history.length} đơn hàng
@@ -51,7 +51,7 @@ export default function History() {
       {history.length === 0 ? (
         <div className="p-12 rounded-3xl glass-card text-center border border-white/10 space-y-3">
           <Ticket className="w-12 h-12 text-cinema-text-dim mx-auto" />
-          <h3 className="text-lg font-bold text-white">Chưa có vé nào được đặt</h3>
+          <h3 className="text-lg font-bold text-white">Chưa có lịch sử mua vé tại gzacinema</h3>
           <p className="text-sm text-cinema-text-muted max-w-md mx-auto">
             Khám phá ngay các bộ phim bom tấn đang chiếu tại rạp và đặt vé trải nghiệm!
           </p>
