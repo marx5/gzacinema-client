@@ -194,9 +194,6 @@ export default function AdminShowtimes() {
                             <Clock className="w-5 h-5 text-cinema-gold" />
                             Suất Chiếu Đang Lên Sóng
                         </h3>
-                        <span className="text-xs text-cinema-text-dim">
-                            Hiển thị {showtimes.length} suất gần nhất
-                        </span>
                     </div>
 
                     {isShowtimesLoading ? (

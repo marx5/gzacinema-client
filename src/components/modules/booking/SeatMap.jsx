@@ -17,7 +17,7 @@ SeatButton.displayName = "SeatButton";
 
 export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick }) {
   const getSeatClassName = (seat) => {
-    const base = 'relative flex items-center justify-center h-10 sm:h-11 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none border';
+    const base = 'relative flex items-center justify-center h-9 sm:h-11 min-w-[32px] sm:min-w-[38px] rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-150 cursor-pointer disabled:cursor-not-allowed select-none border active:scale-90';
 
     const isSelectedByMe = mySelectedSeatsSet.has(seat.id);
 
@@ -41,16 +41,16 @@ export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick 
   };
 
   return (
-    <div className="w-full lg:w-[68%] rounded-3xl glass-card border border-white/10 p-5 sm:p-8 shadow-cinematic">
+    <div className="w-full lg:w-[68%] rounded-2xl sm:rounded-3xl glass-card border border-white/10 p-4 sm:p-8 shadow-cinematic">
       {/* SCREEN WITH AMBIENT GLOW */}
-      <div className="relative mb-12 text-center">
+      <div className="relative mb-8 sm:mb-12 text-center">
         {/* Glow arc */}
-        <div className="mx-auto h-2 w-3/4 rounded-full bg-cinema-gold/60 shadow-[0_0_30px_rgba(234,179,8,0.8)] filter blur-[1px]" />
+        <div className="mx-auto h-1.5 sm:h-2 w-3/4 rounded-full bg-cinema-gold/60 shadow-[0_0_30px_rgba(234,179,8,0.8)] filter blur-[1px]" />
         
         {/* Curved Screen Border */}
-        <div className="mx-auto mt-2 h-10 w-4/5 border-t-2 border-white/40 rounded-t-[100px] bg-gradient-to-b from-white/10 to-transparent" />
+        <div className="mx-auto mt-2 h-8 sm:h-10 w-4/5 border-t-2 border-white/40 rounded-t-[100px] bg-gradient-to-b from-white/10 to-transparent" />
 
-        <span className="inline-block -mt-6 text-[11px] font-black uppercase tracking-[0.25em] text-cinema-gold/80 bg-cinema-surface px-4 py-1 rounded-full border border-white/5">
+        <span className="inline-block -mt-5 sm:-mt-6 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.25em] text-cinema-gold/80 bg-cinema-surface px-3 sm:px-4 py-1 rounded-full border border-white/5">
           Màn Hình Chiếu
         </span>
       </div>
@@ -60,8 +60,8 @@ export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick 
       </p>
 
       {/* SEATS GRID */}
-      <div className="w-full overflow-x-auto scroll-smooth pb-6 custom-scrollbar">
-        <div className="grid min-w-[500px] grid-cols-10 gap-2.5 sm:gap-3 p-2">
+      <div className="w-full overflow-x-auto scroll-smooth pb-4 sm:pb-6 custom-scrollbar touch-pan-x">
+        <div className="grid min-w-[480px] grid-cols-10 gap-2 sm:gap-3 p-1 sm:p-2">
           {seatData.seats.map((seat) => {
             const isDisabled = seat.status === 'booked' || (seat.status === 'held' && !mySelectedSeatsSet.has(seat.id));
             return (
@@ -78,25 +78,25 @@ export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick 
       </div>
 
       {/* SEAT LEGEND */}
-      <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-cinema-text-muted font-medium">
-        <div className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded bg-cinema-surface-elevated border border-white/10" />
+      <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-cinema-text-muted font-medium">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-cinema-surface-elevated border border-white/10" />
           <span>Ghế Thường</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded bg-purple-950/60 border border-purple-500/40" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-purple-950/60 border border-purple-500/40" />
           <span>Ghế VIP (+20k)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded bg-pink-950/60 border border-pink-500/40" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-pink-950/60 border border-pink-500/40" />
           <span>Sweetbox (+50k)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded bg-gold-gradient shadow-glow-gold-sm" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-gold-gradient shadow-glow-gold-sm" />
           <span className="text-white font-bold">Đang chọn</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="h-4 w-4 rounded bg-white/5 border border-white/5 opacity-40" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-white/5 border border-white/5 opacity-40" />
           <span>Đã bán</span>
         </div>
       </div>

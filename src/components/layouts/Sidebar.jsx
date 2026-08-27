@@ -81,7 +81,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="p-1.5 text-cinema-text-muted hover:text-white lg:hidden rounded-md hover:bg-white/5 cursor-pointer"
+                            className="flex min-h-[44px] min-w-[44px] items-center justify-center text-cinema-text-muted hover:text-white lg:hidden rounded-md hover:bg-white/5 cursor-pointer active:scale-95"
                             aria-label="Close sidebar"
                         >
                             <X className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
                                         end={item.end}
                                         onClick={onClose}
                                         className={({ isActive }) =>
-                                            `flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${
+                                            `flex min-h-[44px] items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 active:scale-[0.98] ${
                                                 isActive
                                                     ? 'bg-gold-gradient text-cinema-bg shadow-glow-gold-sm font-bold'
                                                     : 'text-cinema-text-muted hover:text-white hover:bg-cinema-surface-elevated/70'

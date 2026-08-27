@@ -72,11 +72,11 @@ export default function BookingCart({
   }, [mySelectedSeats, seatData, basePrice]);
 
   return (
-    <div className="w-full lg:w-[32%] lg:sticky lg:top-24 rounded-3xl glass-card border border-white/10 p-5 sm:p-6 shadow-cinematic space-y-5">
+    <div className="w-full lg:w-[32%] lg:sticky lg:top-24 rounded-2xl sm:rounded-3xl glass-card border border-white/10 p-4 sm:p-6 shadow-cinematic space-y-4 sm:space-y-5">
       {/* Header & Countdown */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-        <h2 className="text-xl font-black text-white flex items-center gap-2">
-          <Ticket className="w-5 h-5 text-cinema-gold" />
+      <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
+        <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+          <Ticket className="w-4 h-4 sm:w-5 sm:h-5 text-cinema-gold" />
           Thông Tin Vé
         </h2>
         {mySelectedSeats.length > 0 && (
@@ -85,7 +85,7 @@ export default function BookingCart({
       </div>
 
       {/* Showtime Details */}
-      <div className="space-y-2 text-xs sm:text-sm text-cinema-text-muted bg-white/[0.02] p-3.5 rounded-2xl border border-white/5">
+      <div className="space-y-2 text-xs sm:text-sm text-cinema-text-muted bg-white/[0.02] p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5">
         <div className="flex items-center justify-between">
           <span className="text-cinema-text-dim">Phòng chiếu:</span>
           <strong className="text-white font-bold">{seatData?.showtime_info?.room_name}</strong>
@@ -99,16 +99,16 @@ export default function BookingCart({
       </div>
 
       {/* Cart Selected Seats */}
-      <div className="space-y-3">
+      <div className="space-y-2.5 sm:space-y-3">
         <div className="flex items-center justify-between text-xs font-bold text-cinema-text-dim uppercase tracking-wider">
           <span>Ghế đã chọn ({mySelectedSeats.length})</span>
           <span>Giá vé</span>
         </div>
 
-        <div className="min-h-[140px] max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        <div className="min-h-[120px] sm:min-h-[140px] max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
           {groupedCartItems.length === 0 ? (
-            <div className="py-8 text-center text-xs text-cinema-text-dim space-y-1">
-              <ShoppingBag className="w-8 h-8 text-cinema-text-dim/50 mx-auto" />
+            <div className="py-6 sm:py-8 text-center text-xs text-cinema-text-dim space-y-1">
+              <ShoppingBag className="w-7 h-7 sm:w-8 sm:h-8 text-cinema-text-dim/50 mx-auto" />
               <p>Chưa có ghế nào được chọn</p>
               <p className="text-[11px]">Vui lòng click vào ghế trên sơ đồ</p>
             </div>
@@ -134,10 +134,10 @@ export default function BookingCart({
       </div>
 
       {/* Total & Checkout */}
-      <div className="pt-4 border-t border-white/10 space-y-4">
+      <div className="pt-3 sm:pt-4 border-t border-white/10 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-cinema-text-muted">Tổng cộng:</span>
-          <span className="text-2xl sm:text-3xl font-black text-cinema-gold">
+          <span className="text-xs sm:text-sm text-cinema-text-muted">Tổng cộng:</span>
+          <span className="text-xl sm:text-3xl font-black text-cinema-gold">
             {formatCurrency(totalPrice)}
           </span>
         </div>
@@ -145,7 +145,7 @@ export default function BookingCart({
         <Button
           variant="primary"
           size="lg"
-          className="w-full shadow-glow-gold"
+          className="w-full min-h-[48px] shadow-glow-gold text-sm sm:text-base font-bold active:scale-95"
           onClick={handleCheckout}
           disabled={mySelectedSeats.length === 0 || processing}
           isLoading={processing}
