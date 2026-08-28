@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { useAuthStore } from '../../store/useAuthStore';
-import { authApi } from '../../api/authApi';
+import { useAuthStore } from '@/store/useAuthStore';
+import { authApi } from '@/api/authApi';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Film, LogIn, Lock, Mail } from 'lucide-react';
-import { Button, Input } from '../../components/core';
+import { Button, Input } from '@/components/core';
 
 const loginSchema = z.object({
     email: z.string().email("Email không đúng định dạng"),
@@ -91,7 +91,7 @@ export default function Login() {
                             type="submit"
                             variant="primary"
                             size="lg"
-                            isLoading={loginMutation.isLoading}
+                            isLoading={loginMutation.isPending}
                             className="w-full rounded-md font-bold tracking-wide shadow-glow-gold-sm"
                             leftIcon={<LogIn className="w-4 h-4" />}
                         >

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import CountdownTimer from './CountdownTimer';
-import { formatCurrency, formatDateTime } from '../../../utils/formatters';
+import { formatCurrency, formatDateTime } from '@/utils/formatters';
 import { ShoppingBag, CreditCard, Ticket, Clock, ShieldCheck } from 'lucide-react';
-import { Button } from '../../core';
+import { Button } from '@/components/core';
 
 export default function BookingCart({
   showtimeId,

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { cinemaApi } from '../../api/cinemaApi';
+import { cinemaApi } from '@/api/cinemaApi';
 import toast from 'react-hot-toast';
 import { Tv, Plus, Trash2, ArrowLeft, Building2, Armchair, Sparkles } from 'lucide-react';
-import { Button, Badge, Input } from '../../components/core';
+import { Button, Badge, Input } from '@/components/core';
 
 export default function AdminRooms() {
     const { cinemaId } = useParams();
@@ -66,7 +66,7 @@ export default function AdminRooms() {
     }
 
     const { cinemaInfo, rooms = [] } = data || {};
-    const isSubmitting = createMutation.isLoading;
+    const isSubmitting = createMutation.isPending;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">

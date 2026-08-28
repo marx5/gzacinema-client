@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { bookingApi } from '../../api/bookingApi';
-import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { bookingApi } from '@/api/bookingApi';
+import { formatCurrency, formatDateTime } from '@/utils/formatters';
 import { Ticket, Filter, CheckCircle2, Clock, Ban, Film, User, Calendar } from 'lucide-react';
-import { Button, Badge, Select, DataTable } from '../../components/core';
+import { Button, Badge, Select, DataTable } from '@/components/core';
 
 export default function AdminBookings() {
     const [page, setPage] = useState(1);

@@ -1,5 +1,5 @@
 import { Account } from "./Account";
-import { Logo } from "../base/Logo";
+import { Logo } from "@/components/base/Logo";
 
 export function Topbar({ title, children, showLogo = false, className = "" }) {
   return (

@@ -35,6 +35,20 @@ axiosClient.interceptors.request.use(
     (error) => Promise.reject(error)
 )
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 axiosClient.interceptors.response.use(
     (response) => response.data,
     async (error) => {
@@ -45,7 +59,20 @@ axiosClient.interceptors.response.use(
             !originalRequest._retry &&
             originalRequest.url !== '/auth/refresh'
         ) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers["Authorization"] = `Bearer ${token}`;
+                        return axiosClient(originalRequest);
+                    })
+                    .catch((err) => Promise.reject(err));
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
+
             try {
                 const res = await axiosClient.post("/auth/refresh");
                 const newAccessToken = res.accessToken;
@@ -53,12 +80,16 @@ axiosClient.interceptors.response.use(
                 if (newAccessToken) {
                     localStorage.setItem("token", newAccessToken);
                     originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                    processQueue(null, newAccessToken);
                     return axiosClient(originalRequest);
                 }
             } catch (refreshError) {
+                processQueue(refreshError, null);
                 localStorage.removeItem("token");
                 window.location.href = "/login";
                 return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
             }
         }
         error.friendlyMessage = getErrorMessage(error);

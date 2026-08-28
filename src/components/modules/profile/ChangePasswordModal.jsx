@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { authApi } from '../../../api/authApi';
+import { authApi } from '@/api/authApi';
 import toast from 'react-hot-toast';
 import { Lock, Save, Eye, EyeOff } from 'lucide-react';
-import { Button, Modal, Input } from '../../core';
+import { Button, Modal, Input } from '@/components/core';
 
 export default function ChangePasswordModal({ isOpen, onClose }) {
   const [oldPassword, setOldPassword] = useState('');
@@ -127,7 +127,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             variant="ghost"
             size="sm"
             onClick={handleClose}
-            disabled={changePasswordMutation.isLoading}
+            disabled={changePasswordMutation.isPending}
             className="rounded-md"
           >
             Hủy
@@ -136,7 +136,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             type="submit"
             variant="primary"
             size="sm"
-            isLoading={changePasswordMutation.isLoading}
+            isLoading={changePasswordMutation.isPending}
             className="rounded-md font-bold tracking-wide shadow-glow-gold-sm"
             leftIcon={<Save className="w-4 h-4" />}
           >

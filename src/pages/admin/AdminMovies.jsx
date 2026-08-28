@@ -2,10 +2,10 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { movieApi } from '../../api/movieApi';
+import { movieApi } from '@/api/movieApi';
 import AdminMovieForm from './AdminMovieForm';
 import { Film, Plus, Calendar, Clock, Edit3, Trash2, Search, Sparkles, Filter } from 'lucide-react';
-import { Button, Badge, Select, DataTable } from '../../components/core';
+import { Button, Badge, Select, DataTable } from '@/components/core';
 
 export default function AdminMovies() {
     const queryClient = useQueryClient();

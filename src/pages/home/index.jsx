@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { movieApi } from '../../api/movieApi';
-import { HeroBannerSlider, MovieTabSection } from '../../components/home';
+import { movieApi } from '@/api/movieApi';
+import { HeroBannerSlider, MovieTabSection } from '@/components/home';
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();

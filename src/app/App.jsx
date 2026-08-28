@@ -1,6 +1,7 @@
 import AppRouter from "./router";
 import { useEffect } from "react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { ErrorBoundary } from "@/components/base/ErrorBoundary";
 
 export default function App() {
   const { checkAuth } = useAuthStore();
@@ -9,8 +10,8 @@ export default function App() {
   }, [checkAuth]);
 
   return (
-    <>
+    <ErrorBoundary>
       <AppRouter />
-    </>
-  )
+    </ErrorBoundary>
+  );
 }

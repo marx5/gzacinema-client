@@ -1,7 +1,7 @@
-import { useUserBookings } from '../../hooks';
-import { Breadcrumb } from '../../components/layouts';
-import { Badge, Button } from '../../components/core';
-import { BookingHistoryCard, HistoryEmptyState } from '../../components/modules/history';
+import { useUserBookings } from '@/hooks';
+import { Breadcrumb } from '@/components/layouts';
+import { Badge, Button } from '@/components/core';
+import { BookingHistoryCard, HistoryEmptyState } from '@/components/modules/history';
 import { Ticket, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function History() {

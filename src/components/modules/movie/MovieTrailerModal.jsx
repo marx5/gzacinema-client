@@ -1,4 +1,4 @@
-import Modal from "../../core/Modal";
+import Modal from "@/components/core/Modal";
 
 export function MovieTrailerModal({ isOpen, onClose, trailerUrl, movieTitle }) {
   if (!isOpen) return null;

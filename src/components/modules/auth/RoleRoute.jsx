@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { useAuthStore } from '../../../store/useAuthStore';
-import NotFound from '../../../pages/not-found';
+import { useAuthStore } from '@/store/useAuthStore';
+import NotFound from '@/pages/not-found';
 
 export default function RoleRoute({ allowedRoles }) {
     const { user, isAuthenticated, isLoading } = useAuthStore();

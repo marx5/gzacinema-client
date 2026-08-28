@@ -1,6 +1,6 @@
 import { Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../core';
+import { Button } from '@/components/core';
 
 export default function HistoryEmptyState() {
   return (

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { cinemaApi } from '../../api/cinemaApi';
-import { movieApi } from '../../api/movieApi';
-import { systemApi } from '../../api/systemApi';
+import { cinemaApi } from '@/api/cinemaApi';
+import { movieApi } from '@/api/movieApi';
+import { systemApi } from '@/api/systemApi';
 import { Calendar, Plus, Building2, Film, Clock, Trash2, Sparkles, DollarSign } from 'lucide-react';
-import { Button, Badge, Select, Input, DatePicker, MoneyInput } from '../../components/core';
-import { formatCurrency } from '../../utils/formatters';
+import { Button, Badge, Select, Input, DatePicker, MoneyInput } from '@/components/core';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function AdminShowtimes() {
     const queryClient = useQueryClient();
@@ -170,14 +170,14 @@ export default function AdminShowtimes() {
                                 min={1000}
                                 value={basePrice}
                                 onChange={(val) => setBasePrice(val)}
-                                placeholder="Ví dụ: 70.000"
+                                placeholder="70.000"
                             />
 
                             <Button
                                 type="submit"
                                 variant="primary"
                                 size="md"
-                                isLoading={createMutation.isLoading}
+                                isLoading={createMutation.isPending}
                                 className="w-full rounded-md font-bold tracking-wide shadow-glow-gold-sm mt-2"
                                 leftIcon={<Plus className="w-4 h-4" />}
                             >

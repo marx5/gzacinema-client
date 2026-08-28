@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { bookingApi } from '../api/bookingApi';
-import { socket } from '../utils/socket';
-import { useAuthStore } from '../store/useAuthStore';
+import { bookingApi } from '@/api/bookingApi';
+import { socket } from '@/utils/socket';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   validateSeatSelection,
   validateSeatDeselection,
   areSeatsConnected,
-} from '../utils/seatValidator';
+} from '@/utils/seatValidator';
 
 /**
  * Use Case Hook: Đóng gói toàn bộ logic đặt ghế, socket realtime, đếm ngược và thanh toán

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Home, Film } from 'lucide-react';
-import { Button } from '../../components/core';
+import { Button } from '@/components/core';
 
 export default function NotFound() {
     return (

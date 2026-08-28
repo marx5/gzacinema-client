@@ -1,6 +1,6 @@
 import { Search, RotateCcw } from "lucide-react";
-import Button from "../core/Button";
-import Input from "../core/Input";
+import Button from "@/components/core/Button";
+import Input from "@/components/core/Input";
 
 export function DataFilter({
   searchValue = "",

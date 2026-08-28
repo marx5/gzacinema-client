@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Ticket, Settings, ShieldCheck } from "lucide-react";
-import { useAuthStore } from "../../store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export function Account({ className = "" }) {
   const [isOpen, setIsOpen] = useState(false);

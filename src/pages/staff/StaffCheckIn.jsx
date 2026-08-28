@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { systemApi } from '../../api/systemApi';
+import { systemApi } from '@/api/systemApi';
 import { QrCode, ShieldCheck, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Badge } from '../../components/core';
+import { Badge } from '@/components/core';
 
 export default function StaffCheckIn() {
     const [scannedId, setScannedId] = useState('');

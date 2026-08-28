@@ -1,5 +1,5 @@
-import { formatCurrency, formatDateTime } from '../../../utils/formatters';
-import { Badge } from '../../core';
+import { formatCurrency, formatDateTime } from '@/utils/formatters';
+import { Badge } from '@/components/core';
 import { MapPin, Calendar } from 'lucide-react';
 import TicketQrCard from './TicketQrCard';
 

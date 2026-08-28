@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { authApi } from "../api/authApi";
+import { authApi } from "@/api/authApi";
 
 export const useAuthStore = create(devtools((set) => ({
     user: null,

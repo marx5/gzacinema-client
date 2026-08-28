@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Calendar, Ticket, Film } from 'lucide-react';
-import { Badge, Button } from '../../core';
+import { Badge, Button } from '@/components/core';
 
 const MovieCardContext = createContext(null);
 
@@ -73,6 +73,12 @@ MovieCard.Poster = function MovieCardPoster({ className = '' }) {
         alt={movie.title}
         loading="lazy"
         onLoad={() => setIsLoaded(true)}
+        onError={(e) => {
+          if (e.currentTarget.src !== defaultImg) {
+            e.currentTarget.src = defaultImg;
+          }
+          setIsLoaded(true);
+        }}
         className={`h-full w-full object-cover transition-opacity duration-300 ease-out group-hover:scale-105 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}

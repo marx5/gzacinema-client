@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { authApi } from '../api/authApi';
-import { mapBookingDtoToEntity } from '../models/booking.model';
+import { authApi } from '@/api/authApi';
+import { mapBookingDtoToEntity } from '@/models/booking.model';
 
 /**
  * Use Case Hook: Lấy và chuẩn hóa danh sách lịch sử đặt vé của người dùng

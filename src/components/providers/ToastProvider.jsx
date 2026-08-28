@@ -1,4 +1,4 @@
-import { Toastify } from "../base/Toastify";
+import { Toastify } from "@/components/base/Toastify";
 
 export function ToastProvider({ children }) {
   return (

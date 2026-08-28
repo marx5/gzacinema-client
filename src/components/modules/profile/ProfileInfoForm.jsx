@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Phone, Edit3, Check, X, Save } from 'lucide-react';
-import { Input, Button } from '../../core';
+import { Input, Button } from '@/components/core';
 
 export default function ProfileInfoForm({
   profile,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { formatTimeLeft } from '../../../utils/formatters';
+import { formatTimeLeft } from '@/utils/formatters';
 import { Clock, AlertCircle } from 'lucide-react';
 
 export default function CountdownTimer({ showtimeId, onExpire }) {

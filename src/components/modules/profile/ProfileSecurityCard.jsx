@@ -1,5 +1,5 @@
 import { ShieldCheck, KeyRound, Lock } from 'lucide-react';
-import { Button } from '../../core';
+import { Button } from '@/components/core';
 
 export default function ProfileSecurityCard({ onOpenPasswordModal }) {
   return (

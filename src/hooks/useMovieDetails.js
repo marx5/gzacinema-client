@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { movieApi } from '../api/movieApi';
-import { mapMovieDtoToEntity, mapShowtimeGroupDtoToEntity } from '../models/movie.model';
+import { movieApi } from '@/api/movieApi';
+import { mapMovieDtoToEntity, mapShowtimeGroupDtoToEntity } from '@/models/movie.model';
 
 /**
  * Use Case Hook: Lấy và chuẩn hóa dữ liệu chi tiết phim & lịch chiếu

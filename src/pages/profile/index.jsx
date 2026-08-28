@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { authApi } from '../../api/authApi';
-import { useAuthStore } from '../../store/useAuthStore';
+import { authApi } from '@/api/authApi';
+import { useAuthStore } from '@/store/useAuthStore';
 import toast from 'react-hot-toast';
-import { Breadcrumb } from '../../components/layouts';
+import { Breadcrumb } from '@/components/layouts';
 import {
   ProfileAvatarHeader,
   ProfileInfoForm,
   ProfileSecurityCard,
   ChangePasswordModal,
-} from '../../components/modules/profile';
+} from '@/components/modules/profile';
 import { Sparkles } from 'lucide-react';
 
 export default function Profile() {
@@ -74,7 +74,7 @@ export default function Profile() {
         <ProfileInfoForm
           profile={profileData}
           onSubmit={handleProfileSubmit}
-          isLoading={updateProfileMutation.isLoading}
+          isLoading={updateProfileMutation.isPending}
         />
 
         {/* Khối Bảo mật & Trigger Đổi mật khẩu */}

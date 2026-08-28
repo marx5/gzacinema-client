@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar as AdminSidebar } from '../../components/layouts';
+import { Sidebar as AdminSidebar } from '@/components/layouts';
 import { Menu, Home, Sparkles, User, Ticket, LogOut, ChevronDown } from 'lucide-react';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import toast from 'react-hot-toast';
 
 export default function AdminLayout() {

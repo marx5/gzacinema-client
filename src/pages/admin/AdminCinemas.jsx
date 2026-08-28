@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { cinemaApi } from '../../api/cinemaApi';
+import { cinemaApi } from '@/api/cinemaApi';
 import { Building2, Plus, Edit3, Trash2, MapPin, Sparkles, Tv } from 'lucide-react';
-import { Button, Badge, Input, Textarea } from '../../components/core';
+import { Button, Badge, Input, Textarea } from '@/components/core';
 
 export default function AdminCinemas() {
     const queryClient = useQueryClient();
@@ -82,7 +82,7 @@ export default function AdminCinemas() {
         );
     }
 
-    const isSubmitting = createMutation.isLoading || updateMutation.isLoading;
+    const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">

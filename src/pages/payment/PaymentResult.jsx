@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, XCircle, Loader2, Home, Ticket } from 'lucide-react';
-import { Button } from '../../components/core';
+import { Button } from '@/components/core';
 
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();

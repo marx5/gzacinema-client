@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
-import Input from "../../core/Input";
-import Select from "../../core/Select";
+import Input from "@/components/core/Input";
+import Select from "@/components/core/Select";
 
 export function MovieFilter({
   search = "",

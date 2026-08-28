@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { useBookingSeats } from '../../hooks';
-import { SeatMap, BookingCart } from '../../components/modules/booking';
-import { Breadcrumb } from '../../components/layouts';
-import { Badge, Button } from '../../components/core';
+import { useBookingSeats } from '@/hooks';
+import { SeatMap, BookingCart } from '@/components/modules/booking';
+import { Breadcrumb } from '@/components/layouts';
+import { Badge, Button } from '@/components/core';
 import { Film, Clock, MapPin, AlertTriangle, RefreshCw } from 'lucide-react';
-import { formatDateTime } from '../../utils/formatters';
+import { formatDateTime } from '@/utils/formatters';
 
 export default function Booking() {
   const { showtimeId } = useParams();

@@ -1,30 +1,30 @@
 // src/app/router.jsx
 import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
-import { Navbar, Footer } from "../components/layouts";
-import { ProtectedRoute, RoleRoute } from "../components/modules/auth";
-import { LazyLoading, ScrollToTop } from "../components/base";
+import { Navbar, Footer } from "@/components/layouts";
+import { ProtectedRoute, RoleRoute } from "@/components/modules/auth";
+import { LazyLoading, ScrollToTop } from "@/components/base";
 
-const Home = React.lazy(() => import("../pages/home"));
-const Login = React.lazy(() => import("../pages/auth/Login"));
-const Register = React.lazy(() => import("../pages/auth/Register"));
-const MovieDetails = React.lazy(() => import("../pages/movie/MovieDetails"));
-const Booking = React.lazy(() => import("../pages/booking"));
-const PaymentResult = React.lazy(() => import("../pages/payment/PaymentResult"));
-const History = React.lazy(() => import("../pages/history"));
-const Profile = React.lazy(() => import("../pages/profile"));
+const Home = React.lazy(() => import("@/pages/home"));
+const Login = React.lazy(() => import("@/pages/auth/Login"));
+const Register = React.lazy(() => import("@/pages/auth/Register"));
+const MovieDetails = React.lazy(() => import("@/pages/movie/MovieDetails"));
+const Booking = React.lazy(() => import("@/pages/booking"));
+const PaymentResult = React.lazy(() => import("@/pages/payment/PaymentResult"));
+const History = React.lazy(() => import("@/pages/history"));
+const Profile = React.lazy(() => import("@/pages/profile"));
 
-import AdminLayout from "../pages/admin/AdminLayout";
-const AdminDashboard = React.lazy(() => import("../pages/admin/AdminDashboard"));
-const StaffCheckIn = React.lazy(() => import("../pages/staff/StaffCheckIn"));
-const AdminMovies = React.lazy(() => import("../pages/admin/AdminMovies"));
-const AdminShowtimes = React.lazy(() => import("../pages/admin/AdminShowtimes"));
-const AdminCinemas = React.lazy(() => import("../pages/admin/AdminCinemas"));
-const AdminRooms = React.lazy(() => import("../pages/admin/AdminRooms"));
-const AdminBookings = React.lazy(() => import("../pages/admin/AdminBookings"));
-const AdminMovieShowtimes = React.lazy(() => import("../pages/admin/AdminMovieShowtimes"));
+import AdminLayout from "@/pages/admin/AdminLayout";
+const AdminDashboard = React.lazy(() => import("@/pages/admin/AdminDashboard"));
+const StaffCheckIn = React.lazy(() => import("@/pages/staff/StaffCheckIn"));
+const AdminMovies = React.lazy(() => import("@/pages/admin/AdminMovies"));
+const AdminShowtimes = React.lazy(() => import("@/pages/admin/AdminShowtimes"));
+const AdminCinemas = React.lazy(() => import("@/pages/admin/AdminCinemas"));
+const AdminRooms = React.lazy(() => import("@/pages/admin/AdminRooms"));
+const AdminBookings = React.lazy(() => import("@/pages/admin/AdminBookings"));
+const AdminMovieShowtimes = React.lazy(() => import("@/pages/admin/AdminMovieShowtimes"));
 
-const NotFound = React.lazy(() => import("../pages/not-found"));
+const NotFound = React.lazy(() => import("@/pages/not-found"));
 
 const PublicLayout = () => (
     <div className="flex min-h-screen flex-col bg-cinema-bg text-cinema-text">
@@ -40,7 +40,12 @@ const PublicLayout = () => (
 
 export default function AppRouter() {
     return (
-        <BrowserRouter>
+        <BrowserRouter
+            future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+            }}
+        >
             <ScrollToTop />
             <Routes>
                     {/* Admin Dedicated Area with Sidebar */}

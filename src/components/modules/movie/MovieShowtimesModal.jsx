@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Calendar, Film, MapPin, Tv, Ticket, Sparkles } from 'lucide-react';
-import { Modal, Badge, Button } from '../../core';
+import { Modal, Badge, Button } from '@/components/core';
 
 export function MovieShowtimesModal({ isOpen, onClose, movie, showtimesGrouped = [] }) {
   const [selectedDate, setSelectedDate] = useState('');

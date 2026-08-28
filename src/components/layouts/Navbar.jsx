@@ -2,9 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Film, User, Ticket, LayoutDashboard, QrCode, LogOut, ChevronDown, ChevronRight } from 'lucide-react';
-import { Button } from '../core';
+import { Button } from '@/components/core';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();

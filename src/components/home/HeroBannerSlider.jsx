@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Film, Trophy, Ticket } from 'lucide-react';
-import { Button, Badge } from '../core';
+import { Button, Badge } from '@/components/core';
 
 export default function HeroBannerSlider({
   movies = [],
@@ -130,6 +130,12 @@ export default function HeroBannerSlider({
             src={activeFeatured.thumbnail}
             alt=""
             key={`bg-${activeFeatured.id}`}
+            onError={(e) => {
+              const fallback = 'https://image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg';
+              if (e.currentTarget.src !== fallback) {
+                e.currentTarget.src = fallback;
+              }
+            }}
             className="h-full w-full object-cover object-center opacity-25 filter blur-xl scale-110 animate-cinema-bg"
           />
         )}
@@ -194,6 +200,12 @@ export default function HeroBannerSlider({
             <img
               src={activeFeatured.thumbnail}
               alt={activeFeatured.title}
+              onError={(e) => {
+                const fallback = 'https://image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg';
+                if (e.currentTarget.src !== fallback) {
+                  e.currentTarget.src = fallback;
+                }
+              }}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />

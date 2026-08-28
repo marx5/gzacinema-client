@@ -1,5 +1,5 @@
+export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as DataFilter } from './DataFilter';
-export { default as DataTable } from './DataTable';
 export { default as ImagePreviewGallery } from './ImagePreviewGallery';
 export { default as InputOtp } from './InputOtp';
 export { default as InputPassword } from './InputPassword';
@@ -12,8 +12,8 @@ export { default as ScrollToTop } from './ScrollToTop';
 export { default as Toastify, showToast } from './Toastify';
 export { default as UploadImage } from './UploadImage';
 
+export * from './ErrorBoundary';
 export * from './DataFilter';
-export * from './DataTable';
 export * from './ImagePreviewGallery';
 export * from './InputOtp';
 export * from './InputPassword';

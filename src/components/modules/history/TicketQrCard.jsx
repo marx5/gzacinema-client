@@ -1,7 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react';
-import { Badge } from '../../core';
+import { Badge } from '@/components/core';
 import { Clock, Ban, CheckCircle2, AlertCircle } from 'lucide-react';
-import { TICKET_STATUS_CONFIG } from '../../../models/booking.model';
+import { TICKET_STATUS_CONFIG } from '@/models/booking.model';
 
 const STATUS_ICONS = {
   check: <CheckCircle2 className="w-3 h-3" />,

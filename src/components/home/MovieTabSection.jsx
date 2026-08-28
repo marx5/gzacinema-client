@@ -1,6 +1,6 @@
 import { Film, Clapperboard } from 'lucide-react';
-import { SkeletonCard } from '../core';
-import { MovieCard } from '../modules/movie';
+import { SkeletonCard } from '@/components/core';
+import { MovieCard } from '@/components/modules/movie';
 
 export default function MovieTabSection({
   activeTab = 'showing',

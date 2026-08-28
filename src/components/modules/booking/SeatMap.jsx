@@ -1,5 +1,4 @@
-import React from 'react';
-import { Armchair, Sparkles } from 'lucide-react';
+import React, { useMemo } from 'react';
 
 const SeatButton = React.memo(({ seat, onClick, disabled, className }) => (
   <button
@@ -16,8 +15,30 @@ const SeatButton = React.memo(({ seat, onClick, disabled, className }) => (
 SeatButton.displayName = "SeatButton";
 
 export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick }) {
+  const seatRows = useMemo(() => {
+    if (!seatData?.seats || !Array.isArray(seatData.seats)) return [];
+    
+    // Group seats by row_letter
+    const rowMap = new Map();
+    seatData.seats.forEach((seat) => {
+      const row = seat.row_letter || 'A';
+      if (!rowMap.has(row)) {
+        rowMap.set(row, []);
+      }
+      rowMap.get(row).push(seat);
+    });
+
+    // Sort rows alphabetically and seats within each row by seat_number
+    return Array.from(rowMap.entries())
+      .sort(([rowA], [rowB]) => rowA.localeCompare(rowB))
+      .map(([rowLetter, seats]) => ({
+        rowLetter,
+        seats: seats.sort((a, b) => (a.seat_number || 0) - (b.seat_number || 0)),
+      }));
+  }, [seatData]);
+
   const getSeatClassName = (seat) => {
-    const base = 'relative flex items-center justify-center h-9 sm:h-11 min-w-[32px] sm:min-w-[38px] rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-150 cursor-pointer disabled:cursor-not-allowed select-none border active:scale-90';
+    const base = 'relative flex items-center justify-center h-9 sm:h-10 min-w-[34px] sm:min-w-[38px] rounded-lg text-[11px] sm:text-xs font-bold transition-all duration-150 cursor-pointer disabled:cursor-not-allowed select-none border active:scale-90';
 
     const isSelectedByMe = mySelectedSeatsSet.has(seat.id);
 
@@ -59,21 +80,40 @@ export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick 
         ↔ Vuốt ngang để chọn ghế trong toàn bộ khán phòng
       </p>
 
-      {/* SEATS GRID */}
+      {/* SEATS GRID DYNAMIC BY ROW */}
       <div className="w-full overflow-x-auto scroll-smooth pb-4 sm:pb-6 custom-scrollbar touch-pan-x">
-        <div className="grid min-w-[480px] grid-cols-10 gap-2 sm:gap-3 p-1 sm:p-2">
-          {seatData.seats.map((seat) => {
-            const isDisabled = seat.status === 'booked' || (seat.status === 'held' && !mySelectedSeatsSet.has(seat.id));
-            return (
-              <SeatButton
-                key={seat.id}
-                seat={seat}
-                onClick={handleSeatClick}
-                disabled={isDisabled}
-                className={getSeatClassName(seat)}
-              />
-            );
-          })}
+        <div className="flex flex-col gap-2 sm:gap-3 min-w-max items-center justify-center p-1 sm:p-2">
+          {seatRows.map(({ rowLetter, seats }) => (
+            <div key={rowLetter} className="flex items-center gap-2 sm:gap-3">
+              {/* Left Row Indicator */}
+              <span className="w-5 text-center text-xs font-black text-cinema-gold/70 select-none">
+                {rowLetter}
+              </span>
+
+              {/* Seats in this Row */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {seats.map((seat) => {
+                  const isDisabled =
+                    seat.status === 'booked' ||
+                    (seat.status === 'held' && !mySelectedSeatsSet.has(seat.id));
+                  return (
+                    <SeatButton
+                      key={seat.id}
+                      seat={seat}
+                      onClick={handleSeatClick}
+                      disabled={isDisabled}
+                      className={getSeatClassName(seat)}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Right Row Indicator */}
+              <span className="w-5 text-center text-xs font-black text-cinema-gold/70 select-none">
+                {rowLetter}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -85,11 +125,11 @@ export default function SeatMap({ seatData, mySelectedSeatsSet, handleSeatClick 
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-purple-950/60 border border-purple-500/40" />
-          <span>Ghế VIP (+20k)</span>
+          <span>Ghế VIP</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-pink-950/60 border border-pink-500/40" />
-          <span>Sweetbox (+50k)</span>
+          <span>Ghế Đôi (Sweetbox)</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded bg-gold-gradient shadow-glow-gold-sm" />

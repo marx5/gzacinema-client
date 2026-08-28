@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { systemApi } from '../../api/systemApi';
-import { cinemaApi } from '../../api/cinemaApi';
+import { systemApi } from '@/api/systemApi';
+import { cinemaApi } from '@/api/cinemaApi';
 import toast from 'react-hot-toast';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency } from '@/utils/formatters';
 import {
     DollarSign,
     Ticket,
@@ -15,7 +15,7 @@ import {
     Sparkles,
     TrendingUp
 } from 'lucide-react';
-import { Badge, Select, DatePicker } from '../../components/core';
+import { Badge, Select, DatePicker } from '@/components/core';
 
 export default function AdminDashboard() {
     const [filterType, setFilterType] = useState('all');

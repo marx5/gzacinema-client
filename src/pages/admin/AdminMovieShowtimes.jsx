@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { cinemaApi } from '../../api/cinemaApi';
-import { movieApi } from '../../api/movieApi';
-import { systemApi } from '../../api/systemApi';
+import { cinemaApi } from '@/api/cinemaApi';
+import { movieApi } from '@/api/movieApi';
+import { systemApi } from '@/api/systemApi';
 import { Film, Calendar, Clock, Building2, Plus, ArrowLeft, Trash2, Sparkles, MapPin } from 'lucide-react';
-import { Button, Badge, Select, Input, DatePicker, MoneyInput } from '../../components/core';
-import { formatCurrency } from '../../utils/formatters';
+import { Button, Badge, Select, Input, DatePicker, MoneyInput } from '@/components/core';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function AdminMovieShowtimes() {
     const { id: movieId } = useParams();
@@ -213,7 +213,7 @@ export default function AdminMovieShowtimes() {
                                 type="submit"
                                 variant="primary"
                                 size="md"
-                                isLoading={createMutation.isLoading}
+                                isLoading={createMutation.isPending}
                                 className="w-full rounded-md font-bold tracking-wide shadow-glow-gold-sm mt-2"
                                 leftIcon={<Plus className="w-4 h-4" />}
                             >

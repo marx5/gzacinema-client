@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { useMovieDetails } from '../../hooks';
-import { Breadcrumb } from '../../components/layouts';
-import { Button } from '../../components/core';
-import { MovieHeroBanner, MovieShowtimesModal } from '../../components/modules/movie';
+import { useMovieDetails } from '@/hooks';
+import { Breadcrumb } from '@/components/layouts';
+import { Button } from '@/components/core';
+import { MovieHeroBanner, MovieShowtimesModal } from '@/components/modules/movie';
 import { Film, Info, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function MovieDetails() {

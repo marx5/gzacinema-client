@@ -1,4 +1,4 @@
-import Logo from "../../base/Logo";
+import Logo from "@/components/base/Logo";
 
 export function AuthWrapper({ title, subtitle, children, footer }) {
   return (

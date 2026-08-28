@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { authApi } from '../../api/authApi';
+import { authApi } from '@/api/authApi';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Film, UserPlus, Lock, Mail, User } from 'lucide-react';
-import { Button, Input } from '../../components/core';
+import { Button, Input } from '@/components/core';
 
 const registerSchema = z.object({
     full_name: z.string().min(2, "Họ tên phải từ 2 ký tự"),
@@ -122,7 +122,7 @@ export default function Register() {
                             type="submit"
                             variant="primary"
                             size="lg"
-                            isLoading={registerMutation.isLoading}
+                            isLoading={registerMutation.isPending}
                             className="w-full rounded-md font-bold tracking-wide shadow-glow-gold-sm"
                             leftIcon={<UserPlus className="w-4 h-4" />}
                         >

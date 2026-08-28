@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { movieApi } from '../../api/movieApi';
+import { movieApi } from '@/api/movieApi';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Film, Upload, X, Save, Sparkles, Image as ImageIcon } from 'lucide-react';
-import { Button, Input, Textarea, DatePicker } from '../../components/core';
+import { Button, Input, Textarea, DatePicker } from '@/components/core';
 
 const movieSchema = z.object({
     title: z.string().min(1, "Tên phim không được để trống"),
@@ -206,7 +206,7 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                         variant="ghost"
                         size="md"
                         onClick={onClose}
-                        disabled={mutation.isLoading}
+                        disabled={mutation.isPending}
                         className="rounded-md"
                     >
                         HỦY BỎ
@@ -215,7 +215,7 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
                         type="submit"
                         variant="primary"
                         size="md"
-                        isLoading={mutation.isLoading}
+                        isLoading={mutation.isPending}
                         className="rounded-md font-bold tracking-wide shadow-glow-gold-sm min-w-[160px]"
                         leftIcon={<Save className="w-4 h-4" />}
                     >
