@@ -64,8 +64,8 @@ jobs:
           echo "Đang build production bundle..."
           npm run build
 
-          # 7. Khởi động lại dự án bằng PM2 với file ecosystem.config.js
-          pm2 reload ecosystem.config.js || pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+          # 7. Khởi động lại dự án bằng PM2 với file ecosystem.config.cjs
+          pm2 reload ecosystem.config.cjs || pm2 restart ecosystem.config.cjs || pm2 start ecosystem.config.cjs
           pm2 save
 
           # 8. Health check
