@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/api/authApi';
@@ -15,25 +15,43 @@ const loginSchema = z.object({
     password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự")
 });
 
+const getDefaultRouteByRole = (role) => {
+    if (role === 'admin') return '/admin';
+    if (role === 'staff') return '/admin/checkin';
+    return '/';
+};
+
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(loginSchema)
     });
-    const loginStore = useAuthStore((state) => state.login);
+    const { login: loginStore, isAuthenticated, isLoading, user } = useAuthStore();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const loginMutation = useMutation({
         mutationFn: (credentials) => authApi.login(credentials),
         onSuccess: (res) => {
             loginStore(res.data, res.accessToken);
             toast.success('Đăng nhập thành công!');
-            navigate('/');
+            const fromPath = location.state?.from?.pathname;
+            const role = res.data?.role;
+            // Nếu có trang trước đó phù hợp với quyền của user thì quay lại, ngược lại điều hướng theo role
+            if (fromPath && !(role === 'staff' && fromPath.startsWith('/admin') && fromPath !== '/admin/checkin')) {
+                navigate(fromPath, { replace: true });
+            } else {
+                navigate(getDefaultRouteByRole(role), { replace: true });
+            }
         },
         onError: (error) => {
             toast.error(error.friendlyMessage || 'Lỗi đăng nhập');
         }
     });
+
+    if (!isLoading && isAuthenticated) {
+        return <Navigate to={getDefaultRouteByRole(user?.role)} replace />;
+    }
 
     const onSubmit = (data) => {
         loginMutation.mutate(data);

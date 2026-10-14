@@ -35,17 +35,17 @@ export function Account({ className = "" }) {
         className="flex items-center gap-2.5 p-1.5 rounded-full hover:bg-white/5 transition focus:outline-none"
       >
         <div className="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold text-sm">
-          {user.fullName ? user.fullName.charAt(0).toUpperCase() : <User size={16} />}
+          {(user.full_name || user.fullName) ? (user.full_name || user.fullName).charAt(0).toUpperCase() : <User size={16} />}
         </div>
         <span className="text-sm font-medium text-gray-200 hidden md:block max-w-[120px] truncate">
-          {user.fullName || user.email}
+          {user.full_name || user.fullName || user.email}
         </span>
       </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-dark-card border border-dark-border rounded-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
           <div className="px-4 py-2 border-b border-dark-border/60">
-            <p className="text-sm font-semibold text-white truncate">{user.fullName}</p>
+            <p className="text-sm font-semibold text-white truncate">{user.full_name || user.fullName}</p>
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
             <span className="inline-block mt-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-500/20 text-brand-400">
               {user.role}
@@ -71,7 +71,7 @@ export function Account({ className = "" }) {
               <span>Lịch sử đặt vé</span>
             </Link>
 
-            {user.role === "ADMIN" && (
+            {user.role?.toLowerCase() === "admin" && (
               <Link
                 to="/admin"
                 onClick={() => setIsOpen(false)}
@@ -82,9 +82,9 @@ export function Account({ className = "" }) {
               </Link>
             )}
 
-            {user.role === "STAFF" && (
+            {user.role?.toLowerCase() === "staff" && (
               <Link
-                to="/staff/checkin"
+                to="/admin/checkin"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-2 text-blue-400 hover:bg-blue-500/10 transition"
               >

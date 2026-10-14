@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '@/api/authApi';
+import { useAuthStore } from '@/store/useAuthStore';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,7 @@ export default function Register() {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { isAuthenticated, isLoading, user } = useAuthStore();
     const navigate = useNavigate();
 
     const registerMutation = useMutation({
@@ -36,6 +38,11 @@ export default function Register() {
         },
         onError: (error) => toast.error(error.friendlyMessage || 'Đăng ký thất bại')
     });
+
+    if (!isLoading && isAuthenticated) {
+        const target = user?.role === 'admin' ? '/admin' : user?.role === 'staff' ? '/admin/checkin' : '/';
+        return <Navigate to={target} replace />;
+    }
 
     const onSubmit = (data) => {
         const { confirmPassword, ...payload } = data;

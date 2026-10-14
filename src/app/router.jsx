@@ -48,16 +48,18 @@ export default function AppRouter() {
         >
             <ScrollToTop />
             <Routes>
-                    {/* Admin Dedicated Area with Sidebar */}
+                    {/* Admin & Staff Area with Sidebar */}
                     <Route element={<RoleRoute allowedRoles={['admin', 'staff']} />}>
                         <Route path="/admin" element={<AdminLayout />}>
-                            <Route index element={<AdminDashboard />} />
-                            <Route path="movies" element={<AdminMovies />} />
-                            <Route path="movies/:id/showtimes" element={<AdminMovieShowtimes />} />
-                            <Route path="showtimes" element={<AdminShowtimes />} />
-                            <Route path="cinemas" element={<AdminCinemas />} />
-                            <Route path="cinemas/:cinemaId/rooms" element={<AdminRooms />} />
-                            <Route path="bookings" element={<AdminBookings />} />
+                            <Route element={<RoleRoute allowedRoles={['admin']} />}>
+                                <Route index element={<AdminDashboard />} />
+                                <Route path="movies" element={<AdminMovies />} />
+                                <Route path="movies/:id/showtimes" element={<AdminMovieShowtimes />} />
+                                <Route path="showtimes" element={<AdminShowtimes />} />
+                                <Route path="cinemas" element={<AdminCinemas />} />
+                                <Route path="cinemas/:cinemaId/rooms" element={<AdminRooms />} />
+                                <Route path="bookings" element={<AdminBookings />} />
+                            </Route>
                             <Route path="checkin" element={<StaffCheckIn />} />
                         </Route>
                     </Route>
