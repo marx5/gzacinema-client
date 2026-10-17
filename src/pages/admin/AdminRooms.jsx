@@ -250,7 +250,7 @@ export default function AdminRooms() {
                 <form onSubmit={handleCreateRoom} className="flex flex-col sm:flex-row items-end gap-3">
                     <div className="flex-1 w-full">
                         <Input
-                            label="Thêm phòng chiếu mới (Mặc định tự động khởi tạo 50 ghế: 2 hàng Thường, 2 hàng VIP, 1 hàng Sweetbox) *"
+                            label="Tên phòng chiếu mới *"
                             size="sm"
                             type="text"
                             required

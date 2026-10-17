@@ -73,9 +73,6 @@ export default function Login() {
                     <h2 className="m-0 font-display text-2xl sm:text-3xl font-extrabold text-cinema-text tracking-tight">
                         Đăng Nhập
                     </h2>
-                    <p className="text-xs sm:text-sm text-cinema-text-muted">
-                        Truy cập tài khoản để đặt vé và nhận ưu đãi độc quyền
-                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

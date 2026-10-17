@@ -24,11 +24,12 @@ import { formatCurrency, formatDateTime } from '@/utils/formatters';
 export default function Profile() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { checkAuth, logout } = useAuthStore();
+  const { user, checkAuth, logout } = useAuthStore();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['profile', user?.id],
+    enabled: Boolean(user?.id),
     queryFn: async () => {
       const res = await authApi.getProfile();
       return res.data;
@@ -36,14 +37,15 @@ export default function Profile() {
   });
 
   const { data: historyRes } = useQuery({
-    queryKey: ['user', 'bookings', 'recent-preview'],
+    queryKey: ['user', 'bookings', 'recent-preview', user?.id],
+    enabled: Boolean(user?.id),
     queryFn: async () => {
       const res = await authApi.getHistory();
       return res.data;
     },
   });
 
-  const profileData = profile?.data || profile || {};
+  const profileData = profile?.data || profile || user || {};
   const recentBookings = (
     historyRes?.data?.history ||
     historyRes?.history ||
@@ -93,16 +95,11 @@ export default function Profile() {
       <Breadcrumb items={[{ label: 'Hồ sơ cá nhân' }]} />
 
       {/* Page Header */}
-      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-5">
-        <div>
-          <h1 className="m-0 font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-            <Sparkles className="w-6 h-6 text-cinema-gold" />
-            Trung Tâm Tài Khoản & Thẻ Thành Viên
-          </h1>
-          <p className="m-0 mt-1.5 text-sm text-cinema-text-muted">
-            Quản lý hồ sơ cá nhân, theo dõi tích lũy hạng thẻ và lịch sử vé điện tử của bạn tại GzaCinema.
-          </p>
-        </div>
+      <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <h1 className="m-0 font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+          <Sparkles className="w-6 h-6 text-cinema-gold" />
+          Hồ Sơ Cá Nhân
+        </h1>
       </div>
 
       {/* 2-Column Dashboard Layout */}
@@ -123,15 +120,10 @@ export default function Profile() {
           {/* Recent Bookings Preview Card */}
           <div className="glass-card rounded-2xl border border-white/10 p-6 sm:p-7 shadow-cinematic space-y-4">
             <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/10">
-              <div>
-                <h3 className="m-0 flex items-center gap-2 font-display text-lg font-bold text-white">
-                  <Ticket className="w-5 h-5 text-cinema-gold" />
-                  Đơn Đặt Vé Gần Đây
-                </h3>
-                <p className="m-0 mt-1 text-xs text-cinema-text-muted">
-                  Các giao dịch đặt vé mới nhất của bạn
-                </p>
-              </div>
+              <h3 className="m-0 flex items-center gap-2 font-display text-lg font-bold text-white">
+                <Ticket className="w-5 h-5 text-cinema-gold" />
+                Đơn Đặt Vé Gần Đây
+              </h3>
 
               <Link
                 to="/history"
@@ -143,17 +135,14 @@ export default function Profile() {
             </div>
 
             {recentBookings.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] py-8 px-4 text-center">
-                <Ticket className="mx-auto h-8 w-8 text-cinema-text-dim mb-2" />
+              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] py-7 px-4 text-center">
+                <Ticket className="mx-auto h-7 w-7 text-cinema-text-dim mb-2" />
                 <p className="m-0 text-sm font-semibold text-cinema-text">
                   Bạn chưa có đơn đặt vé nào
                 </p>
-                <p className="m-0 mt-1 text-xs text-cinema-text-muted">
-                  Hãy chọn một bộ phim yêu thích để trải nghiệm rạp chiếu GzaCinema ngay hôm nay!
-                </p>
                 <Link
                   to="/"
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-cinema-gold px-4 py-2 text-xs font-bold text-cinema-bg hover:brightness-110 transition"
+                  className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg bg-cinema-gold px-4 py-2 text-xs font-bold text-cinema-bg hover:brightness-110 transition"
                 >
                   Đặt vé ngay
                   <ArrowRight className="w-3.5 h-3.5" />

@@ -185,15 +185,10 @@ export default function StaffCheckIn() {
                     {/* Camera QR Scanner Card */}
                     <div className="rounded-md border border-white/10 bg-[#121324] p-4 space-y-3.5">
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                            <div>
-                                <h3 className="m-0 font-display text-sm font-bold text-white flex items-center gap-2">
-                                    <QrCode className="w-4 h-4 text-cinema-gold" />
-                                    Quét Mã QR Bằng Camera
-                                </h3>
-                                <p className="m-0 text-[11px] text-cinema-text-dim mt-0.5">
-                                    Đưa mã QR trên vé điện tử vào khung ngắm để tự động check-in
-                                </p>
-                            </div>
+                            <h3 className="m-0 font-display text-sm font-bold text-white flex items-center gap-2">
+                                <QrCode className="w-4 h-4 text-cinema-gold" />
+                                Quét Mã QR Bằng Camera
+                            </h3>
 
                             <button
                                 type="button"

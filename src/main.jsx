@@ -4,19 +4,10 @@ import App from './app/App.jsx';
 import './index.css';
 import { Toaster, ToastBar, toast } from 'react-hot-toast';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { HelmetProvider } from 'react-helmet-async';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import { queryClient } from '@/utils/queryClient';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

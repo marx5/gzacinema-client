@@ -62,9 +62,6 @@ export default function Register() {
                     <h2 className="m-0 font-display text-2xl sm:text-3xl font-extrabold text-cinema-text tracking-tight">
                         Đăng Ký
                     </h2>
-                    <p className="text-xs sm:text-sm text-cinema-text-muted">
-                        Tạo tài khoản để bắt đầu trải nghiệm điện ảnh đỉnh cao tại GZACINEMA
-                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

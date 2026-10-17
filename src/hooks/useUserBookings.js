@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { authApi } from '@/api/authApi';
+import { useAuthStore } from '@/store/useAuthStore';
 import { mapBookingDtoToEntity } from '@/models/booking.model';
 
 /**
  * Use Case Hook: Lấy và chuẩn hóa danh sách lịch sử đặt vé của người dùng
  */
 export const useUserBookings = ({ page = 1, limit = 10 } = {}) => {
+  const { user } = useAuthStore();
+
   const query = useQuery({
-    queryKey: ['user', 'bookings', 'history', { page, limit }],
+    queryKey: ['user', 'bookings', 'history', user?.id, { page, limit }],
+    enabled: Boolean(user?.id),
     queryFn: async () => {
       const res = await authApi.getHistory({ page, limit });
       const rawList = res.data?.history || res.data?.bookings || res.data || [];

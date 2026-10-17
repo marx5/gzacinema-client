@@ -635,7 +635,7 @@ export default function AdminUsers() {
               <label className="block text-xs font-bold uppercase tracking-wider text-cinema-text-muted">
                 Vai trò & Quyền truy cập
               </label>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {ROLE_OPTIONS.map((opt) => {
                   const Icon = opt.icon;
                   const isSelected = formData.role === opt.value;
@@ -652,32 +652,20 @@ export default function AdminUsers() {
                       onClick={() =>
                         setFormData((prev) => ({ ...prev, role: opt.value }))
                       }
-                      className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                         isSelected
                           ? 'border-cinema-gold bg-cinema-gold/10'
                           : 'border-white/10 bg-white/[0.02] hover:bg-white/[0.05]'
                       }`}
                     >
                       <div
-                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${opt.badgeClass}`}
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${opt.badgeClass}`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-white">
-                            {opt.label}
-                          </span>
-                          {isSelected && (
-                            <span className="text-[10px] font-bold uppercase text-cinema-gold">
-                              Đang chọn
-                            </span>
-                          )}
-                        </div>
-                        <p className="m-0 mt-0.5 text-xs text-cinema-text-muted">
-                          {opt.desc}
-                        </p>
-                      </div>
+                      <span className="text-xs font-bold text-white leading-snug">
+                        {opt.label}
+                      </span>
                     </button>
                   );
                 })}

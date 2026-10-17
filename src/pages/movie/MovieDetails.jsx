@@ -191,14 +191,9 @@ export default function MovieDetails() {
             <div className="p-2.5 rounded-xl bg-cinema-gold/10 border border-cinema-gold/30 text-cinema-gold">
               <Ticket className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-lg sm:text-2xl font-black text-white flex flex-wrap items-center gap-2">
-                <span>Lịch Chiếu & Đặt Vé</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-cinema-text-muted mt-0.5">
-                Chọn ngày và suất chiếu phù hợp để chọn ghế ngồi
-              </p>
-            </div>
+            <h2 className="text-lg sm:text-2xl font-black text-white flex flex-wrap items-center gap-2">
+              <span>Lịch Chiếu & Đặt Vé</span>
+            </h2>
           </div>
 
           {/* Cinema Filter (nếu có từ 2 rạp trở lên) */}

@@ -128,15 +128,10 @@ export function DashboardRevenueSection({
             {/* Left 8 Cols: Detailed Movie Revenue Leaderboard Table */}
             <div className="lg:col-span-8 rounded-md border border-white/10 bg-[#121324] overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 px-4 py-3.5 bg-[#16182D]">
-                    <div>
-                        <h3 className="m-0 font-display text-sm font-bold text-white flex items-center gap-2">
-                            <Film className="w-4 h-4 text-cinema-gold" />
-                            Bảng Xếp Hạng Doanh Thu Theo Phim ({filteredMovieStats.length})
-                        </h3>
-                        <p className="m-0 text-[11px] text-cinema-text-dim mt-0.5">
-                            Chi tiết số đơn đặt vé, tỷ trọng đóng góp và tổng doanh thu từng phim
-                        </p>
-                    </div>
+                    <h3 className="m-0 font-display text-sm font-bold text-white flex items-center gap-2">
+                        <Film className="w-4 h-4 text-cinema-gold" />
+                        Bảng Xếp Hạng Doanh Thu Theo Phim ({filteredMovieStats.length})
+                    </h3>
 
                     {/* Quick Search Movie in Stats */}
                     <div className="relative w-full sm:w-56">
@@ -306,80 +301,60 @@ export function DashboardRevenueSection({
                     <div className="grid grid-cols-1 gap-2">
                         <Link
                             to="/admin/movies"
-                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-3 transition group"
+                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-2.5 transition group"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded bg-cinema-gold/15 text-cinema-gold">
-                                    <Film className="w-4 h-4" />
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded bg-cinema-gold/15 text-cinema-gold">
+                                    <Film className="w-3.5 h-3.5" />
                                 </div>
-                                <div>
-                                    <div className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
-                                        Quản lý danh mục Phim
-                                    </div>
-                                    <div className="text-[11px] text-cinema-text-dim">
-                                        Thêm phim mới, cập nhật poster & trailer
-                                    </div>
-                                </div>
+                                <span className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
+                                    Quản lý danh mục Phim
+                                </span>
                             </div>
                             <ArrowUpRight className="w-4 h-4 text-cinema-text-dim group-hover:text-cinema-gold" />
                         </Link>
 
                         <Link
                             to="/admin/showtimes"
-                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-3 transition group"
+                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-2.5 transition group"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-500/15 text-blue-400">
-                                    <Calendar className="w-4 h-4" />
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-500/15 text-blue-400">
+                                    <Calendar className="w-3.5 h-3.5" />
                                 </div>
-                                <div>
-                                    <div className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
-                                        Lên lịch suất chiếu
-                                    </div>
-                                    <div className="text-[11px] text-cinema-text-dim">
-                                        Mở bán vé theo cụm rạp và phòng chiếu
-                                    </div>
-                                </div>
+                                <span className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
+                                    Lên lịch suất chiếu
+                                </span>
                             </div>
                             <ArrowUpRight className="w-4 h-4 text-cinema-text-dim group-hover:text-cinema-gold" />
                         </Link>
 
                         <Link
                             to="/admin/bookings"
-                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-3 transition group"
+                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-2.5 transition group"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded bg-purple-500/15 text-purple-400">
-                                    <Ticket className="w-4 h-4" />
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded bg-purple-500/15 text-purple-400">
+                                    <Ticket className="w-3.5 h-3.5" />
                                 </div>
-                                <div>
-                                    <div className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
-                                        Tra cứu đơn đặt vé
-                                    </div>
-                                    <div className="text-[11px] text-cinema-text-dim">
-                                        Kiểm tra trạng thái thanh toán & mã QR vé
-                                    </div>
-                                </div>
+                                <span className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
+                                    Tra cứu đơn đặt vé
+                                </span>
                             </div>
                             <ArrowUpRight className="w-4 h-4 text-cinema-text-dim group-hover:text-cinema-gold" />
                         </Link>
 
                         <Link
                             to="/admin/checkin"
-                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-3 transition group"
+                            className="flex items-center justify-between rounded-md border border-white/[0.07] bg-[#17192E] hover:border-cinema-gold/40 hover:bg-[#1C1F38] p-2.5 transition group"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded bg-emerald-500/15 text-emerald-400">
-                                    <QrCode className="w-4 h-4" />
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500/15 text-emerald-400">
+                                    <QrCode className="w-3.5 h-3.5" />
                                 </div>
-                                <div>
-                                    <div className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
-                                        Bàn soát vé QR Code
-                                    </div>
-                                    <div className="text-[11px] text-cinema-text-dim">
-                                        Xác thực vé nhanh bằng Camera hoặc mã vé
-                                    </div>
-                                </div>
+                                <span className="text-xs font-bold text-white group-hover:text-cinema-gold transition-colors">
+                                    Bàn soát vé QR Code
+                                </span>
                             </div>
                             <ArrowUpRight className="w-4 h-4 text-cinema-text-dim group-hover:text-cinema-gold" />
                         </Link>
