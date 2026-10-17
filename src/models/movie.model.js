@@ -12,8 +12,19 @@ export const mapMovieDtoToEntity = (movieDto) => {
   const todayStr = toLocalDateString();
   const releaseDateVal = movieDto.release_date || movieDto.releaseDate || null;
   const releaseDateStr = releaseDateVal ? toLocalDateString(releaseDateVal) : '';
-  const isComingSoon = releaseDateStr ? releaseDateStr > todayStr : false;
-  const poster = movieDto.thumbnail || movieDto.poster_url || movieDto.posterUrl || '';
+  const rawStatus = movieDto.status || 'auto';
+
+  const isComingSoon =
+    rawStatus === 'coming_soon'
+      ? true
+      : rawStatus === 'showing' || rawStatus === 'ended'
+        ? false
+        : releaseDateStr
+          ? releaseDateStr > todayStr
+          : false;
+
+  const poster =
+    movieDto.thumbnail || movieDto.poster_url || movieDto.posterUrl || '';
   const duration = Number(movieDto.duration_minutes || movieDto.duration || 0);
 
   return {
@@ -35,7 +46,7 @@ export const mapMovieDtoToEntity = (movieDto) => {
     ageRating: movieDto.age_rating || movieDto.ageRating || 'P',
     age_rating: movieDto.age_rating || movieDto.ageRating || 'P',
     isComingSoon,
-    status: movieDto.status || 'ACTIVE',
+    status: rawStatus,
   };
 };
 
@@ -48,7 +59,8 @@ export const mapShowtimeGroupDtoToEntity = (groupDto) => {
   return {
     cinema_info: {
       id: groupDto.cinema_info?.id ?? groupDto.id,
-      name: groupDto.cinema_info?.name ?? groupDto.name ?? 'GzaCinema Complex',
+      name:
+        groupDto.cinema_info?.name ?? groupDto.name ?? 'GzaCinema Complex',
       address: groupDto.cinema_info?.address ?? groupDto.address ?? '',
     },
     showtimes: (groupDto.showtimes || []).map((st) => ({
@@ -59,4 +71,3 @@ export const mapShowtimeGroupDtoToEntity = (groupDto) => {
     })),
   };
 };
-
