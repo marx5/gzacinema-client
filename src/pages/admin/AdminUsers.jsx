@@ -97,16 +97,14 @@ export default function AdminUsers() {
         ...(searchQuery ? { search: searchQuery } : {}),
       };
       const res = await userApi.getUsers(params);
-      return res.data?.data || res.data || {};
+      return res?.data || res || {};
     },
   });
 
   const users = data?.users || [];
-  const pagination = data?.pagination || {
-    totalItems: 0,
-    totalPages: 1,
-    currentPage: 1,
-  };
+  const totalPages = data?.total_pages ?? data?.pagination?.totalPages ?? 1;
+  const currentPage = data?.current_page ?? data?.pagination?.currentPage ?? page;
+  const totalItems = data?.total_items ?? data?.pagination?.totalItems ?? users.length;
   const summary = data?.summary || {
     total_users: 0,
     admin_count: 0,
@@ -247,9 +245,10 @@ export default function AdminUsers() {
   const columns = useMemo(
     () => [
       {
-        header: 'Người Dùng',
-        accessorKey: 'full_name',
-        cell: (row) => {
+        key: 'user',
+        title: 'Người Dùng',
+        dataIndex: 'full_name',
+        render: (_val, row) => {
           const initial =
             row.full_name?.charAt(0) || row.email?.charAt(0) || 'U';
           const isMe = String(row.id) === String(currentUser?.id);
@@ -278,9 +277,10 @@ export default function AdminUsers() {
         },
       },
       {
-        header: 'Thông Tin Liên Hệ',
-        accessorKey: 'email',
-        cell: (row) => (
+        key: 'contact',
+        title: 'Thông Tin Liên Hệ',
+        dataIndex: 'email',
+        render: (_val, row) => (
           <div className="space-y-1 min-w-[190px]">
             <p className="m-0 flex items-center gap-1.5 text-xs text-cinema-text">
               <Mail className="w-3.5 h-3.5 text-cinema-gold/70 shrink-0" />
@@ -294,9 +294,10 @@ export default function AdminUsers() {
         ),
       },
       {
-        header: 'Vai Trò',
-        accessorKey: 'role',
-        cell: (row) => {
+        key: 'role',
+        title: 'Vai Trò',
+        dataIndex: 'role',
+        render: (_val, row) => {
           const roleMeta =
             ROLE_OPTIONS.find((r) => r.value === row.role) || ROLE_OPTIONS[0];
           const Icon = roleMeta.icon;
@@ -315,9 +316,10 @@ export default function AdminUsers() {
         },
       },
       {
-        header: 'Hoạt Động Mua Vé',
-        accessorKey: 'booking_count',
-        cell: (row) => {
+        key: 'activity',
+        title: 'Hoạt Động Mua Vé',
+        dataIndex: 'booking_count',
+        render: (_val, row) => {
           const count = Number(row.booking_count || 0);
           const spent = Number(row.total_spent || 0);
           return (
@@ -333,9 +335,10 @@ export default function AdminUsers() {
         },
       },
       {
-        header: 'Ngày Tạo',
-        accessorKey: 'createdAt',
-        cell: (row) => (
+        key: 'createdAt',
+        title: 'Ngày Tạo',
+        dataIndex: 'createdAt',
+        render: (_val, row) => (
           <span className="text-xs text-cinema-text-muted font-mono">
             {row.createdAt
               ? new Date(row.createdAt).toLocaleDateString('vi-VN', {
@@ -348,10 +351,11 @@ export default function AdminUsers() {
         ),
       },
       {
-        header: 'Thao Tác',
-        accessorKey: 'actions',
-        className: 'text-right',
-        cell: (row) => {
+        key: 'actions',
+        title: 'Thao Tác',
+        dataIndex: 'actions',
+        align: 'right',
+        render: (_val, row) => {
           const isMe = String(row.id) === String(currentUser?.id);
           return (
             <div className="flex items-center justify-end gap-2">
@@ -546,21 +550,20 @@ export default function AdminUsers() {
       </div>
 
       {/* Users DataTable */}
-      <div className="rounded-xl border border-white/10 bg-[#121426] overflow-hidden">
-        <DataTable
-          columns={columns}
-          data={users}
-          isLoading={isLoading}
-          emptyMessage="Không tìm thấy tài khoản người dùng nào phù hợp với bộ lọc."
-          pagination={{
-            currentPage: pagination.currentPage || page,
-            totalPages: pagination.totalPages || 1,
-            totalItems: pagination.totalItems || users.length,
-            limit,
-            onPageChange: (nextPage) => setPage(nextPage),
-          }}
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={users}
+        loading={isLoading}
+        isFetching={isFetching}
+        emptyMessage="Không tìm thấy tài khoản người dùng nào phù hợp với bộ lọc."
+        pagination={{
+          page: currentPage,
+          totalPages,
+          totalItems,
+          limit,
+          onPageChange: (nextPage) => setPage(nextPage),
+        }}
+      />
 
       {/* Create / Edit User Modal */}
       <Modal

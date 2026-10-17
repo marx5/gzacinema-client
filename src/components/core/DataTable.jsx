@@ -23,6 +23,7 @@ export function DataTable({
     columns = [],
     data = [],
     loading = false,
+    isLoading = false,
     isFetching = false,
     loadingMessage = 'Đang tải dữ liệu...',
     emptyMessage = 'Không tìm thấy dữ liệu phù hợp.',
@@ -33,6 +34,8 @@ export function DataTable({
     minWidth = 'min-w-[850px]',
     className = '',
 }) {
+    const isTableLoading = loading || isLoading;
+
     const getRowKey = (item, index) => {
         if (typeof rowKey === 'function') return rowKey(item, index);
         return item?.[rowKey] || item?.id || item?._id || index;
@@ -54,9 +57,13 @@ export function DataTable({
     };
 
     const renderCellContent = (col, record, rIdx) => {
-        const cellValue = col.dataIndex ? record[col.dataIndex] : undefined;
+        const fieldKey = col.dataIndex || col.accessorKey;
+        const cellValue = fieldKey ? record[fieldKey] : undefined;
         if (col.render) {
             return col.render(cellValue, record, rIdx);
+        }
+        if (col.cell) {
+            return col.cell(record, rIdx);
         }
         if (cellValue === null || cellValue === undefined) return '—';
         if (typeof cellValue === 'object') {
@@ -66,12 +73,13 @@ export function DataTable({
         return cellValue;
     };
 
+    const currentPage = pagination?.page ?? pagination?.currentPage ?? 1;
     const hasPagination = pagination && pagination.totalPages > 1;
 
     return (
         <div className={`relative z-10 rounded-md border border-white/10 bg-[#121324] shadow-sm overflow-hidden ${className}`}>
             {/* Loading Overlay when refetching */}
-            {isFetching && !loading && (
+            {isFetching && !isTableLoading && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center bg-cinema-bg/60 backdrop-blur-[1px] animate-in fade-in duration-150">
                     <div className="flex items-center gap-2 rounded-md border border-cinema-gold/40 bg-cinema-surface px-3.5 py-2 text-xs font-semibold text-cinema-gold shadow-sm">
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cinema-gold border-t-transparent" />
@@ -87,18 +95,18 @@ export function DataTable({
                         <tr>
                             {columns.map((col, idx) => (
                                 <th
-                                    key={col.key || col.dataIndex || idx}
+                                    key={col.key || col.dataIndex || col.accessorKey || idx}
                                     style={col.width ? { width: col.width } : undefined}
                                     className={`px-4 py-3.5 ${getAlignClass(col.align)} ${col.headerClassName || ''}`}
                                 >
-                                    {col.title}
+                                    {col.title ?? col.header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
 
                     <tbody className="divide-y divide-white/[0.06] text-[13px]">
-                        {loading ? (
+                        {isTableLoading ? (
                             <TableSkeleton rows={6} columns={columns.length || 5} />
                         ) : !data || data.length === 0 ? (
                             <tr>
@@ -121,7 +129,7 @@ export function DataTable({
                                 >
                                     {columns.map((col, cIdx) => (
                                         <td
-                                            key={col.key || col.dataIndex || cIdx}
+                                            key={col.key || col.dataIndex || col.accessorKey || cIdx}
                                             className={`px-4 py-3 align-middle ${getAlignClass(col.align)} ${col.className || ''}`}
                                         >
                                             {renderCellContent(col, record, rIdx)}
@@ -138,15 +146,15 @@ export function DataTable({
             {hasPagination && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 px-4 py-3 bg-[#15172B]">
                     <span className="text-xs text-cinema-text-muted">
-                        Hiển thị <strong className="text-cinema-text font-semibold">{data?.length || 0}</strong> bản ghi • Trang <strong className="text-cinema-gold font-semibold">{pagination.page}</strong> / {pagination.totalPages}
+                        Hiển thị <strong className="text-cinema-text font-semibold">{data?.length || 0}</strong> bản ghi • Trang <strong className="text-cinema-gold font-semibold">{currentPage}</strong> / {pagination.totalPages}
                     </span>
 
                     <div className="flex items-center gap-1.5">
                         <Button
                             variant="secondary"
                             size="sm"
-                            disabled={pagination.page <= 1 || isFetching}
-                            onClick={() => pagination.onPageChange?.(pagination.page - 1)}
+                            disabled={currentPage <= 1 || isFetching}
+                            onClick={() => pagination.onPageChange?.(currentPage - 1)}
                             className="rounded-md h-9 min-w-[36px] sm:h-8 sm:min-w-[32px] px-2.5 text-xs"
                         >
                             &larr; Trước
@@ -154,13 +162,13 @@ export function DataTable({
 
                         {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                             let pageNum = i + 1;
-                            if (pagination.totalPages > 5 && pagination.page > 3) {
+                            if (pagination.totalPages > 5 && currentPage > 3) {
                                 pageNum = Math.min(
-                                    pagination.page - 2 + i,
+                                    currentPage - 2 + i,
                                     pagination.totalPages - 4 + i
                                 );
                             }
-                            const isCurrent = pageNum === pagination.page;
+                            const isCurrent = pageNum === currentPage;
                             return (
                                 <button
                                     key={pageNum}
@@ -181,8 +189,8 @@ export function DataTable({
                         <Button
                             variant="secondary"
                             size="sm"
-                            disabled={pagination.page >= pagination.totalPages || isFetching}
-                            onClick={() => pagination.onPageChange?.(pagination.page + 1)}
+                            disabled={currentPage >= pagination.totalPages || isFetching}
+                            onClick={() => pagination.onPageChange?.(currentPage + 1)}
                             className="rounded-md h-9 min-w-[36px] sm:h-8 sm:min-w-[32px] px-2.5 text-xs"
                         >
                             Sau &rarr;
