@@ -38,6 +38,27 @@ export const TICKET_STATUS_CONFIG = Object.freeze({
   },
 });
 
+export const SEAT_SURCHARGE = Object.freeze({
+  standard: 0,
+  vip: 20000,
+  sweetbox: 50000,
+});
+
+export const SEAT_TYPE_LABEL = Object.freeze({
+  standard: 'Thường',
+  vip: 'VIP',
+  sweetbox: 'Sweetbox (Đôi)',
+});
+
+/**
+ * Calculates single seat price based on showtime base price and seat type surcharge
+ */
+export const calculateSeatPrice = (basePrice, seatType) => {
+  const normalizedType = String(seatType || 'standard').toLowerCase();
+  const surcharge = SEAT_SURCHARGE[normalizedType] ?? 0;
+  return Number(basePrice || 0) + surcharge;
+};
+
 /**
  * Maps raw backend Ticket DTO to clean Frontend Domain Ticket
  */
@@ -91,3 +112,27 @@ export const mapBookingDtoToEntity = (bookingDto) => {
       : [],
   };
 };
+
+/**
+ * Maps raw backend Showtime Seats DTO to clean Frontend Domain Showtime Seats Entity
+ */
+export const mapShowtimeSeatsDtoToEntity = (dto) => {
+  if (!dto) return null;
+
+  return {
+    ...dto,
+    showtime_info: {
+      movie_id: dto.showtime_info?.movie_id ?? null,
+      movie_title: dto.showtime_info?.movie_title || '',
+      poster_url: dto.showtime_info?.poster_url || '',
+      duration_minutes: dto.showtime_info?.duration_minutes ?? null,
+      start_time: dto.showtime_info?.start_time ?? null,
+      room_name: dto.showtime_info?.room_name || 'Phòng chiếu',
+      cinema_name: dto.showtime_info?.cinema_name || 'GzaCinema',
+      cinema_address: dto.showtime_info?.cinema_address || '',
+      base_price: Number(dto.showtime_info?.base_price ?? 0),
+    },
+    seats: Array.isArray(dto.seats) ? dto.seats : [],
+  };
+};
+

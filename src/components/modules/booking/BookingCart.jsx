@@ -1,19 +1,22 @@
 import { useMemo } from 'react';
 import CountdownTimer from './CountdownTimer';
-import { formatCurrency, formatDateTime } from '@/utils/formatters';
-import { ShoppingBag, CreditCard, Ticket, Clock, ShieldCheck } from 'lucide-react';
+import { formatCurrency, formatDateTime, formatDuration } from '@/utils/formatters';
+import { calculateSeatPrice, SEAT_TYPE_LABEL } from '@/models/booking.model';
+import { ShoppingBag, CreditCard, Ticket, ShieldCheck, Building2, MapPin, Clock, Film } from 'lucide-react';
 import { Button } from '@/components/core';
 
 export default function BookingCart({
   showtimeId,
   seatData,
+  showtimeInfo: showtimeInfoProp,
   mySelectedSeats,
   handleCheckout,
   processing,
   timerKey,
   handleTimeExpire
 }) {
-  const basePrice = parseFloat(seatData?.showtime_info?.base_price || 0);
+  const showtimeInfo = showtimeInfoProp || seatData?.showtime_info || {};
+  const basePrice = parseFloat(showtimeInfo?.base_price || 0);
 
   const { groupedCartItems, totalPrice } = useMemo(() => {
     if (!seatData) return { groupedCartItems: [], totalPrice: 0 };
@@ -35,7 +38,7 @@ export default function BookingCart({
           items.push({
             id: `${seat.id}-${partnerSeat.id}`,
             label: `Sweetbox ${seat.row_letter}${Math.min(seat.seat_number, partnerSeat.seat_number)}-${seat.row_letter}${Math.max(seat.seat_number, partnerSeat.seat_number)}`,
-            price: (basePrice + 50000) * 2,
+            price: calculateSeatPrice(basePrice, 'sweetbox') * 2,
             type: 'sweetbox'
           });
           processedIds.add(seat.id);
@@ -44,16 +47,9 @@ export default function BookingCart({
         }
       }
 
-      let price = basePrice;
-      let typeLabel = 'Ghế thường';
-      if (seat.type === 'vip') {
-        price += 20000;
-        typeLabel = 'Ghế VIP';
-      }
-      if (seat.type === 'sweetbox') {
-        price += 50000;
-        typeLabel = 'Ghế Sweetbox';
-      }
+      const normalizedType = String(seat.type || 'standard').toLowerCase();
+      const price = calculateSeatPrice(basePrice, normalizedType);
+      const typeLabel = `Ghế ${SEAT_TYPE_LABEL[normalizedType] || SEAT_TYPE_LABEL.standard}`;
 
       items.push({
         id: seat.id,
@@ -84,17 +80,65 @@ export default function BookingCart({
         )}
       </div>
 
-      {/* Showtime Details */}
-      <div className="space-y-2 text-xs sm:text-sm text-cinema-text-muted bg-white/[0.02] p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5">
-        <div className="flex items-center justify-between">
-          <span className="text-cinema-text-dim">Phòng chiếu:</span>
-          <strong className="text-white font-bold">{seatData?.showtime_info?.room_name}</strong>
+      {/* Showtime Receipt Summary */}
+      <div className="space-y-3 text-xs sm:text-sm text-cinema-text-muted bg-white/[0.02] p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5">
+        <div className="flex items-start gap-3 pb-2.5 border-b border-white/5">
+          {showtimeInfo?.poster_url ? (
+            <img
+              src={showtimeInfo.poster_url}
+              alt={showtimeInfo?.movie_title || 'Poster phim'}
+              className="w-12 h-16 sm:w-14 sm:h-20 rounded-lg object-cover border border-white/10 shrink-0 shadow-sm"
+            />
+          ) : (
+            <div className="w-12 h-16 sm:w-14 sm:h-20 rounded-lg bg-cinema-surface-elevated border border-white/10 flex items-center justify-center shrink-0">
+              <Film className="w-5 h-5 text-cinema-gold/70" />
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1 space-y-1">
+            <h3 className="text-sm sm:text-base font-black text-white leading-snug line-clamp-2">
+              {showtimeInfo?.movie_title || 'Suất Chiếu Phim'}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-cinema-gold font-semibold flex items-center gap-1 truncate">
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{showtimeInfo?.cinema_name || 'GzaCinema'}</span>
+            </p>
+            {showtimeInfo?.duration_minutes && (
+              <p className="text-[11px] text-cinema-text-dim">
+                Thời lượng: {formatDuration(showtimeInfo.duration_minutes)}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-cinema-text-dim">Suất chiếu:</span>
-          <strong className="text-cinema-gold font-bold">
-            {formatDateTime(seatData?.showtime_info?.start_time)}
-          </strong>
+
+        <div className="space-y-1.5 pt-0.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-cinema-text-dim flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-cinema-gold/70" />
+              Cụm rạp:
+            </span>
+            <strong className="text-white font-bold text-right truncate">
+              {showtimeInfo?.cinema_name || 'GzaCinema'}
+            </strong>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-cinema-text-dim flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-cinema-gold/70" />
+              Phòng chiếu:
+            </span>
+            <strong className="text-white font-bold text-right">
+              {showtimeInfo?.room_name || 'Phòng chiếu'}
+            </strong>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-cinema-text-dim flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-cinema-gold/70" />
+              Suất chiếu:
+            </span>
+            <strong className="text-cinema-gold font-bold text-right">
+              {formatDateTime(showtimeInfo?.start_time)}
+            </strong>
+          </div>
         </div>
       </div>
 

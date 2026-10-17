@@ -147,7 +147,7 @@ export function DataTable({
                             size="sm"
                             disabled={pagination.page <= 1 || isFetching}
                             onClick={() => pagination.onPageChange?.(pagination.page - 1)}
-                            className="rounded-md h-8 px-2.5 text-xs"
+                            className="rounded-md h-9 min-w-[36px] sm:h-8 sm:min-w-[32px] px-2.5 text-xs"
                         >
                             &larr; Trước
                         </Button>
@@ -167,7 +167,7 @@ export function DataTable({
                                     type="button"
                                     disabled={isFetching}
                                     onClick={() => pagination.onPageChange?.(pageNum)}
-                                    className={`h-8 min-w-[32px] px-2 rounded-md text-xs font-bold transition-colors cursor-pointer ${
+                                    className={`h-9 min-w-[36px] sm:h-8 sm:min-w-[32px] px-2 rounded-md text-xs font-bold transition-colors cursor-pointer ${
                                         isCurrent
                                             ? 'bg-cinema-gold text-cinema-bg'
                                             : 'bg-cinema-surface border border-white/10 text-cinema-text-muted hover:text-white hover:border-white/20'
@@ -183,7 +183,7 @@ export function DataTable({
                             size="sm"
                             disabled={pagination.page >= pagination.totalPages || isFetching}
                             onClick={() => pagination.onPageChange?.(pagination.page + 1)}
-                            className="rounded-md h-8 px-2.5 text-xs"
+                            className="rounded-md h-9 min-w-[36px] sm:h-8 sm:min-w-[32px] px-2.5 text-xs"
                         >
                             Sau &rarr;
                         </Button>

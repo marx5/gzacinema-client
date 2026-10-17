@@ -1,25 +1,35 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 const ModalContext = createContext(null);
 
 export function Modal({ isOpen, onClose, children, className = '' }) {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
+    if (!isOpen) {
       document.body.style.overflow = '';
+      return;
     }
+
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose?.();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <ModalContext.Provider value={{ onClose }}>
-      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity animate-fadeIn"
@@ -29,7 +39,7 @@ export function Modal({ isOpen, onClose, children, className = '' }) {
 
         {/* Modal Container */}
         <div
-          className={`relative z-10 w-full max-w-2xl rounded-2xl glass-card bg-cinema-surface/95 border border-white/10 shadow-cinematic transform transition-all animate-scaleUp overflow-hidden ${className}`}
+          className={`relative z-10 w-full max-w-2xl rounded-t-2xl sm:rounded-xl glass-card bg-cinema-surface/95 border border-white/10 shadow-cinematic transform transition-all animate-scaleUp overflow-hidden ${className}`}
           role="dialog"
           aria-modal="true"
         >

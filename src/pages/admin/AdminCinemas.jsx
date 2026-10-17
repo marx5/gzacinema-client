@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -22,19 +22,22 @@ export default function AdminCinemas() {
     const [editId, setEditId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { data: cinemas = [], isLoading } = useQuery({
+    const { data: cinemas = [], isLoading, isError } = useQuery({
         queryKey: ['admin-cinemas'],
         queryFn: async () => {
             const res = await cinemaApi.getAll();
             return res.data;
-        },
-        onError: () => toast.error('Lỗi tải danh sách rạp')
+        }
     });
+
+    useEffect(() => {
+        if (isError) toast.error('Lỗi tải danh sách rạp');
+    }, [isError]);
 
     const createMutation = useMutation({
         mutationFn: (newCinema) => cinemaApi.create(newCinema),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-cinemas']);
+            queryClient.invalidateQueries({ queryKey: ['admin-cinemas'] });
             toast.success('Thêm cụm rạp mới thành công!');
             resetForm();
         },
@@ -44,7 +47,7 @@ export default function AdminCinemas() {
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) => cinemaApi.update(id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-cinemas']);
+            queryClient.invalidateQueries({ queryKey: ['admin-cinemas'] });
             toast.success('Cập nhật thông tin rạp thành công!');
             resetForm();
         },
@@ -54,7 +57,7 @@ export default function AdminCinemas() {
     const deleteMutation = useMutation({
         mutationFn: (id) => cinemaApi.delete(id),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-cinemas']);
+            queryClient.invalidateQueries({ queryKey: ['admin-cinemas'] });
             toast.success('Đã xóa cụm rạp');
             if (editId) resetForm();
         },

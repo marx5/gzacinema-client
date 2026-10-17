@@ -1,6 +1,7 @@
 /**
  * Movie & Showtime Domain Entities, Enums, and Mappers (Anti-Corruption Layer)
  */
+import { toLocalDateString } from '@/utils/formatters';
 
 /**
  * Maps raw backend Movie DTO to clean Frontend Domain Movie
@@ -8,9 +9,9 @@
 export const mapMovieDtoToEntity = (movieDto) => {
   if (!movieDto) return null;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateString();
   const releaseDateVal = movieDto.release_date || movieDto.releaseDate || null;
-  const releaseDateStr = releaseDateVal ? String(releaseDateVal).split('T')[0] : '';
+  const releaseDateStr = releaseDateVal ? toLocalDateString(releaseDateVal) : '';
   const isComingSoon = releaseDateStr ? releaseDateStr > todayStr : false;
   const poster = movieDto.thumbnail || movieDto.poster_url || movieDto.posterUrl || '';
   const duration = Number(movieDto.duration_minutes || movieDto.duration || 0);
@@ -45,18 +46,17 @@ export const mapShowtimeGroupDtoToEntity = (groupDto) => {
   if (!groupDto) return null;
 
   return {
-    date: groupDto.date,
-    cinemas: (groupDto.cinemas || []).map((cinema) => ({
-      id: cinema.id,
-      name: cinema.name,
-      address: cinema.address,
-      showtimes: (cinema.showtimes || []).map((st) => ({
-        id: st.id,
-        startTime: st.start_time,
-        endTime: st.end_time,
-        price: Number(st.price || 0),
-        roomName: st.room?.name || '',
-      })),
+    cinema_info: {
+      id: groupDto.cinema_info?.id ?? groupDto.id,
+      name: groupDto.cinema_info?.name ?? groupDto.name ?? 'GzaCinema Complex',
+      address: groupDto.cinema_info?.address ?? groupDto.address ?? '',
+    },
+    showtimes: (groupDto.showtimes || []).map((st) => ({
+      showtime_id: st.showtime_id ?? st.id,
+      start_time: st.start_time ?? st.startTime,
+      base_price: Number(st.base_price ?? st.price ?? 0),
+      room_name: st.room_name ?? st.room?.name ?? '',
     })),
   };
 };
+

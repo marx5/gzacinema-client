@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Calendar, Ticket, Film } from 'lucide-react';
+import { Clock, Film, Ticket } from 'lucide-react';
 import { Badge, Button } from '@/components/core';
 
 const MovieCardContext = createContext(null);
 
-export function useMovieCard() {
+function useMovieCard() {
   const context = useContext(MovieCardContext);
   if (!context) {
     throw new Error('MovieCard compound components must be rendered inside <MovieCard>');
@@ -127,16 +127,28 @@ MovieCard.Content = function MovieCardContent({ className = '' }) {
 MovieCard.Action = function MovieCardAction({ className = '' }) {
   const { movie } = useMovieCard();
 
+  const isComingSoon =
+    Boolean(movie?.isComingSoon) ||
+    String(movie?.status || '').toLowerCase() === 'coming_soon' ||
+    (Boolean(movie?.release_date || movie?.releaseDate) &&
+      new Date(movie.release_date || movie.releaseDate) > new Date());
+
   return (
     <div className={`p-2 sm:p-3 pt-0 mt-auto ${className}`}>
       <Link to={`/movie/${movie.id}`} className="block w-full">
         <Button
           variant="secondary"
           size="sm"
-          className="w-full min-h-[32px] sm:min-h-[34px] py-1 text-[11px] sm:text-xs group-hover:bg-gold-gradient group-hover:text-cinema-bg group-hover:font-bold group-hover:border-transparent transition-all duration-300 active:scale-95"
-          leftIcon={<Film className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+          className="w-full min-h-[38px] sm:min-h-[40px] py-1 text-[11px] sm:text-xs group-hover:bg-gold-gradient group-hover:text-cinema-bg group-hover:font-bold group-hover:border-transparent transition-all duration-300 active:scale-95"
+          leftIcon={
+            isComingSoon ? (
+              <Film className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            ) : (
+              <Ticket className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            )
+          }
         >
-          Xem Chi Tiết
+          {isComingSoon ? 'Xem Chi Tiết' : 'Mua Vé Ngay'}
         </Button>
       </Link>
     </div>

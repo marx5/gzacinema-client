@@ -103,3 +103,21 @@ export const formatTimeLeft = (seconds) => {
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
+
+/**
+ * Chuyển đổi Date sang chuỗi ngày theo múi giờ địa phương (YYYY-MM-DD)
+ * @param {Date|string|number} dateInput 
+ * @returns {string} (Ví dụ: 2026-03-28)
+ */
+export const toLocalDateString = (dateInput = new Date()) => {
+    if (!dateInput) return '';
+    if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+        return dateInput;
+    }
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    if (isNaN(date.getTime())) return '';
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};

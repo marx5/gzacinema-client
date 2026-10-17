@@ -1,5 +1,5 @@
-import React, { forwardRef } from 'react';
-import { formatNumber, parseNumber } from '@/utils/formatters';
+import { forwardRef } from 'react';
+import { formatNumber } from '@/utils/formatters';
 
 const MoneyInput = forwardRef(({
     value = 0,

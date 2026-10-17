@@ -89,7 +89,7 @@ export default function AdminMovieShowtimes() {
     const createMutation = useMutation({
         mutationFn: (newShowtime) => systemApi.createShowtime(newShowtime),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-showtimes', movieId]);
+            queryClient.invalidateQueries({ queryKey: ['admin-showtimes', movieId] });
             toast.success('Đã thêm suất chiếu mới!');
             setStartTime('');
         },
@@ -99,7 +99,7 @@ export default function AdminMovieShowtimes() {
     const deleteMutation = useMutation({
         mutationFn: (id) => systemApi.deleteShowtime(id),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-showtimes', movieId]);
+            queryClient.invalidateQueries({ queryKey: ['admin-showtimes', movieId] });
             toast.success('Đã xóa suất chiếu thành công');
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa suất chiếu này (đã có khách mua vé)')

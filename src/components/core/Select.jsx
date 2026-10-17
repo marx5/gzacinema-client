@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export default function Select({
     const popupRef = useRef(null);
     const [popupCoords, setPopupCoords] = useState({ top: 0, left: 0, width: 200 });
 
-    const updatePosition = () => {
+    const updatePosition = useCallback(() => {
         if (!triggerRef.current) return;
         const rect = triggerRef.current.getBoundingClientRect();
         const popupHeight = Math.min(options.length * 40 + 20, 240);
@@ -38,13 +38,13 @@ export default function Select({
             width: rect.width,
             maxHeight: 240
         });
-    };
+    }, [options.length]);
 
     useLayoutEffect(() => {
         if (isOpen) {
             updatePosition();
         }
-    }, [isOpen, options.length]);
+    }, [isOpen, updatePosition]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -71,7 +71,7 @@ export default function Select({
             window.removeEventListener('scroll', handleScrollOrResize, true);
             window.removeEventListener('resize', handleScrollOrResize);
         };
-    }, [isOpen]);
+    }, [isOpen, updatePosition]);
 
     // Find selected option
     const selectedOption = options.find((opt) => String(opt.value) === String(value));

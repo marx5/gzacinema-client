@@ -35,7 +35,10 @@ export default function HeroBannerSlider({
   // Keyboard navigation (ArrowLeft & ArrowRight)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+      if (
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) ||
+        window.scrollY > 500
+      ) {
         return;
       }
       if (e.key === 'ArrowLeft') {
@@ -220,7 +223,7 @@ export default function HeroBannerSlider({
 
       {/* Dot Indicators */}
       {movies.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-cinema-bg/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-md">
+        <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-0.5 bg-cinema-bg/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 shadow-md">
           {movies.map((_, idx) => {
             const isActive = idx === currentSlide;
             return (
@@ -233,12 +236,16 @@ export default function HeroBannerSlider({
                 }}
                 title={`Chuyển tới phim ${idx + 1}`}
                 aria-label={`Slide ${idx + 1}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer border-none p-0 ${
-                  isActive
-                    ? 'w-7 h-2 bg-cinema-gold shadow-glow-gold-sm'
-                    : 'w-2 h-2 bg-white/30 hover:bg-white/70'
-                }`}
-              />
+                className="p-2 min-w-[28px] min-h-[28px] flex items-center justify-center cursor-pointer border-none bg-transparent group/dot"
+              >
+                <span
+                  className={`transition-all duration-300 rounded-full block ${
+                    isActive
+                      ? 'w-7 h-2 bg-cinema-gold shadow-glow-gold-sm'
+                      : 'w-2 h-2 bg-white/30 group-hover/dot:bg-white/70'
+                  }`}
+                />
+              </button>
             );
           })}
         </div>

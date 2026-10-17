@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/api/authApi';
 import { useAuthStore } from '@/store/useAuthStore';
 import toast from 'react-hot-toast';
@@ -13,6 +13,7 @@ import {
 import { Sparkles } from 'lucide-react';
 
 export default function Profile() {
+  const queryClient = useQueryClient();
   const { checkAuth } = useAuthStore();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -31,6 +32,7 @@ export default function Profile() {
     mutationFn: (data) => authApi.updateProfile(data),
     onSuccess: () => {
       toast.success('Cập nhật thông tin thành công!');
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       checkAuth();
     },
     onError: (error) =>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { bookingApi } from '@/api/bookingApi';
@@ -10,6 +10,15 @@ import {
   areSeatsConnected,
 } from '@/utils/seatValidator';
 
+const isSafePaymentUrl = (urlStr) => {
+  try {
+    const parsed = new URL(urlStr);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Use Case Hook: Đóng gói toàn bộ logic đặt ghế, socket realtime, đếm ngược và thanh toán
  */
@@ -20,6 +29,11 @@ export const useBookingSeats = (showtimeId) => {
   const [mySelectedSeats, setMySelectedSeats] = useState([]);
   const [processing, setProcessing] = useState(false);
   const [timerKey, setTimerKey] = useState(Date.now());
+
+  const mySelectedSeatsRef = useRef(mySelectedSeats);
+  mySelectedSeatsRef.current = mySelectedSeats;
+
+  const isTogglingRef = useRef(false);
 
   // 1. Fetch seat status for current showtime
   const {
@@ -34,6 +48,9 @@ export const useBookingSeats = (showtimeId) => {
     enabled: Boolean(showtimeId),
   });
 
+  const seatDataRef = useRef(seatData);
+  seatDataRef.current = seatData;
+
   // 2. Real-time Socket Synchronization
   useEffect(() => {
     if (!showtimeId) return;
@@ -42,11 +59,23 @@ export const useBookingSeats = (showtimeId) => {
     socket.emit('join_showtime', showtimeId);
 
     const handleSeatStatusChanged = (updatedSeat) => {
+      if (!updatedSeat?.id) return;
+
+      const isMine = mySelectedSeatsRef.current.includes(updatedSeat.id);
+
+      if (updatedSeat.status === 'available' || updatedSeat.status === 'booked') {
+        if (isMine) {
+          setMySelectedSeats((prev) => prev.filter((id) => id !== updatedSeat.id));
+        }
+      }
+
       queryClient.setQueryData(['seats', showtimeId], (oldData) => {
         if (!oldData || !Array.isArray(oldData.seats)) return oldData;
         const newSeats = oldData.seats.map((seat) => {
           if (seat.id === updatedSeat.id) {
-            return { ...seat, status: updatedSeat.status };
+            const nextStatus =
+              updatedSeat.status === 'held' && isMine ? 'held_by_me' : updatedSeat.status;
+            return { ...seat, status: nextStatus };
           }
           return seat;
         });
@@ -73,7 +102,9 @@ export const useBookingSeats = (showtimeId) => {
       if (heldByMe.length > 0 && !localStorage.getItem(`timer_${showtimeId}`)) {
         localStorage.setItem(`timer_${showtimeId}`, Date.now() + 300000);
       }
-      setMySelectedSeats((prev) => Array.from(new Set([...prev, ...heldByMe])));
+      if (heldByMe.length > 0) {
+        setMySelectedSeats((prev) => Array.from(new Set([...prev, ...heldByMe])));
+      }
     }
   }, [seatData, showtimeId]);
 
@@ -88,9 +119,14 @@ export const useBookingSeats = (showtimeId) => {
   // 5. Seat Click / Toggle Handler
   const handleSeatClick = useCallback(
     async (seat) => {
+      if (isTogglingRef.current) return;
+
+      const currentSelectedIds = mySelectedSeatsRef.current;
+      const currentSeatData = seatDataRef.current;
+
       if (
         seat.status === 'booked' ||
-        (seat.status === 'held' && !mySelectedSeats.includes(seat.id))
+        (seat.status === 'held' && !currentSelectedIds.includes(seat.id))
       ) {
         toast.error('Ghế này đã có người chọn!');
         return;
@@ -102,7 +138,7 @@ export const useBookingSeats = (showtimeId) => {
       if (seat.type === 'sweetbox') {
         const partnerNumber =
           seat.seat_number % 2 !== 0 ? seat.seat_number + 1 : seat.seat_number - 1;
-        const partnerSeat = seatData?.seats?.find(
+        const partnerSeat = currentSeatData?.seats?.find(
           (s) => s.row_letter === seat.row_letter && s.seat_number === partnerNumber
         );
 
@@ -113,7 +149,7 @@ export const useBookingSeats = (showtimeId) => {
 
         if (
           partnerSeat.status === 'booked' ||
-          (partnerSeat.status === 'held' && !mySelectedSeats.includes(partnerSeat.id))
+          (partnerSeat.status === 'held' && !currentSelectedIds.includes(partnerSeat.id))
         ) {
           toast.error('Một nửa của cặp ghế này đã bị chọn mất!');
           return;
@@ -122,9 +158,9 @@ export const useBookingSeats = (showtimeId) => {
       }
 
       const isDeselecting =
-        mySelectedSeats.includes(seat.id) || seat.status === 'held_by_me';
-      const currentSelectedSeatObjects = (seatData?.seats || []).filter((s) =>
-        mySelectedSeats.includes(s.id)
+        currentSelectedIds.includes(seat.id) || seat.status === 'held_by_me';
+      const currentSelectedSeatObjects = (currentSeatData?.seats || []).filter((s) =>
+        currentSelectedIds.includes(s.id)
       );
       const seatIdsToProcess = seatsToProcess.map((s) => s.id);
 
@@ -149,12 +185,24 @@ export const useBookingSeats = (showtimeId) => {
         }
       }
 
+      isTogglingRef.current = true;
       try {
         if (isDeselecting) {
-          const remainingSeats = mySelectedSeats.filter(
+          const remainingSeats = currentSelectedIds.filter(
             (id) => !seatIdsToProcess.includes(id)
           );
+          mySelectedSeatsRef.current = remainingSeats;
           setMySelectedSeats(remainingSeats);
+
+          queryClient.setQueryData(['seats', showtimeId], (oldData) => {
+            if (!oldData || !Array.isArray(oldData.seats)) return oldData;
+            return {
+              ...oldData,
+              seats: oldData.seats.map((s) =>
+                seatIdsToProcess.includes(s.id) ? { ...s, status: 'available' } : s
+              ),
+            };
+          });
 
           if (remainingSeats.length === 0) {
             localStorage.removeItem(`timer_${showtimeId}`);
@@ -164,9 +212,20 @@ export const useBookingSeats = (showtimeId) => {
         } else {
           await bookingApi.holdSeat({ showtimeId, seatIds: seatIdsToProcess });
 
-          setMySelectedSeats((prev) =>
-            Array.from(new Set([...prev, ...seatIdsToProcess]))
-          );
+          const nextSelected = Array.from(new Set([...currentSelectedIds, ...seatIdsToProcess]));
+          mySelectedSeatsRef.current = nextSelected;
+          setMySelectedSeats(nextSelected);
+
+          queryClient.setQueryData(['seats', showtimeId], (oldData) => {
+            if (!oldData || !Array.isArray(oldData.seats)) return oldData;
+            return {
+              ...oldData,
+              seats: oldData.seats.map((s) =>
+                seatIdsToProcess.includes(s.id) ? { ...s, status: 'held_by_me' } : s
+              ),
+            };
+          });
+
           localStorage.setItem(`timer_${showtimeId}`, Date.now() + 300000);
           setTimerKey(Date.now());
         }
@@ -175,9 +234,11 @@ export const useBookingSeats = (showtimeId) => {
           error.response?.data?.message || 'Lỗi mạng, không thể thao tác. Vui lòng thử lại!'
         );
         refetch();
+      } finally {
+        isTogglingRef.current = false;
       }
     },
-    [seatData, mySelectedSeats, showtimeId, refetch]
+    [showtimeId, refetch, queryClient]
   );
 
   // 6. Checkout Handler
@@ -199,10 +260,15 @@ export const useBookingSeats = (showtimeId) => {
         seatIds: mySelectedSeats,
       });
 
+      const paymentUrl = res?.data?.paymentUrl;
+      if (!isSafePaymentUrl(paymentUrl)) {
+        throw new Error('Đường dẫn thanh toán không hợp lệ');
+      }
+
       localStorage.removeItem(`timer_${showtimeId}`);
-      window.location.href = res.data.paymentUrl;
+      window.location.href = paymentUrl;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khởi tạo thanh toán');
+      toast.error(error.response?.data?.message || error.message || 'Lỗi khởi tạo thanh toán');
       setProcessing(false);
     }
   }, [mySelectedSeats, seatData, showtimeId]);
@@ -227,3 +293,4 @@ export const useBookingSeats = (showtimeId) => {
     handleTimeExpire,
   };
 };
+

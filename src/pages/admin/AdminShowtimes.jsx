@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -10,7 +10,6 @@ import {
     Plus,
     Building2,
     Film,
-    Clock,
     Trash2,
     Search,
     LayoutList,
@@ -38,7 +37,7 @@ export default function AdminShowtimes() {
     const [filterCinemaId, setFilterCinemaId] = useState('');
     const [viewMode, setViewMode] = useState('timeline'); // 'timeline' | 'table'
 
-    const { data: initData, isLoading: isInitLoading } = useQuery({
+    const { data: initData, isLoading: isInitLoading, isError: isInitError } = useQuery({
         queryKey: ['admin-showtimes-init'],
         queryFn: async () => {
             const [cinemasRes, moviesRes] = await Promise.all([
@@ -50,19 +49,25 @@ export default function AdminShowtimes() {
                 cinemas: cinemasRes.data || [],
                 movies: Array.isArray(moviesData) ? moviesData : []
             };
-        },
-        onError: () => toast.error('Lỗi tải dữ liệu Rạp/Phim')
+        }
     });
 
-    const { data: rooms = [], isFetching: isRoomsLoading } = useQuery({
+    const { data: rooms = [], isFetching: isRoomsLoading, isError: isRoomsError } = useQuery({
         queryKey: ['admin-rooms-by-cinema', selectedCinema],
         queryFn: async () => {
             const res = await cinemaApi.getRooms(selectedCinema);
             return res.data;
         },
-        enabled: Boolean(selectedCinema),
-        onError: () => toast.error('Lỗi tải danh sách phòng')
+        enabled: Boolean(selectedCinema)
     });
+
+    useEffect(() => {
+        if (isInitError) toast.error('Lỗi tải dữ liệu Rạp/Phim');
+    }, [isInitError]);
+
+    useEffect(() => {
+        if (isRoomsError) toast.error('Lỗi tải danh sách phòng');
+    }, [isRoomsError]);
 
     const { data: showtimes = [], isLoading: isShowtimesLoading } = useQuery({
         queryKey: ['admin-showtimes-list'],
@@ -75,7 +80,7 @@ export default function AdminShowtimes() {
     const createMutation = useMutation({
         mutationFn: (newShowtime) => systemApi.createShowtime(newShowtime),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-showtimes-list']);
+            queryClient.invalidateQueries({ queryKey: ['admin-showtimes-list'] });
             toast.success('Thêm suất chiếu thành công! Đã tự động mở bán ghế.');
             setStartTime('');
         },
@@ -85,7 +90,7 @@ export default function AdminShowtimes() {
     const deleteMutation = useMutation({
         mutationFn: (id) => systemApi.deleteShowtime(id),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-showtimes-list']);
+            queryClient.invalidateQueries({ queryKey: ['admin-showtimes-list'] });
             toast.success('Đã xóa suất chiếu thành công');
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa suất chiếu này (đã có vé bán ra)')

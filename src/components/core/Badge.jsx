@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Badge Component for movie tags, formats, status flags
  */

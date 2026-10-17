@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Film, Upload, X, Save, Image as ImageIcon } from 'lucide-react';
 import { Button, Input, Textarea, DatePicker } from '@/components/core';
+import { toLocalDateString } from '@/utils/formatters';
 
 const movieSchema = z.object({
     title: z.string().min(1, 'Tên phim không được để trống'),
@@ -49,6 +50,14 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
 
+    useEffect(() => {
+        return () => {
+            if (previewImage && previewImage.startsWith('blob:')) {
+                URL.revokeObjectURL(previewImage);
+            }
+        };
+    }, [previewImage]);
+
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -75,7 +84,7 @@ export default function AdminMovieForm({ movieId, onClose, onSaveSuccess }) {
 
     useEffect(() => {
         if (isEditMode && movieData) {
-            const formattedDate = movieData.release_date ? new Date(movieData.release_date).toISOString().split('T')[0] : '';
+            const formattedDate = movieData.release_date ? toLocalDateString(movieData.release_date) : '';
             reset({ ...movieData, release_date: formattedDate });
 
             if (movieData.thumbnail) {

@@ -14,7 +14,7 @@ const PaymentResult = React.lazy(() => import("@/pages/payment/PaymentResult"));
 const History = React.lazy(() => import("@/pages/history"));
 const Profile = React.lazy(() => import("@/pages/profile"));
 
-import AdminLayout from "@/pages/admin/AdminLayout";
+const AdminLayout = React.lazy(() => import("@/pages/admin/AdminLayout"));
 const AdminDashboard = React.lazy(() => import("@/pages/admin/AdminDashboard"));
 const StaffCheckIn = React.lazy(() => import("@/pages/staff/StaffCheckIn"));
 const AdminMovies = React.lazy(() => import("@/pages/admin/AdminMovies"));
@@ -50,7 +50,14 @@ export default function AppRouter() {
             <Routes>
                     {/* Admin & Staff Area with Sidebar */}
                     <Route element={<RoleRoute allowedRoles={['admin', 'staff']} />}>
-                        <Route path="/admin" element={<AdminLayout />}>
+                        <Route
+                            path="/admin"
+                            element={
+                                <Suspense fallback={<LazyLoading message="Đang tải trang..." />}>
+                                    <AdminLayout />
+                                </Suspense>
+                            }
+                        >
                             <Route element={<RoleRoute allowedRoles={['admin']} />}>
                                 <Route index element={<AdminDashboard />} />
                                 <Route path="movies" element={<AdminMovies />} />

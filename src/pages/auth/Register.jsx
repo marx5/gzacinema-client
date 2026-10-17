@@ -45,7 +45,7 @@ export default function Register() {
     }
 
     const onSubmit = (data) => {
-        const { confirmPassword, ...payload } = data;
+        const { confirmPassword: _confirmPassword, ...payload } = data;
         registerMutation.mutate(payload);
     };
 

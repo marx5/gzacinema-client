@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, XCircle, Loader2, Home, Ticket } from 'lucide-react';
 import { Button } from '@/components/core';
 
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [status, setStatus] = useState('processing');
   const [countdown, setCountdown] = useState(5);
@@ -25,21 +27,23 @@ export default function PaymentResult() {
   }, [searchParams]);
 
   useEffect(() => {
-    let timer;
-    if (status === 'success') {
-      timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            navigate('/history');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
+    if (status !== 'success') return;
+
+    queryClient.invalidateQueries({ queryKey: ['user', 'bookings', 'history'] });
+    queryClient.invalidateQueries({ queryKey: ['seats'] });
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+
     return () => clearInterval(timer);
-  }, [status, navigate]);
+  }, [status, queryClient]);
+
+  useEffect(() => {
+    if (status === 'success' && countdown <= 0) {
+      navigate('/history', { replace: true });
+    }
+  }, [status, countdown, navigate]);
 
   return (
     <div className="mx-auto my-16 w-full max-w-lg px-4">

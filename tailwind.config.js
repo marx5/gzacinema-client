@@ -7,13 +7,13 @@ export default {
   theme: {
     borderRadius: {
       none: '0px',
-      sm: '5px',
-      DEFAULT: '5px',
-      md: '5px',
-      lg: '5px',
-      xl: '5px',
-      '2xl': '5px',
-      '3xl': '5px',
+      sm: '4px',
+      DEFAULT: '6px',
+      md: '6px',
+      lg: '10px',
+      xl: '14px',
+      '2xl': '18px',
+      '3xl': '24px',
       full: '9999px',
     },
     extend: {
@@ -34,6 +34,7 @@ export default {
           gold: '#EAB308',
           'gold-light': '#FDE047',
           'gold-dark': '#CA8A04',
+          rose: '#F43F5E',
           text: '#F8FAFC',
           'text-muted': '#94A3B8',
           'text-dim': '#64748B',

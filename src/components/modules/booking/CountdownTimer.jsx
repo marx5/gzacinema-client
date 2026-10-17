@@ -6,36 +6,37 @@ export default function CountdownTimer({ showtimeId, onExpire }) {
   const [timeLeft, setTimeLeft] = useState(() => {
     const savedExpiry = localStorage.getItem(`timer_${showtimeId}`);
     if (savedExpiry) {
-      const remaining = Math.floor((parseInt(savedExpiry, 10) - Date.now()) / 1000);
-      return remaining > 0 ? remaining : 0;
+      return Math.max(0, Math.ceil((Number(savedExpiry) - Date.now()) / 1000));
     }
     return 300;
   });
 
   const savedOnExpire = useRef(onExpire);
+  const hasExpiredRef = useRef(false);
+
   useEffect(() => {
     savedOnExpire.current = onExpire;
   }, [onExpire]);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      savedOnExpire.current();
-      return;
-    }
+    hasExpiredRef.current = false;
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          savedOnExpire.current();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const savedExpiry = localStorage.getItem(`timer_${showtimeId}`);
+      if (!savedExpiry) return;
+      const remaining = Math.max(0, Math.ceil((Number(savedExpiry) - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      if (remaining <= 0 && !hasExpiredRef.current) {
+        hasExpiredRef.current = true;
+        savedOnExpire.current?.();
+      }
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [showtimeId]);
 
   const isUrgent = timeLeft <= 60;
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -27,11 +27,23 @@ export default function StaffCheckIn() {
 
     const immediateLockRef = useRef(false);
     const lastScanRef = useRef({ id: '', time: 0 });
+    const unlockTimerRef = useRef(null);
 
     const RE_SCAN_COOLDOWN_MS = 5000;
 
+    useEffect(() => {
+        return () => {
+            if (unlockTimerRef.current) {
+                clearTimeout(unlockTimerRef.current);
+            }
+        };
+    }, []);
+
     const unlockScanner = () => {
-        setTimeout(() => {
+        if (unlockTimerRef.current) {
+            clearTimeout(unlockTimerRef.current);
+        }
+        unlockTimerRef.current = setTimeout(() => {
             immediateLockRef.current = false;
             setIsScannerLocked(false);
         }, 1800);
@@ -123,6 +135,7 @@ export default function StaffCheckIn() {
 
     const handleManualSubmit = (e) => {
         e.preventDefault();
+        if (checkInMutation.isPending || immediateLockRef.current) return;
         if (!manualId.trim()) {
             toast.error('Vui lòng nhập hoặc dán mã vé cần soát');
             return;

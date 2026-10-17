@@ -32,7 +32,7 @@ export const useAuthStore = create(devtools((set) => ({
         try {
             const res = await authApi.getProfile();
             set({ user: res.data, isAuthenticated: true, isLoading: false }, false, "auth/checkAuth_success");
-        } catch (error) {
+        } catch {
             set({ user: null, isAuthenticated: false, isLoading: false }, false, "auth/checkAuth_fail");
         }
     }

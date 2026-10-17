@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function SkeletonCard() {
   return (
     <article className="flex h-full w-full animate-pulse flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl glass-card border border-white/5">

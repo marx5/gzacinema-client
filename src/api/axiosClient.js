@@ -15,7 +15,7 @@ const getErrorMessage = (error) => {
 
     switch (status) {
         case 400: return message || "Dữ liệu không hợp lệ.";
-        case 401: return "Phiên làm việc hết hạn. Vui lòng đăng nhập lại.";
+        case 401: return message || "Phiên làm việc hết hạn. Vui lòng đăng nhập lại.";
         case 403: return "Bạn không có quyền thực hiện hành động này.";
         case 404: return "Tài nguyên không tồn tại.";
         case 429: return "Quá nhiều yêu cầu. Vui lòng thử lại sau.";
@@ -49,15 +49,21 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
+const AUTH_SKIP_REFRESH_URLS = ["/auth/login", "/auth/register", "/auth/refresh"];
+
 axiosClient.interceptors.response.use(
     (response) => response.data,
     async (error) => {
         const originalRequest = error.config;
+        const isSkipUrl = AUTH_SKIP_REFRESH_URLS.some((url) =>
+            originalRequest?.url?.includes(url)
+        );
 
         if (
             error.response?.status === 401 &&
+            originalRequest &&
             !originalRequest._retry &&
-            originalRequest.url !== '/auth/refresh'
+            !isSkipUrl
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -75,18 +81,25 @@ axiosClient.interceptors.response.use(
 
             try {
                 const res = await axiosClient.post("/auth/refresh");
-                const newAccessToken = res.accessToken;
+                const newAccessToken = res?.accessToken || res?.data?.accessToken;
 
-                if (newAccessToken) {
-                    localStorage.setItem("token", newAccessToken);
-                    originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                    processQueue(null, newAccessToken);
-                    return axiosClient(originalRequest);
+                if (!newAccessToken) {
+                    throw new Error("Missing access token on refresh");
                 }
+
+                localStorage.setItem("token", newAccessToken);
+                originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                processQueue(null, newAccessToken);
+                return axiosClient(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError, null);
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                const isProtectedPath = /^\/(booking|payment|history|profile|admin|staff)(\/|$)/.test(
+                    window.location.pathname
+                );
+                if (isProtectedPath) {
+                    window.location.href = "/login";
+                }
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;

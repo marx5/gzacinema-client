@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Card compound component implementing Vercel Composition Patterns
  */

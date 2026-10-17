@@ -23,7 +23,7 @@ export default function BookingHistoryCard({ booking }) {
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-cinema-text-muted">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-cinema-gold" />
-              {booking.roomName}
+              {booking.cinemaName ? `${booking.cinemaName} • ${booking.roomName}` : booking.roomName}
             </span>
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-cinema-gold" />
@@ -48,7 +48,7 @@ export default function BookingHistoryCard({ booking }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {booking.tickets?.map((ticket) => (
-            <TicketQrCard key={ticket.id} ticket={ticket} />
+            <TicketQrCard key={ticket.id} ticket={ticket} booking={booking} />
           ))}
         </div>
       </div>

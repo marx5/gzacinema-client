@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -51,16 +51,18 @@ export default function AdminMovies() {
         mutationFn: (id) => movieApi.delete(id),
         onSuccess: () => {
             toast.success('Xóa phim thành công');
-            queryClient.invalidateQueries(['admin-movies']);
+            queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
         },
         onError: (error) => toast.error(error.response?.data?.message || 'Không thể xóa phim này')
     });
 
-    const handleDelete = (id, title) => {
+    const { mutate: deleteMovie } = deleteMutation;
+
+    const handleDelete = useCallback((id, title) => {
         if (window.confirm(`Bạn có chắc chắn muốn xóa phim "${title}"? Mọi lịch chiếu liên quan cũng sẽ bị xóa!`)) {
-            deleteMutation.mutate(id);
+            deleteMovie(id);
         }
-    };
+    }, [deleteMovie]);
 
     const handleOpenCreateModal = () => {
         setEditingMovieId(null);
@@ -78,11 +80,14 @@ export default function AdminMovies() {
     };
 
     const handleSaveSuccess = () => {
-        queryClient.invalidateQueries(['admin-movies']);
+        queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
         handleCloseModal();
     };
 
-    const rawMovies = data?.movie || data?.movies || data?.data || (Array.isArray(data) ? data : []);
+    const rawMovies = useMemo(
+        () => data?.movie || data?.movies || data?.data || (Array.isArray(data) ? data : []),
+        [data]
+    );
     const totalPages = data?.total_pages || 1;
 
     const filteredMovies = useMemo(() => {
@@ -211,7 +216,7 @@ export default function AdminMovies() {
                 </div>
             )
         }
-    ], []);
+    ], [handleDelete]);
 
     return (
         <div className="space-y-4">

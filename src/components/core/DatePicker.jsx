@@ -1,49 +1,24 @@
-import { useState, useRef, useEffect, useMemo, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
+import {
+    DAYS_OF_WEEK,
+    MONTH_NAMES,
+    padZero,
+    parseLocalDate,
+    isSameDay,
+    isToday,
+    formatDateOutput,
+    formatDisplayDate,
+    buildCalendarGrid,
+    calculatePopupPosition
+} from './datePicker.utils';
 
-const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-const MONTHS = [
-    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-    'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
-];
-
-function padZero(num) {
-    return String(num).padStart(2, '0');
-}
-
-function parseDateValue(val) {
-    if (!val) return null;
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? null : d;
-}
-
-function formatDateOutput(date, showTime) {
-    if (!date) return '';
-    const y = date.getFullYear();
-    const m = padZero(date.getMonth() + 1);
-    const d = padZero(date.getDate());
-    if (!showTime) {
-        return `${y}-${m}-${d}`;
-    }
-    const hh = padZero(date.getHours());
-    const mm = padZero(date.getMinutes());
-    return `${y}-${m}-${d}T${hh}:${mm}`;
-}
-
-function formatDisplayDate(val, showTime) {
-    const date = parseDateValue(val);
-    if (!date) return '';
-    const d = padZero(date.getDate());
-    const m = padZero(date.getMonth() + 1);
-    const y = date.getFullYear();
-    if (!showTime) {
-        return `${d}/${m}/${y}`;
-    }
-    const hh = padZero(date.getHours());
-    const mm = padZero(date.getMinutes());
-    return `${d}/${m}/${y} ${hh}:${mm}`;
-}
+const SIZE_CLASSES = {
+    sm: 'py-1.5 px-3 text-xs',
+    md: 'py-2.5 px-3.5 text-sm',
+    lg: 'py-3.5 px-4 text-base'
+};
 
 export default function DatePicker({
     value,
@@ -62,7 +37,7 @@ export default function DatePicker({
     const popupRef = useRef(null);
     const [popupCoords, setPopupCoords] = useState({ top: 0, left: 0, width: 320 });
 
-    const initialDate = useMemo(() => parseDateValue(value) || new Date(), [value]);
+    const initialDate = useMemo(() => parseLocalDate(value) || new Date(), [value]);
     const [viewDate, setViewDate] = useState(initialDate);
     const [tempTime, setTempTime] = useState({
         hours: initialDate.getHours(),
@@ -73,7 +48,7 @@ export default function DatePicker({
     const prevOpenRef = useRef(false);
     useEffect(() => {
         if (isOpen && !prevOpenRef.current) {
-            const d = parseDateValue(value) || new Date();
+            const d = parseLocalDate(value) || new Date();
             setViewDate(d);
             setTempTime({ hours: d.getHours(), minutes: d.getMinutes() });
         }
@@ -81,33 +56,17 @@ export default function DatePicker({
     }, [isOpen, value]);
 
     // Calculate position for floating portal popup
-    const updatePosition = () => {
+    const updatePosition = useCallback(() => {
         if (!triggerRef.current) return;
         const rect = triggerRef.current.getBoundingClientRect();
-        const popupWidth = showTime ? 340 : 310;
-        const popupHeight = showTime ? 390 : 330;
-
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
-        const openUpwards = spaceBelow < popupHeight && spaceAbove > spaceBelow;
-
-        let top = openUpwards ? rect.top - popupHeight - 6 : rect.bottom + 6;
-        let left = rect.left;
-
-        // Ensure popup doesn't overflow horizontal screen edges
-        if (left + popupWidth > window.innerWidth - 12) {
-            left = window.innerWidth - popupWidth - 12;
-        }
-        if (left < 12) left = 12;
-
-        setPopupCoords({ top, left, width: popupWidth, openUpwards });
-    };
+        setPopupCoords(calculatePopupPosition(rect, showTime));
+    }, [showTime]);
 
     useLayoutEffect(() => {
         if (isOpen) {
             updatePosition();
         }
-    }, [isOpen, showTime]);
+    }, [isOpen, updatePosition]);
 
     // Handle click outside and reposition on scroll/resize
     useEffect(() => {
@@ -135,53 +94,13 @@ export default function DatePicker({
             window.removeEventListener('scroll', handleScrollOrResize, true);
             window.removeEventListener('resize', handleScrollOrResize);
         };
-    }, [isOpen]);
-
-    const sizeClasses = {
-        sm: 'py-1.5 px-3 text-xs',
-        md: 'py-2.5 px-3.5 text-sm',
-        lg: 'py-3.5 px-4 text-base'
-    };
+    }, [isOpen, updatePosition]);
 
     // Calendar Calculations
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
-
-    const calendarGrid = useMemo(() => {
-        const firstDayOfMonth = new Date(year, month, 1);
-        const lastDayOfMonth = new Date(year, month + 1, 0);
-
-        let firstDayIndex = firstDayOfMonth.getDay() - 1;
-        if (firstDayIndex === -1) firstDayIndex = 6;
-
-        const prevMonthLastDay = new Date(year, month, 0).getDate();
-        const currentMonthDays = lastDayOfMonth.getDate();
-
-        const cells = [];
-
-        // Previous month days
-        for (let i = firstDayIndex - 1; i >= 0; i--) {
-            const dayNum = prevMonthLastDay - i;
-            const dateObj = new Date(year, month - 1, dayNum);
-            cells.push({ date: dateObj, isCurrentMonth: false, dayNum });
-        }
-
-        // Current month days
-        for (let d = 1; d <= currentMonthDays; d++) {
-            const dateObj = new Date(year, month, d);
-            cells.push({ date: dateObj, isCurrentMonth: true, dayNum: d });
-        }
-
-        // Next month days
-        const totalCells = cells.length <= 35 ? 35 : 42;
-        const nextDays = totalCells - cells.length;
-        for (let d = 1; d <= nextDays; d++) {
-            const dateObj = new Date(year, month + 1, d);
-            cells.push({ date: dateObj, isCurrentMonth: false, dayNum: d });
-        }
-
-        return cells;
-    }, [year, month]);
+    const calendarGrid = useMemo(() => buildCalendarGrid(year, month), [year, month]);
+    const parsedValueDate = useMemo(() => parseLocalDate(value), [value]);
 
     const handlePrevMonth = (e) => {
         if (e) {
@@ -223,7 +142,7 @@ export default function DatePicker({
         const h = parseInt(newHour, 10);
         setTempTime(prev => ({ ...prev, hours: h }));
 
-        const base = parseDateValue(value) || viewDate || new Date();
+        const base = parseLocalDate(value) || viewDate || new Date();
         const updated = new Date(base);
         updated.setHours(h, tempTime.minutes, 0, 0);
 
@@ -235,7 +154,7 @@ export default function DatePicker({
         const m = parseInt(newMinute, 10);
         setTempTime(prev => ({ ...prev, minutes: m }));
 
-        const base = parseDateValue(value) || viewDate || new Date();
+        const base = parseLocalDate(value) || viewDate || new Date();
         const updated = new Date(base);
         updated.setHours(tempTime.hours, m, 0, 0);
 
@@ -244,7 +163,7 @@ export default function DatePicker({
     };
 
     const handleApplyDateTime = () => {
-        const base = parseDateValue(value) || viewDate || new Date();
+        const base = parseLocalDate(value) || viewDate || new Date();
         const updated = new Date(base);
         updated.setHours(tempTime.hours, tempTime.minutes, 0, 0);
 
@@ -267,27 +186,6 @@ export default function DatePicker({
         if (onChange) onChange('');
     };
 
-    const isSelectedDay = (d, isCurrentMonth) => {
-        if (!isCurrentMonth) return false;
-        const valDate = parseDateValue(value);
-        if (!valDate) return false;
-        return (
-            d.getFullYear() === valDate.getFullYear() &&
-            d.getMonth() === valDate.getMonth() &&
-            d.getDate() === valDate.getDate()
-        );
-    };
-
-    const isToday = (d, isCurrentMonth) => {
-        if (!isCurrentMonth) return false;
-        const today = new Date();
-        return (
-            d.getFullYear() === today.getFullYear() &&
-            d.getMonth() === today.getMonth() &&
-            d.getDate() === today.getDate()
-        );
-    };
-
     const displayVal = formatDisplayDate(value, showTime);
 
     return (
@@ -306,7 +204,7 @@ export default function DatePicker({
                     disabled={disabled}
                     onClick={() => {
                         if (!isOpen) {
-                            const d = parseDateValue(value) || new Date();
+                            const d = parseLocalDate(value) || new Date();
                             setViewDate(d);
                             setTempTime({ hours: d.getHours(), minutes: d.getMinutes() });
                         }
@@ -314,7 +212,7 @@ export default function DatePicker({
                         setIsOpen((prev) => !prev);
                     }}
                     className={`flex w-full items-center justify-between rounded-md border bg-cinema-surface text-left font-medium text-cinema-text transition-[border-color,box-shadow] duration-150 cursor-pointer ${
-                        sizeClasses[size] || sizeClasses.md
+                        SIZE_CLASSES[size] || SIZE_CLASSES.md
                     } ${
                         isOpen
                             ? 'border-cinema-gold ring-1 ring-cinema-gold shadow-glow-gold-sm bg-cinema-surface-elevated'
@@ -337,13 +235,22 @@ export default function DatePicker({
 
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {value && !disabled && (
-                            <div
+                            <span
+                                role="button"
+                                tabIndex={0}
+                                aria-label="Xóa ngày đã chọn"
                                 onClick={handleClear}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleClear(e);
+                                    }
+                                }}
                                 className="p-0.5 rounded-md hover:bg-white/10 text-cinema-text-dim hover:text-cinema-text transition-colors"
                                 title="Xóa"
                             >
                                 <X className="w-3.5 h-3.5" />
-                            </div>
+                            </span>
                         )}
                         <CalendarIcon className="w-4 h-4 text-cinema-text-muted opacity-60" />
                     </div>
@@ -375,7 +282,7 @@ export default function DatePicker({
                                 </button>
 
                                 <div className="text-sm font-display font-bold text-cinema-text tracking-wide">
-                                    {MONTHS[month]} <span className="text-cinema-gold">{year}</span>
+                                    {MONTH_NAMES[month]} <span className="text-cinema-gold">{year}</span>
                                 </div>
 
                                 <button
@@ -390,7 +297,7 @@ export default function DatePicker({
 
                             {/* Weekday Labels */}
                             <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
-                                {WEEKDAYS.map((wd, i) => (
+                                {DAYS_OF_WEEK.map((wd, i) => (
                                     <div
                                         key={wd}
                                         className={`text-[11px] font-bold uppercase ${
@@ -405,7 +312,7 @@ export default function DatePicker({
                             {/* Calendar Grid */}
                             <div className="grid grid-cols-7 gap-1 text-center">
                                 {calendarGrid.map(({ date, isCurrentMonth, dayNum }) => {
-                                    const selected = isSelectedDay(date, isCurrentMonth);
+                                    const selected = isCurrentMonth && isSameDay(date, parsedValueDate);
                                     const today = isToday(date, isCurrentMonth);
                                     const cellKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${isCurrentMonth}`;
 

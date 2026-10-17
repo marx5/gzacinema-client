@@ -37,8 +37,11 @@ export default function Login() {
             toast.success('Đăng nhập thành công!');
             const fromPath = location.state?.from?.pathname;
             const role = res.data?.role;
+            const isDisallowedAdminRedirect =
+                fromPath?.startsWith('/admin') &&
+                (role !== 'admin' && !(role === 'staff' && fromPath.replace(/\/+$/, '') === '/admin/checkin'));
             // Nếu có trang trước đó phù hợp với quyền của user thì quay lại, ngược lại điều hướng theo role
-            if (fromPath && !(role === 'staff' && fromPath.startsWith('/admin') && fromPath !== '/admin/checkin')) {
+            if (fromPath && !isDisallowedAdminRedirect) {
                 navigate(fromPath, { replace: true });
             } else {
                 navigate(getDefaultRouteByRole(role), { replace: true });

@@ -1,6 +1,9 @@
+import React, { Suspense } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
-import NotFound from '@/pages/not-found';
+import { LazyLoading } from '@/components/base';
+
+const NotFound = React.lazy(() => import('@/pages/not-found'));
 
 export default function RoleRoute({ allowedRoles }) {
     const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -15,10 +18,15 @@ export default function RoleRoute({ allowedRoles }) {
     }
 
     if (!allowedRoles.includes(user?.role)) {
-        if (user?.role === 'staff' && location.pathname === '/admin') {
+        const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
+        if (user?.role === 'staff' && normalizedPath === '/admin') {
             return <Navigate to="/admin/checkin" replace />;
         }
-        return <NotFound />;
+        return (
+            <Suspense fallback={<LazyLoading message="Đang tải trang..." />}>
+                <NotFound />
+            </Suspense>
+        );
     }
 
     return <Outlet />;

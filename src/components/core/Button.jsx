@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Button component following explicit variants & composition.
  */
