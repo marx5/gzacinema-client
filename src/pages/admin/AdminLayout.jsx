@@ -5,6 +5,7 @@ import {
     Menu,
     Home,
     User,
+    Users,
     Ticket,
     LogOut,
     ChevronDown,
@@ -27,6 +28,7 @@ const QUICK_NAV_ITEMS = [
     { label: 'Lịch Chiếu Hệ Thống', desc: 'Tạo suất chiếu mới & quản lý toàn bộ lịch chiếu', to: '/admin/showtimes', icon: Calendar, roles: ['admin'] },
     { label: 'Cụm Rạp & Phòng Chiếu', desc: 'Quản lý danh sách rạp và sơ đồ phòng chiếu', to: '/admin/cinemas', icon: Building2, roles: ['admin'] },
     { label: 'Quản Lý Đơn Đặt Vé', desc: 'Tra cứu giao dịch, trạng thái thanh toán & mã vé', to: '/admin/bookings', icon: Ticket, roles: ['admin'] },
+    { label: 'Quản Lý Người Dùng', desc: 'Quản lý tài khoản khách hàng, nhân viên & phân quyền', to: '/admin/users', icon: Users, roles: ['admin'] },
     { label: 'Soát Vé QR Code', desc: 'Quét mã QR hoặc nhập mã vé check-in tại quầy', to: '/admin/checkin', icon: QrCode, roles: ['admin', 'staff'] },
     { label: 'Trang Chủ Đặt Vé', desc: 'Chuyển sang giao diện khách hàng', to: '/', icon: Home, roles: ['admin', 'staff'] },
 ];
@@ -153,6 +155,12 @@ export default function AdminLayout() {
             return {
                 title: 'Quản Lý Đơn Đặt Vé',
                 breadcrumbs: [{ label: 'Admin', to: '/admin' }, { label: 'Đơn Đặt Vé' }]
+            };
+        }
+        if (path.startsWith('/admin/users')) {
+            return {
+                title: 'Quản Lý Người Dùng & Phân Quyền',
+                breadcrumbs: [{ label: 'Admin', to: '/admin' }, { label: 'Người Dùng' }]
             };
         }
         if (path.startsWith('/admin/checkin') || path.startsWith('/staff/checkin')) {

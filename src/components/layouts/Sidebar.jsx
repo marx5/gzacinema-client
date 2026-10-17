@@ -5,6 +5,7 @@ import {
     Calendar,
     Building2,
     Ticket,
+    Users,
     QrCode,
     X,
     Shield,
@@ -65,13 +66,20 @@ export default function AdminSidebar({
             ]
         },
         {
-            title: 'Giao dịch & Vận hành',
+            title: 'Giao dịch & Tài khoản',
             items: [
                 {
                     to: '/admin/bookings',
                     label: 'Đơn Đặt Vé',
                     shortLabel: 'Đơn Vé',
                     icon: Ticket,
+                    roles: ['admin'],
+                },
+                {
+                    to: '/admin/users',
+                    label: 'Quản Lý Người Dùng',
+                    shortLabel: 'Người Dùng',
+                    icon: Users,
                     roles: ['admin'],
                 },
                 {

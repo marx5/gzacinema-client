@@ -23,6 +23,7 @@ const AdminCinemas = React.lazy(() => import("@/pages/admin/AdminCinemas"));
 const AdminRooms = React.lazy(() => import("@/pages/admin/AdminRooms"));
 const AdminBookings = React.lazy(() => import("@/pages/admin/AdminBookings"));
 const AdminMovieShowtimes = React.lazy(() => import("@/pages/admin/AdminMovieShowtimes"));
+const AdminUsers = React.lazy(() => import("@/pages/admin/AdminUsers"));
 
 const NotFound = React.lazy(() => import("@/pages/not-found"));
 
@@ -66,6 +67,7 @@ export default function AppRouter() {
                                 <Route path="cinemas" element={<AdminCinemas />} />
                                 <Route path="cinemas/:cinemaId/rooms" element={<AdminRooms />} />
                                 <Route path="bookings" element={<AdminBookings />} />
+                                <Route path="users" element={<AdminUsers />} />
                             </Route>
                             <Route path="checkin" element={<StaffCheckIn />} />
                         </Route>
